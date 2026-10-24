@@ -271,7 +271,7 @@ model Verification {
 // ---------- Devices ----------
 
 model Device {
-  id     String     @id @default(dbgenerated("gen_random_uuid()::text"))
+  id     String     @id @default(dbgenerated("(gen_random_uuid())::text"))
   userId String     @map("user_id")
   user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   name   String     @db.VarChar(80)
@@ -306,7 +306,7 @@ model Device {
 }
 
 model Component {
-  id       String          @id @default(dbgenerated("gen_random_uuid()::text"))
+  id       String          @id @default(dbgenerated("(gen_random_uuid())::text"))
   deviceId String          @map("device_id")
   device   Device          @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   source   ComponentSource
@@ -326,7 +326,7 @@ model Component {
 
 // One SBOM per device. A new upload replaces the row (D16: only SBOM components are replaced).
 model Sbom {
-  id         String     @id @default(dbgenerated("gen_random_uuid()::text"))
+  id         String     @id @default(dbgenerated("(gen_random_uuid())::text"))
   deviceId   String     @unique @map("device_id")
   device     Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   format     SbomFormat
@@ -342,7 +342,7 @@ model Sbom {
 
 // "Version history" on device detail. Written by web when the user changes the manual version.
 model VersionChange {
-  id          String    @id @default(dbgenerated("gen_random_uuid()::text"))
+  id          String    @id @default(dbgenerated("(gen_random_uuid())::text"))
   componentId String    @map("component_id")
   component   Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
   fromVersion String?   @map("from_version")
@@ -376,7 +376,7 @@ model Vulnerability {
 }
 
 model Finding {
-  id              String        @id @default(dbgenerated("gen_random_uuid()::text"))
+  id              String        @id @default(dbgenerated("(gen_random_uuid())::text"))
   deviceId        String        @map("device_id") // denormalized from component for per-user filters
   device          Device        @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   componentId     String        @map("component_id")
@@ -447,7 +447,7 @@ model KevEntry {
 // ---------- Jobs and worker state ----------
 
 model Job {
-  id          String        @id @default(dbgenerated("gen_random_uuid()::text"))
+  id          String        @id @default(dbgenerated("(gen_random_uuid())::text"))
   type        JobType
   payload     Json // shape per type: docs/architecture-v1.md section 4, web/src/lib/contracts/jobs.ts
   status      JobStatus     @default(QUEUED)

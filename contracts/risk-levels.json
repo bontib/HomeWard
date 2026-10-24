@@ -1,0 +1,233 @@
+{
+  "levels": [
+    {
+      "cvssScore": 9.8,
+      "severity": "CRITICAL",
+      "exploited": false,
+      "level": "critical"
+    },
+    {
+      "cvssScore": 9.0,
+      "severity": "HIGH",
+      "exploited": false,
+      "level": "critical"
+    },
+    {
+      "cvssScore": 8.9,
+      "severity": "HIGH",
+      "exploited": false,
+      "level": "vulnerable"
+    },
+    {
+      "cvssScore": 7.5,
+      "severity": "HIGH",
+      "exploited": false,
+      "level": "vulnerable"
+    },
+    {
+      "cvssScore": 4.0,
+      "severity": "MEDIUM",
+      "exploited": false,
+      "level": "vulnerable"
+    },
+    {
+      "cvssScore": 3.9,
+      "severity": "LOW",
+      "exploited": false,
+      "level": "low"
+    },
+    {
+      "cvssScore": 0.0,
+      "severity": "LOW",
+      "exploited": false,
+      "level": "low"
+    },
+    {
+      "cvssScore": 2.0,
+      "severity": "LOW",
+      "exploited": true,
+      "level": "critical"
+    },
+    {
+      "cvssScore": null,
+      "severity": "CRITICAL",
+      "exploited": false,
+      "level": "critical"
+    },
+    {
+      "cvssScore": null,
+      "severity": "HIGH",
+      "exploited": false,
+      "level": "vulnerable"
+    },
+    {
+      "cvssScore": null,
+      "severity": "MEDIUM",
+      "exploited": false,
+      "level": "vulnerable"
+    },
+    {
+      "cvssScore": null,
+      "severity": "LOW",
+      "exploited": false,
+      "level": "low"
+    },
+    {
+      "cvssScore": null,
+      "severity": "UNKNOWN",
+      "exploited": false,
+      "level": "low"
+    },
+    {
+      "cvssScore": null,
+      "severity": "UNKNOWN",
+      "exploited": true,
+      "level": "critical"
+    }
+  ],
+  "deviceStatus": [
+    {
+      "name": "critical open finding wins",
+      "findings": [
+        {
+          "cvssScore": 9.8,
+          "severity": "CRITICAL",
+          "exploited": false,
+          "state": "OPEN"
+        },
+        {
+          "cvssScore": 5.0,
+          "severity": "MEDIUM",
+          "exploited": false,
+          "state": "OPEN"
+        }
+      ],
+      "componentChecks": [
+        "CHECKED"
+      ],
+      "expected": "CRITICAL"
+    },
+    {
+      "name": "exploited finding is critical",
+      "findings": [
+        {
+          "cvssScore": 3.0,
+          "severity": "LOW",
+          "exploited": true,
+          "state": "OPEN"
+        }
+      ],
+      "componentChecks": [
+        "CHECKED"
+      ],
+      "expected": "CRITICAL"
+    },
+    {
+      "name": "vulnerable open finding",
+      "findings": [
+        {
+          "cvssScore": 7.5,
+          "severity": "HIGH",
+          "exploited": false,
+          "state": "OPEN"
+        }
+      ],
+      "componentChecks": [
+        "CHECKED"
+      ],
+      "expected": "VULNERABLE"
+    },
+    {
+      "name": "only low findings means update available",
+      "findings": [
+        {
+          "cvssScore": 2.0,
+          "severity": "LOW",
+          "exploited": false,
+          "state": "OPEN"
+        }
+      ],
+      "componentChecks": [
+        "CHECKED"
+      ],
+      "expected": "UPDATE_AVAILABLE"
+    },
+    {
+      "name": "unknown severity without score is low",
+      "findings": [
+        {
+          "cvssScore": null,
+          "severity": "UNKNOWN",
+          "exploited": false,
+          "state": "OPEN"
+        }
+      ],
+      "componentChecks": [
+        "CHECKED"
+      ],
+      "expected": "UPDATE_AVAILABLE"
+    },
+    {
+      "name": "ignored findings do not count",
+      "findings": [
+        {
+          "cvssScore": 9.8,
+          "severity": "CRITICAL",
+          "exploited": false,
+          "state": "IGNORED"
+        }
+      ],
+      "componentChecks": [
+        "CHECKED"
+      ],
+      "expected": "NO_KNOWN_VULNS"
+    },
+    {
+      "name": "no findings, one part checked",
+      "findings": [],
+      "componentChecks": [
+        "CHECKED",
+        "NO_VERSION"
+      ],
+      "expected": "NO_KNOWN_VULNS"
+    },
+    {
+      "name": "no findings, nothing checked",
+      "findings": [],
+      "componentChecks": [
+        "NO_IDENTIFIER"
+      ],
+      "expected": "NOT_TRACKED"
+    },
+    {
+      "name": "no components at all",
+      "findings": [],
+      "componentChecks": [],
+      "expected": "NOT_TRACKED"
+    },
+    {
+      "name": "open finding beats not tracked",
+      "findings": [
+        {
+          "cvssScore": 5.0,
+          "severity": "MEDIUM",
+          "exploited": false,
+          "state": "OPEN"
+        }
+      ],
+      "componentChecks": [
+        "BAD_VERSION"
+      ],
+      "expected": "VULNERABLE"
+    },
+    {
+      "name": "pending components are not checked",
+      "findings": [],
+      "componentChecks": [
+        "PENDING",
+        "UNSUPPORTED"
+      ],
+      "expected": "NOT_TRACKED"
+    }
+  ]
+}

@@ -28,7 +28,7 @@ You are the backend engineer of a self-hosted vulnerability tracker for home net
 - Respect NVD rate limits (5 req / 30 s without key, 50 with key). Cache everything.
 - Run Trivy with an argument list, never through a shell string.
 - Never run migrations or change tables from the worker.
-- Derive device status after each scan: open finding → `VULNERABLE`; no CPE/purl → `NOT_TRACKED`; otherwise `NO_KNOWN_VULNS`.
+- Derive device status after each check in `worker/src/status.rs` (docs/architecture-v1.md section 5, ADR 0004): worst open finding → `CRITICAL` / `VULNERABLE` / `UPDATE_AVAILABLE`; no open finding and no `CHECKED` component → `NOT_TRACKED`; otherwise `NO_KNOWN_VULNS`. Only the worker writes `device.status`.
 
 ## Tests
 - Write tests for logic: version/CPE matching, SBOM parsing, Trivy output parsing, `src/server/` functions, Zod schemas.

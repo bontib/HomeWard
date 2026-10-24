@@ -1,0 +1,456 @@
+// HomeGuard V1 schema. Source of truth: docs/architecture-v1.md section 2.
+// Prisma owns this schema. The worker reads and writes these tables with sqlx
+// but never creates or alters them.
+// Tables and columns are snake_case (@@map / @map) so worker SQL needs no quoting.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Prisma 7: the connection URL lives in web/prisma.config.ts (env DATABASE_URL).
+}
+
+// ---------- Enums ----------
+
+enum DeviceType {
+  CONSOLE
+  PC
+  LAPTOP
+  PHONE
+  TABLET
+  TV
+  SPEAKER
+  CAMERA
+  PLUG
+  BULB
+  THERMOSTAT
+  ROUTER
+  DOORBELL
+  PRINTER
+  NAS
+  OTHER
+
+  @@map("device_type")
+}
+
+// Risk only. Whether a check is running or failed lives in CheckState (ADR 0004).
+enum DeviceStatus {
+  PENDING // created, first check not finished yet
+  CRITICAL
+  VULNERABLE
+  UPDATE_AVAILABLE
+  NO_KNOWN_VULNS
+  NOT_TRACKED
+
+  @@map("device_status")
+}
+
+enum CheckState {
+  IDLE
+  CHECKING
+  FAILED
+
+  @@map("check_state")
+}
+
+enum Severity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  UNKNOWN
+
+  @@map("severity")
+}
+
+enum FindingState {
+  OPEN
+  IGNORED
+
+  @@map("finding_state")
+}
+
+enum FindingSource {
+  NVD
+  TRIVY
+
+  @@map("finding_source")
+}
+
+enum ComponentSource {
+  MANUAL
+  SBOM
+
+  @@map("component_source")
+}
+
+// Why a component was or was not checked (D7, D8). Written by the worker.
+enum ComponentCheck {
+  PENDING // not looked at yet
+  CHECKED // matched against NVD or Trivy data
+  NO_IDENTIFIER // no CPE and no purl
+  NO_VERSION // no version given
+  BAD_VERSION // version cannot be compared ("unknown", "beta build xyz")
+  UNSUPPORTED // has a purl, but Trivy does not cover that package type
+
+  @@map("component_check")
+}
+
+enum SbomFormat {
+  CYCLONEDX
+  SPDX
+
+  @@map("sbom_format")
+}
+
+enum JobType {
+  CHECK_DEVICE
+  RECOMPUTE_STATUS
+  SEARCH_PRODUCTS
+  RESCAN_ALL
+  UPDATE_TRIVY_DB
+  IMPORT_KEV
+  DEV_NOOP
+
+  @@map("job_type")
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+
+  @@map("job_status")
+}
+
+// Machine codes only. The UI owns the plain-language text for each code.
+enum JobErrorCode {
+  NVD_UNAVAILABLE // 403/429/5xx or network after retries: "NVD is busy. We'll try again later."
+  TRIVY_FAILED
+  TRIVY_DB_MISSING
+  SBOM_INVALID
+  KEV_UNAVAILABLE
+  TIMEOUT
+  WORKER_LOST // job was RUNNING when its worker died
+  BAD_PAYLOAD
+  INTERNAL
+
+  @@map("job_error_code")
+}
+
+enum ProductSearchStatus {
+  PENDING
+  READY
+  FAILED
+
+  @@map("product_search_status")
+}
+
+enum DataSourceId {
+  NVD
+  TRIVY_DB
+  KEV
+
+  @@map("data_source_id")
+}
+
+// ---------- Better Auth (core schema, email + password) ----------
+// Regenerate with `npx @better-auth/cli generate` when the auth config changes,
+// then re-apply the @map/@@map names below.
+
+model User {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false) @map("email_verified")
+  image         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  sessions Session[]
+  accounts Account[]
+  devices  Device[]
+  jobs     Job[]
+
+  @@map("app_user") // "user" is reserved in SQL
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime @map("expires_at")
+  token     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id")
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// ---------- Devices ----------
+
+model Device {
+  id     String     @id @default(dbgenerated("(gen_random_uuid())::text"))
+  userId String     @map("user_id")
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name   String     @db.VarChar(80)
+  type   DeviceType
+  room   String?    @db.VarChar(40)
+  notes  String?    @db.VarChar(500)
+
+  // Written by the worker in one transaction at the end of every check (ADR 0004).
+  status           DeviceStatus @default(PENDING)
+  targetVersion    String?      @map("target_version") // highest fixedVersion of open findings on the manual product
+  openFindingCount Int          @default(0) @map("open_finding_count")
+  componentCount   Int          @default(0) @map("component_count")
+  uncheckedCount   Int          @default(0) @map("unchecked_count") // D7 "N parts not checked"
+  lastCheckedAt    DateTime?    @map("last_checked_at")
+
+  // Check progress. Web sets CHECKING + checkJobId when it enqueues CHECK_DEVICE;
+  // the worker sets IDLE or FAILED when that job ends. checkJobId is not a FK on purpose.
+  checkState     CheckState    @default(IDLE) @map("check_state")
+  checkJobId     String?       @map("check_job_id")
+  checkErrorCode JobErrorCode? @map("check_error_code")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  components Component[]
+  findings   Finding[]
+  sbom       Sbom?
+  jobs       Job[]
+
+  @@index([userId, createdAt])
+  @@map("device")
+}
+
+model Component {
+  id       String          @id @default(dbgenerated("(gen_random_uuid())::text"))
+  deviceId String          @map("device_id")
+  device   Device          @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  source   ComponentSource
+  name     String
+  version  String?
+  vendor   String?
+  purl     String? // SBOM components
+  cpe      String? // manual product: base CPE "cpe:2.3:o:microsoft:xbox_one_firmware"
+  check    ComponentCheck  @default(PENDING)
+
+  findings       Finding[]
+  versionChanges VersionChange[]
+
+  @@index([deviceId, source])
+  @@map("component")
+}
+
+// One SBOM per device. A new upload replaces the row (D16: only SBOM components are replaced).
+model Sbom {
+  id         String     @id @default(dbgenerated("(gen_random_uuid())::text"))
+  deviceId   String     @unique @map("device_id")
+  device     Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  format     SbomFormat
+  fileName   String     @map("file_name") @db.VarChar(255)
+  sizeBytes  Int        @map("size_bytes")
+  sha256     String     @db.Char(64)
+  content    Bytes // never select this in list or detail queries
+  uploadedAt DateTime   @default(now()) @map("uploaded_at")
+  parsedAt   DateTime?  @map("parsed_at") // null = worker must parse it into components
+
+  @@map("sbom")
+}
+
+// "Version history" on device detail. Written by web when the user changes the manual version.
+model VersionChange {
+  id          String    @id @default(dbgenerated("(gen_random_uuid())::text"))
+  componentId String    @map("component_id")
+  component   Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  fromVersion String?   @map("from_version")
+  toVersion   String?   @map("to_version")
+  changedAt   DateTime  @default(now()) @map("changed_at")
+
+  @@index([componentId, changedAt])
+  @@map("version_change")
+}
+
+// ---------- Vulnerability data (global cache, not per user) ----------
+
+model Vulnerability {
+  id                String        @id // "CVE-2024-12345", or "GHSA-…" from Trivy
+  severity          Severity
+  cvssScore         Float?        @map("cvss_score")
+  cvssVector        String?       @map("cvss_vector")
+  exploited         Boolean       @default(false) // in CISA KEV
+  summary           String
+  publishedAt       DateTime?     @map("published_at")
+  modifiedAt        DateTime?     @map("modified_at")
+  references        Json          @default("[]") @map("reference_urls") // string[] of URLs
+  nvdConfigurations Json?         @map("nvd_configurations") // raw NVD "configurations", NVD path only
+  detailsSource     FindingSource @map("details_source")
+  fetchedAt         DateTime      @map("fetched_at")
+
+  findings Finding[]
+  products CpeProductCve[]
+
+  @@map("vulnerability")
+}
+
+model Finding {
+  id              String        @id @default(dbgenerated("(gen_random_uuid())::text"))
+  deviceId        String        @map("device_id") // denormalized from component for per-user filters
+  device          Device        @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  componentId     String        @map("component_id")
+  component       Component     @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  vulnerabilityId String        @map("vulnerability_id")
+  vulnerability   Vulnerability @relation(fields: [vulnerabilityId], references: [id], onDelete: Restrict)
+  source          FindingSource
+  fixedVersion    String?       @map("fixed_version")
+  state           FindingState  @default(OPEN)
+  ignoredReason   String?       @map("ignored_reason") @db.VarChar(200)
+  ignoredAt       DateTime?     @map("ignored_at")
+  firstSeenAt     DateTime      @default(now()) @map("first_seen_at")
+  lastSeenAt      DateTime      @default(now()) @map("last_seen_at")
+
+  @@unique([componentId, vulnerabilityId])
+  @@index([deviceId, state])
+  @@index([vulnerabilityId])
+  @@map("finding")
+}
+
+// Product search cache (D6). One row per NVD product, without version.
+model CpeProduct {
+  cpe           String    @id // "cpe:2.3:o:microsoft:xbox_one_firmware"
+  part          String    @db.Char(1) // a, o, h
+  vendor        String
+  product       String
+  title         String
+  latestVersion String?   @map("latest_version") // hint only (P5-2, could)
+  fetchedAt     DateTime  @map("fetched_at")
+  cvesFetchedAt DateTime? @map("cves_fetched_at") // null = never fetched; refetch after 7 days
+
+  cves CpeProductCve[]
+
+  @@map("cpe_product")
+}
+
+model CpeProductCve {
+  cpe             String
+  product         CpeProduct    @relation(fields: [cpe], references: [cpe], onDelete: Cascade)
+  vulnerabilityId String        @map("vulnerability_id")
+  vulnerability   Vulnerability @relation(fields: [vulnerabilityId], references: [id], onDelete: Cascade)
+
+  @@id([cpe, vulnerabilityId])
+  @@index([vulnerabilityId])
+  @@map("cpe_product_cve")
+}
+
+// One row per normalized search text. Results are the ordered CPE list NVD returned.
+model ProductSearch {
+  query       String              @id @db.VarChar(60) // trimmed, lower-case, single spaces
+  status      ProductSearchStatus
+  cpes        String[]            @default([])
+  jobId       String?             @map("job_id")
+  requestedAt DateTime            @default(now()) @map("requested_at")
+  fetchedAt   DateTime?           @map("fetched_at")
+
+  @@map("product_search")
+}
+
+model KevEntry {
+  cveId      String   @id @map("cve_id")
+  dateAdded  DateTime @map("date_added") @db.Date
+  importedAt DateTime @map("imported_at")
+
+  @@map("kev_entry")
+}
+
+// ---------- Jobs and worker state ----------
+
+model Job {
+  id          String        @id @default(dbgenerated("(gen_random_uuid())::text"))
+  type        JobType
+  payload     Json // shape per type: docs/architecture-v1.md section 4, web/src/lib/contracts/jobs.ts
+  status      JobStatus     @default(QUEUED)
+  priority    Int           @default(0) // higher runs first: 20 interactive, 10 user check, 0 scheduled
+  attempts    Int           @default(0) // incremented at claim time
+  maxAttempts Int           @default(3) @map("max_attempts")
+  runAfter    DateTime      @default(now()) @map("run_after")
+  startedAt   DateTime?     @map("started_at")
+  finishedAt  DateTime?     @map("finished_at")
+  lockedBy    String?       @map("locked_by") // worker instance id
+  errorCode   JobErrorCode? @map("error_code")
+  error       String? // internal detail for logs and admins, never shown in the UI
+  userId      String?       @map("user_id") // null = system job
+  user        User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId    String?       @map("device_id")
+  device      Device?       @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  @@index([status, priority(sort: Desc), runAfter])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([deviceId])
+  @@index([type, createdAt(sort: Desc)])
+  @@map("job")
+}
+
+// Freshness of each outside data source, for Settings > Checks and stale notes.
+model DataSource {
+  id            DataSourceId  @id
+  lastAttemptAt DateTime?     @map("last_attempt_at")
+  lastSuccessAt DateTime?     @map("last_success_at")
+  dataUpdatedAt DateTime?     @map("data_updated_at") // e.g. Trivy DB UpdatedAt, KEV dateReleased
+  lastErrorCode JobErrorCode? @map("last_error_code")
+
+  @@map("data_source")
+}
+
+// Single row (id = 1), upserted by the worker every 30 s.
+model WorkerStatus {
+  id           Int       @id @default(1)
+  startedAt    DateTime  @map("started_at")
+  heartbeatAt  DateTime  @map("heartbeat_at")
+  version      String
+  rescanCron   String    @map("rescan_cron")
+  nextRescanAt DateTime? @map("next_rescan_at")
+  nvdApiKeySet Boolean   @map("nvd_api_key_set")
+
+  @@map("worker_status")
+}

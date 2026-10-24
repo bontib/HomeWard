@@ -8,7 +8,7 @@ On 2026-10-24 npm `latest` for `prisma` is `8.0.0-rc.27`, a release candidate; `
 ## Decision
 - Pin Prisma 7.10.x (`prisma`, `@prisma/client`, `@prisma/adapter-pg`) with the `prisma-client` generator and `prisma.config.ts`. Revisit Prisma 8 after V1 ships.
 - Map every model and column to snake_case with `@@map` / `@map`. The Better Auth user table is `app_user`; the CVE URL list is `reference_urls`.
-- App table IDs: `@default(dbgenerated("gen_random_uuid()::text"))`.
+- App table IDs: `@default(dbgenerated("(gen_random_uuid())::text"))`.
 - Enums are Postgres enums (`job_type`, `device_status`, …), read in Rust with `sqlx::Type`.
 - The worker uses runtime `sqlx::query` / `query_as`, never the `query!` macros, so it builds without a database. It never runs DDL (CI greps for it).
 

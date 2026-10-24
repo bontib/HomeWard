@@ -1,3 +1,5 @@
 .codegraph/
 .playwright-cli/
 .playwright-mcp/
+worker/target/
+.env

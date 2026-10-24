@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: postgresql://homeguard:homeguard@localhost:5432/homeguard
+  SHADOW_DATABASE_URL: postgresql://homeguard:homeguard@localhost:5432/shadow
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: homeguard
+          POSTGRES_PASSWORD: homeguard
+          POSTGRES_DB: homeguard
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U homeguard" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npx prisma validate
+      - run: npx prisma generate
+      - name: Migration drift check
+        run: |
+          PGPASSWORD=homeguard psql -h localhost -U homeguard -d homeguard -c 'CREATE DATABASE shadow' -c 'CREATE DATABASE homeguard_test'
+          npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm test
+        env:
+          TEST_DATABASE_URL: postgresql://homeguard:homeguard@localhost:5432/homeguard_test
+      - run: npm run build
+        env:
+          BETTER_AUTH_SECRET: ci-build-secret-ci-build-secret-0123
+
+  worker:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: homeguard
+          POSTGRES_PASSWORD: homeguard
+          POSTGRES_DB: homeguard
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U homeguard" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: worker
+      - name: No schema changes from the worker
+        run: |
+          if grep -rEn 'CREATE TABLE|ALTER TABLE|DROP TABLE|sqlx::migrate' worker/src; then
+            echo "The worker must not create or change tables. Prisma owns the schema."
+            exit 1
+          fi
+      - name: Apply migrations
+        working-directory: web
+        run: |
+          npm ci
+          npx prisma migrate deploy
+      - run: cargo fmt --check
+        working-directory: worker
+      - run: cargo clippy --all-targets -- -D warnings
+        working-directory: worker
+      - run: cargo test
+        working-directory: worker
+        env:
+          TEST_DATABASE_URL: ${{ env.DATABASE_URL }}
+          REQUIRE_DB_TESTS: "1"

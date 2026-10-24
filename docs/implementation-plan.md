@@ -514,6 +514,11 @@ The designs arrived before building, so each phase builds to them directly. This
 | `NVD_API_KEY`         | empty            | Optional, raises NVD rate limit      |
 | `RESCAN_CRON`         | `0 3 * * *`      | Daily rescan time                    |
 | `MAX_SBOM_MB`         | `20`             | Upload size limit                    |
+| `TZ`                  | `UTC`            | Time zone for `RESCAN_CRON` (worker) |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | `homeguard` | Compose `db` service credentials; must match `DATABASE_URL` |
+| `DB_PORT`             | `5432`           | Host port for the database (127.0.0.1 only) |
+
+Test-only, not in the install steps: `NVD_BASE_URL`, `KEV_URL`, `TRIVY_PATH` (point the worker at a stub or a fake Trivy), `TEST_DATABASE_URL` (database for DB tests; must have "test" in its name), `DEV_DB_PORT` (port for `npm run db:dev`, default 54329).
 
 ---
 
