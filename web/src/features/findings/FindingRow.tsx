@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "@/components/ui/ErrorText";
 import Link from "next/link";
 import { useState } from "react";
 import type { DeviceFinding, DeviceType } from "@/lib/contracts";
@@ -66,11 +67,7 @@ export function FindingRow({
                 Ignore
               </Button>
             )}
-            {ignored && error ? (
-              <span role="alert" className="t-label text-critical">
-                {errorMessage(error)}
-              </span>
-            ) : null}
+            {ignored && error ? <ErrorText>{errorMessage(error)}</ErrorText> : null}
           </div>
         }
       />

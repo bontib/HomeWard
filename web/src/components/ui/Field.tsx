@@ -1,3 +1,4 @@
+import { ErrorText } from "./ErrorText";
 import { useId, type ComponentProps, type ReactNode } from "react";
 import { cn } from "./cn";
 
@@ -44,11 +45,7 @@ function Frame({
           {help}
         </p>
       ) : null}
-      {error ? (
-        <p id={errorId} role="alert" className="t-label text-critical">
-          {error}
-        </p>
-      ) : null}
+      {error ? <ErrorText id={errorId}>{error}</ErrorText> : null}
     </div>
   );
 }

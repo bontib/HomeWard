@@ -121,11 +121,16 @@ async function resolveProduct(
   return { name: known.title, vendor: known.vendor, cpe: known.cpe };
 }
 
+export const MAX_DEVICES_PER_USER = 100;
+
 export async function createDevice(
   userId: string,
   input: CreateInput,
 ): Promise<{ device: DeviceDetail; jobId: string | null }> {
   return getDb().$transaction(async (tx) => {
+    if ((await tx.device.count({ where: { userId } })) >= MAX_DEVICES_PER_USER) {
+      throw new AppError("RATE_LIMITED", `You can track up to ${MAX_DEVICES_PER_USER} devices.`);
+    }
     const manual = await resolveProduct(tx, input.product, input.name);
     const created = await tx.device.create({
       data: {

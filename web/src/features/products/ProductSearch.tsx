@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "@/components/ui/ErrorText";
 import { useEffect, useState } from "react";
 import type { ProductOption } from "@/lib/contracts";
 import { Icon } from "@/components/ui/icons";
@@ -83,7 +84,7 @@ export function ProductSearch({
             <Spinner label="Searching" className="size-4" /> Searching…
           </p>
         ) : null}
-        {error ? <p className="t-label text-critical">{errorMessage(error)}</p> : null}
+        {error ? <ErrorText>{errorMessage(error)}</ErrorText> : null}
         {timedOut ? (
           <p className="t-body text-ink-muted">
             Search is taking longer than usual. Try again in a minute.

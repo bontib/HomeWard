@@ -22,6 +22,7 @@ import type { RiskLevel } from "./risk";
 export type ApiErrorCode =
   | "VALIDATION_FAILED" // 400
   | "UNAUTHORIZED" // 401
+  | "FORBIDDEN" // 403, request came from another site
   | "NOT_FOUND" // 404
   | "PAYLOAD_TOO_LARGE" // 413
   | "UNSUPPORTED_FILE" // 415

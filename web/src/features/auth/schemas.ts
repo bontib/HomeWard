@@ -22,6 +22,16 @@ export const ChangePasswordFormSchema = z.object({
 
 /** Only allow paths inside this app, so a link cannot send people to another site. */
 export function safeNextPath(next: string | undefined): string {
-  if (next && next.startsWith("/") && !next.startsWith("//")) return next;
-  return "/";
+  if (!next || !next.startsWith("/")) return "/";
+  // Browsers treat backslashes like slashes and drop tabs and newlines, so "/\\evil.example"
+  // and "/<TAB>/evil.example" would leave the site. No legitimate path needs these.
+  if (/[\\\u0000-\u001f\u007f]/.test(next)) return "/";
+  const base = "http://app.invalid";
+  try {
+    const url = new URL(next, base);
+    if (url.origin !== base) return "/";
+    return url.pathname + url.search;
+  } catch {
+    return "/";
+  }
 }

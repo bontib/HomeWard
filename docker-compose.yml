@@ -3,7 +3,6 @@ services:
   db:
     image: postgres:17-alpine
     restart: unless-stopped
-    env_file: .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-homeguard}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-homeguard}
@@ -22,9 +21,20 @@ services:
   web:
     image: ghcr.io/${HOMEGUARD_OWNER:-homeguard}/homeguard-web:${HOMEGUARD_TAG:-latest}
     restart: unless-stopped
-    env_file: .env
+    # Each service gets only the settings it uses, not the whole .env.
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-homeguard}:${POSTGRES_PASSWORD:-homeguard}@db:5432/${POSTGRES_DB:-homeguard}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      ALLOW_SIGNUP: ${ALLOW_SIGNUP:-true}
+      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS:-}
+      TRUSTED_PROXY: ${TRUSTED_PROXY:-false}
+      MAX_SBOM_MB: ${MAX_SBOM_MB:-20}
+      TZ: ${TZ:-UTC}
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     ports:
       - "3000:3000"
     depends_on:
@@ -40,9 +50,15 @@ services:
   worker:
     image: ghcr.io/${HOMEGUARD_OWNER:-homeguard}/homeguard-worker:${HOMEGUARD_TAG:-latest}
     restart: unless-stopped
-    env_file: .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-homeguard}:${POSTGRES_PASSWORD:-homeguard}@db:5432/${POSTGRES_DB:-homeguard}
+      NVD_API_KEY: ${NVD_API_KEY:-}
+      RESCAN_CRON: ${RESCAN_CRON:-0 3 * * *}
+      TZ: ${TZ:-UTC}
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     volumes:
       - trivy-cache:/var/cache/trivy
     depends_on:

@@ -19,6 +19,12 @@ const EnvSchema = z.object({
         .map((o) => o.trim())
         .filter(Boolean),
     ),
+  // Set to true only when a reverse proxy you control sits in front of the app and sets
+  // X-Forwarded-For. Otherwise the header is client-supplied and must not be trusted.
+  TRUSTED_PROXY: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((v) => v === "true"),
   MAX_SBOM_MB: z.coerce.number().int().min(1).max(100).default(20),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });

@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "@/components/ui/ErrorText";
 import { useRouter } from "next/navigation";
 import type { DeviceDetail } from "@/lib/contracts";
 import { Button } from "@/components/ui/Button";
@@ -40,11 +41,7 @@ export function RemoveDeviceDialog({
         </>
       }
     >
-      {error ? (
-        <p role="alert" className="t-label text-critical">
-          {errorMessage(error)}
-        </p>
-      ) : null}
+      {error ? <ErrorText>{errorMessage(error)}</ErrorText> : null}
     </Dialog>
   );
 }

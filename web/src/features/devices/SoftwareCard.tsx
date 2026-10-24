@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "@/components/ui/ErrorText";
 import { useState } from "react";
 import type { ComponentCheck, ComponentView, DeviceDetail } from "@/lib/contracts";
 import { Button } from "@/components/ui/Button";
@@ -113,11 +114,7 @@ export function SoftwareCard({ device }: { device: DeviceDetail }) {
         busy={uploading || checking}
         onFile={(file) => void upload({ id: device.id, file })}
       />
-      {error ? (
-        <p role="alert" className="t-label text-critical">
-          {errorMessage(error)}
-        </p>
-      ) : null}
+      {error ? <ErrorText>{errorMessage(error)}</ErrorText> : null}
       <SbomHelp />
 
       {device.uncheckedCount > 0 ? (

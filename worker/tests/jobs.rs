@@ -26,6 +26,27 @@ async fn queue_job(db: &TestDb, job_type: &str, payload: &str) -> String {
     .unwrap()
 }
 
+/// A device job as web writes it: payload device, `device_id` and `user_id` columns.
+async fn queue_device_job(
+    db: &TestDb,
+    job_type: &str,
+    payload_device: &str,
+    device: &str,
+    user: &str,
+) -> String {
+    sqlx::query_scalar(
+        "INSERT INTO job (type, payload, device_id, user_id)
+         VALUES ($1::job_type, jsonb_build_object('deviceId', $2::text), $3, $4) RETURNING id",
+    )
+    .bind(job_type)
+    .bind(payload_device)
+    .bind(device)
+    .bind(user)
+    .fetch_one(&db.pool)
+    .await
+    .unwrap()
+}
+
 async fn run_one(ctx: &worker::context::Context, types: &[JobType]) {
     let job = queue::claim(&ctx.pool, types, &ctx.instance_id)
         .await
@@ -269,12 +290,7 @@ async fn ignoring_a_finding_and_recomputing_lowers_the_status() {
         .execute(&db.pool)
         .await
         .unwrap();
-    queue_job(
-        &db,
-        "RECOMPUTE_STATUS",
-        &format!(r#"{{"deviceId":"{device}"}}"#),
-    )
-    .await;
+    queue_device_job(&db, "RECOMPUTE_STATUS", &device, &device, "u1").await;
 
     run_one(&ctx, &[JobType::RecomputeStatus]).await;
 
@@ -298,6 +314,51 @@ async fn recompute_for_a_deleted_device_is_done() {
     let job = queue_job(&db, "RECOMPUTE_STATUS", r#"{"deviceId":"gone"}"#).await;
     run_one(&ctx, &[JobType::RecomputeStatus]).await;
     assert_eq!(job_status(&db, &job).await, "DONE");
+    db.drop_database().await;
+}
+
+#[tokio::test]
+async fn a_payload_device_that_differs_from_the_job_device_is_refused() {
+    let Some(db) = TestDb::new().await else {
+        return;
+    };
+    let nvd = nvd_with_fixtures().await;
+    let cache = tempfile::tempdir().unwrap();
+    let ctx = context(&db, &Setup::new(&nvd.url, cache.path()));
+    db.user("u1").await;
+    db.user("u2").await;
+    let (mine, _) = db.device("u1", Some(XBOX), Some("1.0")).await;
+    let (theirs, _) = db.device("u2", Some(XBOX), Some("1.0")).await;
+    let job = queue_device_job(&db, "RECOMPUTE_STATUS", &theirs, &mine, "u1").await;
+    run_one(&ctx, &[JobType::RecomputeStatus]).await;
+    let code: String = sqlx::query_scalar("SELECT error_code::text FROM job WHERE id = $1")
+        .bind(&job)
+        .fetch_one(&db.pool)
+        .await
+        .unwrap();
+    assert_eq!(code, "BAD_PAYLOAD");
+    db.drop_database().await;
+}
+
+#[tokio::test]
+async fn a_device_that_belongs_to_another_user_is_refused() {
+    let Some(db) = TestDb::new().await else {
+        return;
+    };
+    let nvd = nvd_with_fixtures().await;
+    let cache = tempfile::tempdir().unwrap();
+    let ctx = context(&db, &Setup::new(&nvd.url, cache.path()));
+    db.user("u1").await;
+    db.user("u2").await;
+    let (theirs, _) = db.device("u2", Some(XBOX), Some("1.0")).await;
+    let job = queue_device_job(&db, "RECOMPUTE_STATUS", &theirs, &theirs, "u1").await;
+    run_one(&ctx, &[JobType::RecomputeStatus]).await;
+    let code: String = sqlx::query_scalar("SELECT error_code::text FROM job WHERE id = $1")
+        .bind(&job)
+        .fetch_one(&db.pool)
+        .await
+        .unwrap();
+    assert_eq!(code, "BAD_PAYLOAD");
     db.drop_database().await;
 }
 

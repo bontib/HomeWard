@@ -14,6 +14,12 @@ describe("RiskBadge", () => {
     }
   });
 
+  it("does not use a check mark for 'No known vulnerabilities'", () => {
+    const { container } = render(<RiskBadge level="safe" />);
+    const d = Array.from(container.querySelectorAll("path")).map((p) => p.getAttribute("d"));
+    expect(d).not.toContain("M8.5 12l2.5 2.5 4.5-5");
+  });
+
   it("allows custom text", () => {
     render(<RiskBadge level="critical">Exploited in the wild</RiskBadge>);
     expect(screen.getByText("Exploited in the wild")).toBeInTheDocument();

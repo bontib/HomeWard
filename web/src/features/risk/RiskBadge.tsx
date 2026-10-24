@@ -4,7 +4,7 @@ import { cn } from "@/components/ui/cn";
 import { LEVEL_LABEL, type DisplayLevel } from "./display";
 
 const ICON: Record<DisplayLevel, string[]> = {
-  safe: ["M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z", "M8.5 12l2.5 2.5 4.5-5"],
+  safe: ["M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0", "M8 12h8"],
   update: ["M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0", "M12 16V8", "M8.5 11.5L12 8l3.5 3.5"],
   vulnerable: ["M12 3l10 18H2z", "M12 10v4", "M12 17.5h.01"],
   critical: ["M8 2h8l6 6v8l-6 6H8l-6-6V8z", "M12 7v6", "M12 16.5h.01"],

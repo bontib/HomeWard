@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { ZodError, type ZodType } from "zod";
 import type { ApiError } from "@/lib/contracts";
 import { getSessionInfo, type SessionInfo } from "@/lib/auth";
+import { getEnv } from "@/lib/env";
 import { AppError } from "./errors";
 
 const NO_STORE = { "Cache-Control": "no-store" };
@@ -16,7 +17,33 @@ export function noContent(): NextResponse {
   return new NextResponse(null, { status: 204, headers: NO_STORE });
 }
 
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+export function allowedOrigins(env: { BETTER_AUTH_URL: string; TRUSTED_ORIGINS: string[] }) {
+  return [env.BETTER_AUTH_URL, ...env.TRUSTED_ORIGINS].map((o) => new URL(o).origin);
+}
+
+/**
+ * Blocks state-changing requests that a browser sent from another site (CSRF). SameSite=Lax
+ * already helps; this is the second layer. Requests with no Origin and no Sec-Fetch-Site
+ * (curl, scripts) pass: they cannot carry a victim's cookie.
+ */
+export function assertSameSite(req: Request, allowed: string[]): void {
+  if (SAFE_METHODS.has(req.method.toUpperCase())) return;
+  const origin = req.headers.get("origin");
+  if (origin !== null) {
+    if (!allowed.includes(origin)) throw forbidden();
+    return;
+  }
+  const site = req.headers.get("sec-fetch-site");
+  if (site !== null && site !== "same-origin" && site !== "none") throw forbidden();
+}
+
+const forbidden = () =>
+  new AppError("FORBIDDEN", "This request came from another site. Open HomeGuard directly.");
+
 export async function withSession(req: Request): Promise<SessionInfo> {
+  assertSameSite(req, allowedOrigins(getEnv()));
   const session = await getSessionInfo(req.headers);
   if (!session) throw new AppError("UNAUTHORIZED", "Sign in to continue.");
   return session;
@@ -44,6 +71,10 @@ export function parseWith<T>(schema: ZodType<T>, value: unknown): T {
 }
 
 export async function parseJsonBody<T>(req: Request, schema: ZodType<T>): Promise<T> {
+  const type = req.headers.get("content-type") ?? "";
+  if (!type.toLowerCase().startsWith("application/json")) {
+    throw new AppError("VALIDATION_FAILED", "The request body must be JSON.");
+  }
   let body: unknown;
   try {
     body = await req.json();

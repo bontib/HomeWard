@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "./ErrorText";
 import { useId, useRef, useState } from "react";
 import { cn } from "./cn";
 import { Icon } from "./icons";
@@ -79,11 +80,7 @@ export function FileDrop({
         </button>
         {hint ? <p className="t-caption">{hint}</p> : null}
       </div>
-      {error ? (
-        <p role="alert" className="t-label text-critical">
-          {error}
-        </p>
-      ) : null}
+      {error ? <ErrorText>{error}</ErrorText> : null}
     </div>
   );
 }

@@ -10,6 +10,7 @@ use thiserror::Error;
 use tracing::{debug, warn};
 
 use crate::error::JobError;
+use crate::http_limits;
 use crate::limiter::RateLimiter;
 use crate::nvd_parse::{self, NvdProduct, NvdVuln, ParseError};
 
@@ -21,6 +22,8 @@ const CPES_PER_PAGE: u64 = 200;
 /// A stop for runaway paging (100 000 CVEs for one product would be a bug).
 const MAX_CVE_PAGES: u64 = 50;
 const MAX_PRODUCTS_IN_RESULT: usize = 8;
+/// A page of 2000 CVEs is a few MB; this only stops a runaway answer.
+const MAX_RESPONSE_BYTES: usize = 64 * 1024 * 1024;
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(60);
 
 #[derive(Debug, Error)]
@@ -75,6 +78,7 @@ impl NvdClient {
         let http = reqwest::Client::builder()
             .user_agent(concat!("homeguard-worker/", env!("CARGO_PKG_VERSION")))
             .timeout(REQUEST_TIMEOUT)
+            .redirect(http_limits::same_host_redirects())
             .build()?;
         let max = if settings.api_key.is_some() {
             REQUESTS_WITH_KEY
@@ -155,7 +159,11 @@ impl NvdClient {
         };
         let status = response.status();
         if status.is_success() {
-            return match response.json::<Value>().await {
+            let body = match http_limits::read_capped(response, MAX_RESPONSE_BYTES).await {
+                Ok(body) => body,
+                Err(err) => return Attempt::Retry(format!("unreadable answer: {err}")),
+            };
+            return match serde_json::from_slice::<Value>(&body) {
                 Ok(value) => Attempt::Done(value),
                 Err(err) => Attempt::Retry(format!("unreadable answer: {err}")),
             };

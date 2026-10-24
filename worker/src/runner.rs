@@ -14,6 +14,7 @@ use crate::context::{timeout_for, Context};
 use crate::contract::{JobPayload, JobType};
 use crate::error::JobError;
 use crate::hooks;
+use crate::job_guard;
 use crate::jobs;
 use crate::queue::{self, ClaimedJob, Finished};
 
@@ -204,8 +205,18 @@ async fn execute(ctx: &Context, job: &ClaimedJob) -> Result<(), JobError> {
     let payload = JobPayload::parse(job.job_type, &job.payload)
         .map_err(|e| JobError::BadPayload(e.to_string()))?;
     match payload {
-        JobPayload::CheckDevice(p) => jobs::check_device::run(ctx, job, &p).await,
-        JobPayload::RecomputeStatus(p) => jobs::recompute_status::run(&ctx.pool, &p).await,
+        JobPayload::CheckDevice(p) => {
+            if !job_guard::check_device_job(&ctx.pool, job, &p.device_id).await? {
+                return Ok(());
+            }
+            jobs::check_device::run(ctx, job, &p).await
+        }
+        JobPayload::RecomputeStatus(p) => {
+            if !job_guard::check_device_job(&ctx.pool, job, &p.device_id).await? {
+                return Ok(());
+            }
+            jobs::recompute_status::run(&ctx.pool, &p).await
+        }
         JobPayload::SearchProducts(p) => jobs::search_products::run(ctx, &p).await,
         JobPayload::RescanAll(p) => jobs::rescan_all::run(ctx, &p).await,
         JobPayload::UpdateTrivyDb => jobs::update_trivy_db::run(ctx).await,

@@ -12,7 +12,7 @@ import { insertUser, insertVulnerability, resetTables, useTestPrisma } from "@/t
 import { startTestDb, type TestDb } from "@/test/test-db";
 import { getChecksStatus, runChecks } from "./checks";
 import { listComponents } from "./components";
-import { createDevice, getDeviceDetail } from "./devices";
+import { createDevice, getDeviceDetail, MAX_DEVICES_PER_USER } from "./devices";
 import { updateFinding } from "./findings";
 import { searchProducts } from "./products";
 import { saveSbom } from "./sboms";
@@ -66,7 +66,7 @@ const notFound = { code: "NOT_FOUND", status: 404 };
 
 describe("searchProducts", () => {
   it("queues one job for a new search and answers PENDING", async () => {
-    const result = await searchProducts("xbox");
+    const result = await searchProducts("alice", "xbox");
     expect(result).toEqual({ query: "xbox", status: "PENDING", products: [] });
     const jobs = await prisma.job.findMany();
     expect(jobs).toMatchObject([
@@ -77,8 +77,8 @@ describe("searchProducts", () => {
   });
 
   it("does not queue twice while the search is fresh and pending", async () => {
-    await searchProducts("xbox");
-    await searchProducts("xbox");
+    await searchProducts("alice", "xbox");
+    await searchProducts("alice", "xbox");
     expect(await prisma.job.count()).toBe(1);
   });
 
@@ -91,7 +91,7 @@ describe("searchProducts", () => {
       `INSERT INTO product_search (query, status, cpes, fetched_at)
        VALUES ('one', 'READY', ARRAY['cpe:2.3:o:a:two', 'cpe:2.3:o:a:one'], now())`,
     );
-    const result = await searchProducts("one");
+    const result = await searchProducts("alice", "one");
     expect(result.status).toBe("READY");
     expect(result.products.map((p) => p.title)).toEqual(["Two", "One"]);
     expect(await prisma.job.count()).toBe(0);
@@ -118,7 +118,7 @@ describe("searchProducts", () => {
       `INSERT INTO product_search (query, status, fetched_at, requested_at) VALUES ('xbox', '${status}', now(), now())`,
     );
     await db.pool.query(`UPDATE product_search SET ${set}`);
-    await searchProducts("xbox");
+    await searchProducts("alice", "xbox");
     expect(await prisma.job.count()).toBe(jobs);
   });
 
@@ -129,11 +129,29 @@ describe("searchProducts", () => {
         [JSON.stringify({ query: `word${i}` })],
       );
     }
-    await expect(searchProducts("another")).rejects.toMatchObject({
+    await expect(searchProducts("alice", "another")).rejects.toMatchObject({
       code: "RATE_LIMITED",
       status: 429,
     });
     expect(await prisma.productSearch.count()).toBe(0);
+  });
+});
+
+describe("searchProducts per-user limit", () => {
+  it("refuses a fourth waiting search from one user but not from another", async () => {
+    for (const q of ["aa", "bb", "cc"]) await searchProducts("alice", q);
+    await expect(searchProducts("alice", "dd")).rejects.toMatchObject({ code: "RATE_LIMITED" });
+    await expect(searchProducts("bob", "dd")).resolves.toMatchObject({ status: "PENDING" });
+  });
+});
+
+describe("device limit", () => {
+  it("refuses a device over the per-user cap", async () => {
+    await db.pool.query(
+      `INSERT INTO device (user_id, name, type, updated_at) SELECT 'alice', 'd' || g, 'OTHER', now() FROM generate_series(1, ${MAX_DEVICES_PER_USER}) g`,
+    );
+    await expect(newDevice("alice")).rejects.toMatchObject({ code: "RATE_LIMITED" });
+    await expect(newDevice("bob")).resolves.toBeDefined();
   });
 });
 

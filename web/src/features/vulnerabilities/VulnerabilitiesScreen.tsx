@@ -86,11 +86,9 @@ export function VulnerabilitiesScreen({ filters }: { filters: VulnerabilityFilte
 
       {data && findings.length === 0 ? (
         <EmptyState
-          icon="shield"
+          icon="info"
           title={
-            filters.state === "IGNORED"
-              ? "Nothing ignored"
-              : "No known problems at the last check."
+            filters.state === "IGNORED" ? "Nothing ignored" : "No known problems at the last check."
           }
         >
           {filtered ? "Try removing a filter. " : ""}

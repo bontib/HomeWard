@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "@/components/ui/ErrorText";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
@@ -62,11 +63,7 @@ export function ChangePasswordForm() {
         onChange={(e) => setNext(e.target.value)}
         error={errors.newPassword}
       />
-      {formError ? (
-        <p role="alert" className="t-label text-critical">
-          {formError}
-        </p>
-      ) : null}
+      {formError ? <ErrorText>{formError}</ErrorText> : null}
       {done ? (
         <p role="status" className="t-label text-safe">
           Password changed. You were signed out on your other devices.

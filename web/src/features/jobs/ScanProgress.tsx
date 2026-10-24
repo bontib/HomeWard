@@ -1,3 +1,4 @@
+import { ErrorText } from "@/components/ui/ErrorText";
 import type { JobView } from "@/lib/contracts";
 import { Spinner } from "@/components/ui/Spinner";
 import { jobErrorText } from "./messages";
@@ -11,11 +12,7 @@ export function ScanProgress({
   label?: string;
 }) {
   if (job?.status === "FAILED") {
-    return (
-      <p role="alert" className="t-label text-critical">
-        {jobErrorText(job.errorCode)}
-      </p>
-    );
+    return <ErrorText>{jobErrorText(job.errorCode)}</ErrorText>;
   }
   const retrying = job?.status === "QUEUED" && job.attempts > 0;
   return (

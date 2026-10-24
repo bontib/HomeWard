@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "@/components/ui/ErrorText";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -87,15 +88,9 @@ export function DeviceDetailScreen({ id }: { id: string }) {
 
       {checking ? <ScanProgress job={job} /> : null}
       {device.check.state === "FAILED" ? (
-        <p role="alert" className="t-label text-critical">
-          {jobErrorText(device.check.errorCode)}
-        </p>
+        <ErrorText>{jobErrorText(device.check.errorCode)}</ErrorText>
       ) : null}
-      {scanError ? (
-        <p role="alert" className="t-label text-critical">
-          {errorMessage(scanError)}
-        </p>
-      ) : null}
+      {scanError ? <ErrorText>{errorMessage(scanError)}</ErrorText> : null}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex min-w-0 flex-col gap-6">

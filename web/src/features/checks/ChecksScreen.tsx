@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "@/components/ui/ErrorText";
 import { useEffect } from "react";
 import type { DataSourceId, JobStatus, RecentCheck, SourceView } from "@/lib/contracts";
 import { Button } from "@/components/ui/Button";
@@ -28,7 +29,7 @@ function SourceRow({ id, source }: { id: DataSourceId; source: SourceView }) {
       <Td>{source.dataUpdatedAt ? timeAgo(source.dataUpdatedAt) : "Not yet"}</Td>
       <Td>
         {source.lastErrorCode ? (
-          <span className="t-label text-critical">{jobErrorText(source.lastErrorCode)}</span>
+          <ErrorText>{jobErrorText(source.lastErrorCode)}</ErrorText>
         ) : source.lastSuccessAt ? (
           <span className="inline-flex items-center gap-1">
             <Icon name="check" className="size-4" /> Working
@@ -51,11 +52,7 @@ function JobResult({ check }: { check: RecentCheck }) {
     );
   }
   if (status === "FAILED") {
-    return (
-      <span className="text-critical inline-flex items-center gap-1">
-        <Icon name="x" className="size-4" /> {jobErrorText(check.errorCode)}
-      </span>
-    );
+    return <ErrorText>{jobErrorText(check.errorCode)}</ErrorText>;
   }
   return (
     <span className="inline-flex items-center gap-2">
@@ -103,11 +100,7 @@ export function ChecksScreen() {
             {busy ? "Checking…" : "Check all now"}
           </Button>
         </div>
-        {runError ? (
-          <p role="alert" className="t-label text-critical">
-            {errorMessage(runError)}
-          </p>
-        ) : null}
+        {runError ? <ErrorText>{errorMessage(runError)}</ErrorText> : null}
         <FactList
           items={[
             {

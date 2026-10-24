@@ -5,6 +5,7 @@ import type { ApiErrorCode } from "@/lib/contracts";
 const STATUS: Record<ApiErrorCode, number> = {
   VALIDATION_FAILED: 400,
   UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
   NOT_FOUND: 404,
   PAYLOAD_TOO_LARGE: 413,
   UNSUPPORTED_FILE: 415,

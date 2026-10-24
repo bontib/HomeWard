@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "@/components/ui/ErrorText";
 import { useState } from "react";
 import { UpdateDeviceSchema, type DeviceDetail } from "@/lib/contracts";
 import { Button } from "@/components/ui/Button";
@@ -79,9 +80,7 @@ function EditForm({
         error={errors.notes ?? serverFields.notes}
       />
       {serverError && Object.keys(serverFields).length === 0 ? (
-        <p role="alert" className="t-label text-critical">
-          {errorMessage(serverError)}
-        </p>
+        <ErrorText>{errorMessage(serverError)}</ErrorText>
       ) : null}
       <div className="flex flex-wrap justify-end gap-2">
         <Button variant="secondary" onClick={onCancel}>

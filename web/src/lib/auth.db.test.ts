@@ -56,11 +56,13 @@ describe("email and password", () => {
 
 describe("scripts/reset-password.mjs", () => {
   const script = path.resolve(import.meta.dirname, "../../scripts/reset-password.mjs");
-  const run = (...args: string[]) =>
-    execFileSync("node", [script, ...args], {
+  // The password is read from stdin, never from the command line.
+  const run = (email: string, password: string | null, ...flags: string[]) =>
+    execFileSync("node", [script, email, ...flags], {
       env: { ...process.env, DATABASE_URL: db.url },
       encoding: "utf8",
-      stdio: ["ignore", "pipe", "pipe"],
+      input: password ?? "",
+      stdio: ["pipe", "pipe", "pipe"],
     });
 
   it("lets the user sign in with the new password and ends old sessions", async () => {
@@ -83,6 +85,16 @@ describe("scripts/reset-password.mjs", () => {
       auth
         .getAuth()
         .api.signInEmail({ body: { email: "reset@example.com", password: "brand-new-password" } }),
+    ).resolves.toBeDefined();
+  });
+
+  it("generates a password and prints it once", async () => {
+    await signUp("gen@example.com", "old-password-2");
+    const output = run("gen@example.com", null, "--generate");
+    const generated = /shown once\): (\S+)/.exec(output)?.[1] ?? "";
+    expect(generated.length).toBeGreaterThanOrEqual(12);
+    await expect(
+      auth.getAuth().api.signInEmail({ body: { email: "gen@example.com", password: generated } }),
     ).resolves.toBeDefined();
   });
 

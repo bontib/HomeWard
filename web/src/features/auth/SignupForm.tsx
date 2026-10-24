@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "@/components/ui/ErrorText";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
@@ -70,11 +71,7 @@ export function SignupForm() {
           onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
         />
-        {formError ? (
-          <p role="alert" className="t-label text-critical">
-            {formError}
-          </p>
-        ) : null}
+        {formError ? <ErrorText>{formError}</ErrorText> : null}
         <Button type="submit" disabled={busy} className="w-full">
           {busy ? "Creating account…" : "Create account"}
         </Button>

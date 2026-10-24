@@ -7,6 +7,7 @@ use serde_json::Value;
 use thiserror::Error;
 
 use crate::error::JobError;
+use crate::http_limits;
 
 /// The real list is about 1 MB. Anything near this size is not the list.
 const MAX_BYTES: usize = 20 * 1024 * 1024;
@@ -48,13 +49,9 @@ pub async fn fetch(http: &reqwest::Client, url: &str) -> Result<KevList, KevErro
     if !response.status().is_success() {
         return Err(KevError::Download(format!("status {}", response.status())));
     }
-    let bytes = response
-        .bytes()
+    let bytes = http_limits::read_capped(response, MAX_BYTES)
         .await
         .map_err(|e| KevError::Download(e.to_string()))?;
-    if bytes.len() > MAX_BYTES {
-        return Err(KevError::Format("the file is too large".into()));
-    }
     parse(&bytes)
 }
 

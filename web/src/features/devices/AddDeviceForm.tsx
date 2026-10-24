@@ -1,4 +1,5 @@
 "use client";
+import { ErrorText } from "@/components/ui/ErrorText";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { CreateDeviceSchema, type DeviceType, type ProductOption } from "@/lib/contracts";
@@ -54,7 +55,8 @@ function ResultCard({
 }) {
   const productName = product?.kind === "catalog" ? product.option.title : product?.name || null;
   const meta = [productName, room.trim()].filter(Boolean).join(" · ");
-  const tracked = product?.kind === "catalog";
+  // Without a version we cannot compare anything, so the device will be Not tracked.
+  const tracked = product?.kind === "catalog" && version !== null;
   return (
     <div className="rounded-card border-line bg-surface-100 shadow-rest flex max-w-sm flex-col gap-3 border p-4">
       <div className="flex items-center gap-3">
@@ -77,7 +79,9 @@ function ResultCard({
       <p className="t-caption border-line border-t pt-3">
         {tracked
           ? "We'll check this after you save."
-          : "We don't have public security data for this device yet."}
+          : product?.kind === "catalog"
+            ? "Without a version we can't check this device. It will show as Not tracked."
+            : "We don't have public security data for this device yet."}
       </p>
     </div>
   );
@@ -143,11 +147,7 @@ export function AddDeviceForm() {
 
       <SectionCard title="1. What kind of device is it?">
         <DeviceTypePicker value={type} onChange={setType} />
-        {errors.type ? (
-          <p role="alert" className="t-label text-critical">
-            {errors.type}
-          </p>
-        ) : null}
+        {errors.type ? <ErrorText>{errors.type}</ErrorText> : null}
       </SectionCard>
 
       <SectionCard title="2. Which brand and model?">
@@ -242,9 +242,7 @@ export function AddDeviceForm() {
       </section>
 
       {serverError && Object.keys(serverFields).length === 0 ? (
-        <p role="alert" className="t-label text-critical">
-          {errorMessage(serverError)}
-        </p>
+        <ErrorText>{errorMessage(serverError)}</ErrorText>
       ) : null}
 
       <div className="border-line flex flex-wrap justify-end gap-2 border-t pt-6">

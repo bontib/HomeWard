@@ -38,7 +38,7 @@ COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 COPY --from=build --chown=node:node /app/public ./public
 # Migration CLI, schema and admin scripts live apart from the standalone server:
-#   docker compose exec web node /app/tools/scripts/reset-password.mjs <email> <new-password>
+#   docker compose exec web node /app/tools/scripts/reset-password.mjs <email> --generate
 COPY --from=tools --chown=node:node /tools /app/tools
 RUN chmod +x /app/tools/scripts/docker-entrypoint.sh
 USER node

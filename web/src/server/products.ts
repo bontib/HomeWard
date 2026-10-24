@@ -7,6 +7,7 @@ import { enqueueJob } from "@/lib/jobs";
 import { AppError } from "./errors";
 
 const MAX_QUEUED_SEARCHES = 10;
+export const MAX_QUEUED_SEARCHES_PER_USER = 3;
 const MAX_PRODUCTS = 8;
 
 type Tx = Prisma.TransactionClient;
@@ -29,19 +30,25 @@ async function claimSearch(tx: Tx, query: string): Promise<boolean> {
   return rows.length > 0;
 }
 
-async function queueSearch(tx: Tx, query: string): Promise<void> {
-  const queued = await tx.job.count({ where: { type: "SEARCH_PRODUCTS", status: "QUEUED" } });
+async function queueSearch(tx: Tx, userId: string, query: string): Promise<void> {
+  const [queued, queuedByUser] = await Promise.all([
+    tx.job.count({ where: { type: "SEARCH_PRODUCTS", status: "QUEUED" } }),
+    tx.job.count({ where: { type: "SEARCH_PRODUCTS", status: "QUEUED", userId } }),
+  ]);
   // Throwing rolls back the claim above, so the next try can queue the search.
-  if (queued >= MAX_QUEUED_SEARCHES) {
+  if (queued >= MAX_QUEUED_SEARCHES || queuedByUser >= MAX_QUEUED_SEARCHES_PER_USER) {
     throw new AppError("RATE_LIMITED", "Search is busy. Try again in a minute.");
   }
-  const jobId = await enqueueJob(tx, { type: "SEARCH_PRODUCTS", payload: { query } });
+  const jobId = await enqueueJob(tx, { type: "SEARCH_PRODUCTS", payload: { query }, userId });
   await tx.productSearch.update({ where: { query }, data: { jobId } });
 }
 
-export async function searchProducts(query: string): Promise<ProductSearchResponse> {
+export async function searchProducts(
+  userId: string,
+  query: string,
+): Promise<ProductSearchResponse> {
   return getDb().$transaction(async (tx) => {
-    if (await claimSearch(tx, query)) await queueSearch(tx, query);
+    if (await claimSearch(tx, query)) await queueSearch(tx, userId, query);
 
     const search = await tx.productSearch.findUniqueOrThrow({ where: { query } });
     const known = await tx.cpeProduct.findMany({ where: { cpe: { in: search.cpes } } });

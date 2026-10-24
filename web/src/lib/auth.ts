@@ -1,6 +1,7 @@
 // Better Auth on the server. Email + password only, accounts live in Postgres via Prisma.
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -8,6 +9,13 @@ import { getDb } from "./db";
 import { getEnv } from "./env";
 
 export const MIN_PASSWORD_LENGTH = 12;
+export const MAX_NAME_LENGTH = 80;
+
+function checkName(name: unknown): void {
+  if (typeof name === "string" && name.length > MAX_NAME_LENGTH) {
+    throw new APIError("BAD_REQUEST", { message: `Use ${MAX_NAME_LENGTH} characters or fewer.` });
+  }
+}
 
 function createAuth() {
   const env = getEnv();
@@ -25,6 +33,25 @@ function createAuth() {
       customRules: {
         "/sign-in/email": { window: 60, max: 5 },
         "/sign-up/email": { window: 60, max: 5 },
+      },
+    },
+    // The client address comes from X-Forwarded-For only behind a trusted proxy. Otherwise
+    // the auth route handler removes the header (see lib/client-ip.ts).
+    advanced: {
+      ipAddress: { ipAddressHeaders: ["x-forwarded-for"] },
+    },
+    databaseHooks: {
+      user: {
+        create: {
+          before: async (user) => {
+            checkName(user.name);
+          },
+        },
+        update: {
+          before: async (user) => {
+            checkName(user.name);
+          },
+        },
       },
     },
     // nextCookies lets server actions set the session cookie.

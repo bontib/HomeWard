@@ -11,14 +11,16 @@ Runs on a NAS or any Linux box with Docker. Three containers: `web`, `worker`, `
 1. Copy `.env.example` to `.env`.
 2. Set `BETTER_AUTH_SECRET` (at least 32 random characters: `openssl rand -base64 32`),
    `BETTER_AUTH_URL` (the address you open the app at) and `HOMEGUARD_OWNER`.
-   Change the database password in `POSTGRES_PASSWORD` too.
+   Change the database password in `POSTGRES_PASSWORD` too. The default (`homeguard`) is
+   fine for a first try, but change it before anyone else can reach the machine.
 3. `docker compose up -d`
 4. Open http://localhost:3000 and create the first account.
-5. When everyone in the home has an account, set `ALLOW_SIGNUP=false` and run
-   `docker compose up -d` again.
+5. Sign-up is open to anyone who can reach the app. When everyone in the home has an
+   account, set `ALLOW_SIGNUP=false` in `.env` and run `docker compose up -d` again.
 
 If you open the app by another address (for example `http://192.168.1.20:3000`), list it in
-`TRUSTED_ORIGINS`. An optional free NVD API key (`NVD_API_KEY`) makes lookups faster.
+`TRUSTED_ORIGINS` (requests from other addresses are refused). Only set `TRUSTED_PROXY=true`
+if a reverse proxy you control sits in front. An optional free NVD API key (`NVD_API_KEY`) makes lookups faster.
 
 The first start downloads the Trivy database and the CISA list of exploited CVEs. Until
 then, SBOM checks wait and retry.
@@ -45,10 +47,14 @@ Restore into an empty database with `psql`. The `db-data` volume holds everythin
 ## Reset a password
 
 ```
-docker compose exec web node /app/tools/scripts/reset-password.mjs you@example.com a-new-password
+# Make up a password and print it once:
+docker compose exec web node /app/tools/scripts/reset-password.mjs you@example.com --generate
+# Or type your own at a hidden prompt:
+docker compose exec -it web node /app/tools/scripts/reset-password.mjs you@example.com
 ```
 
-The password needs at least 12 characters. The user is signed out everywhere.
+The password is never a command-line argument, so it stays out of your shell history.
+It needs at least 12 characters. The user is signed out everywhere.
 
 ## Daily checks
 

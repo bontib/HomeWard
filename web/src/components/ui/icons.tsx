@@ -50,6 +50,7 @@ const ICONS = {
   signOut: ["M9 4H5v16h4", "M16 8l4 4-4 4", "M20 12H9"],
   chevronLeft: ["M15 5l-7 7 7 7"],
   chevronRight: ["M9 5l7 7-7 7"],
+  alert: ["M12 3l10 18H2z", "M12 10v4", "M12 17.5h.01"],
   info: ["M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0", "M12 11v5", "M12 7.5h.01"],
   external: ["M14 4h6v6", "M20 4l-9 9", "M18 14v6H4V6h6"],
   upload: ["M12 16V4", "M7 9l5-5 5 5", "M4 16v4h16v-4"],
