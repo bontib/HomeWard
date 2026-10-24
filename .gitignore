@@ -1,1 +1,3 @@
 .codegraph/
+.playwright-cli/
+.playwright-mcp/
