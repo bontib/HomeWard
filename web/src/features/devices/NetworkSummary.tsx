@@ -31,7 +31,7 @@ export function countLevels(devices: DeviceSummary[]): LevelCounts {
 }
 
 /** One honest headline. The word "safe" is not used (decision D4). */
-export function summaryHeadline(counts: LevelCounts): string {
+export function summaryHeadline(counts: LevelCounts, hasUncheckedParts = false): string {
   if (counts.critical > 0) {
     return counts.critical === 1
       ? "1 device needs fixing now"
@@ -43,7 +43,12 @@ export function summaryHeadline(counts: LevelCounts): string {
       : `${counts.vulnerable} devices are vulnerable`;
   }
   if (counts.update > 0) return "Some updates are waiting";
-  if (counts.safe > 0) return "No known problems on your devices";
+  if (counts.safe > 0) {
+    const allChecked = counts.unknown === 0 && counts.pending === 0 && !hasUncheckedParts;
+    return allChecked
+      ? "No known problems on your devices"
+      : "No known problems on the devices we could check";
+  }
   if (counts.pending > 0) return "Checking your devices…";
   return "We can't check these devices yet";
 }
@@ -61,9 +66,10 @@ export function NetworkSummary({
     .filter((t): t is string => t !== null)
     .sort()
     .at(-1);
-  const partial =
-    counts.unknown +
-    devices.filter((d) => d.status !== "NOT_TRACKED" && d.uncheckedCount > 0).length;
+  const withUncheckedParts = devices.filter(
+    (d) => d.status !== "NOT_TRACKED" && d.uncheckedCount > 0,
+  ).length;
+  const partial = counts.unknown + withUncheckedParts;
   const visible = ORDER.filter((level) => level !== "pending" || counts.pending > 0);
   const barLabel = visible.map((l) => `${counts[l]} ${LEVEL_LABEL[l].toLowerCase()}`).join(", ");
 
@@ -77,7 +83,7 @@ export function NetworkSummary({
           {countOf(devices.length, "device", "devices")} ·{" "}
           {lastChecked ? `checked ${timeAgo(lastChecked)}` : "not checked yet"}
         </p>
-        <h2 className="t-display">{summaryHeadline(counts)}</h2>
+        <h2 className="t-display">{summaryHeadline(counts, withUncheckedParts > 0)}</h2>
       </div>
       <div
         role="img"

@@ -28,8 +28,8 @@ export function SbomHelp() {
     <Disclosure summary="How do I make this file?">
       <div className="flex flex-col gap-4">
         <p>
-          A software list (called an SBOM) is a file that names the programs on a computer. You
-          make it with a free tool called{" "}
+          A software list (called an SBOM) is a file that names the programs on a computer. You make
+          it with a free tool called{" "}
           <a href={SYFT_URL} target="_blank" rel="noopener noreferrer">
             syft
           </a>

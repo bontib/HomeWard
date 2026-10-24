@@ -1,0 +1,150 @@
+{
+  "resultsPerPage": 4,
+  "startIndex": 0,
+  "totalResults": 4,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2026-10-01T10:00:00.000",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2024-1111",
+        "sourceIdentifier": "secure@example.com",
+        "published": "2024-03-12T18:15:00.000",
+        "lastModified": "2024-04-01T12:00:00.000",
+        "vulnStatus": "Analyzed",
+        "descriptions": [
+          { "lang": "es", "value": "Una vulnerabilidad." },
+          {
+            "lang": "en",
+            "value": "A flaw in the console firmware lets a nearby attacker run code. A second sentence."
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:L/Au:N/C:P/I:P/A:P",
+                "baseScore": 7.5
+              },
+              "baseSeverity": "HIGH"
+            }
+          ],
+          "cvssMetricV31": [
+            {
+              "cvssData": {
+                "version": "3.1",
+                "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                "baseScore": 9.8,
+                "baseSeverity": "CRITICAL"
+              }
+            }
+          ]
+        },
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:microsoft:xbox_one_firmware:*:*:*:*:*:*:*:*",
+                    "versionEndExcluding": "10.0.19041.1500",
+                    "matchCriteriaId": "AAAA-1"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          { "url": "https://support.example.com/advisory/1111", "source": "secure@example.com" },
+          { "url": "https://example.org/blog/1111" }
+        ]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2024-2222",
+        "published": "2024-05-02T10:00:00.000",
+        "lastModified": "2024-05-03T10:00:00.000",
+        "vulnStatus": "Analyzed",
+        "descriptions": [{ "lang": "en", "value": "Only the exact version 10.0.1 is affected." }],
+        "metrics": {
+          "cvssMetricV30": [
+            {
+              "cvssData": {
+                "version": "3.0",
+                "vectorString": "CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N",
+                "baseScore": 4.4,
+                "baseSeverity": "MEDIUM"
+              }
+            }
+          ]
+        },
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:microsoft:xbox_one_firmware:10.0.1:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "BBBB-1"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": []
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2024-3333",
+        "published": "2024-06-01T10:00:00.000",
+        "lastModified": "2024-06-02T10:00:00.000",
+        "vulnStatus": "Awaiting Analysis",
+        "descriptions": [
+          { "lang": "en", "value": "Not scored yet, between 9.0 and 9.9 (inclusive end)." }
+        ],
+        "metrics": {},
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:microsoft:xbox_one_firmware:*:*:*:*:*:*:*:*",
+                    "versionStartIncluding": "9.0",
+                    "versionEndIncluding": "9.9"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": []
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2024-4444",
+        "published": "2024-06-10T10:00:00.000",
+        "lastModified": "2024-06-10T10:00:00.000",
+        "vulnStatus": "Rejected",
+        "descriptions": [{ "lang": "en", "value": "** REJECT ** Do not use this CVE." }],
+        "metrics": {},
+        "references": []
+      }
+    }
+  ]
+}

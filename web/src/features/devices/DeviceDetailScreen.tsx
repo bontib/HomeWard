@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FactList } from "@/components/ui/FactList";
 import { BackLink } from "@/features/common/BackLink";
-import { formatDate, timeAgo } from "@/features/common/format";
+import { formatDate, timeAgo, vendorName } from "@/features/common/format";
 import { ErrorBlock, LoadingBlock } from "@/features/common/QueryStates";
 import { FindingRow } from "@/features/findings/FindingRow";
 import { ScanProgress } from "@/features/jobs/ScanProgress";
@@ -141,7 +141,7 @@ export function DeviceDetailScreen({ id }: { id: string }) {
               items={[
                 { label: "Type", value: DEVICE_TYPES[device.type].label },
                 ...(device.product?.vendor
-                  ? [{ label: "Brand", value: device.product.vendor }]
+                  ? [{ label: "Brand", value: vendorName(device.product.vendor) }]
                   : []),
                 ...(device.product ? [{ label: "Product", value: device.product.name }] : []),
                 ...(device.room ? [{ label: "Room", value: device.room }] : []),

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { DeviceSummary } from "@/lib/contracts";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/components/ui/cn";
-import { timeAgo } from "@/features/common/format";
+import { timeAgo, vendorName } from "@/features/common/format";
 import { jobErrorText } from "@/features/jobs/messages";
 import { deviceLevel, type DisplayLevel } from "@/features/risk/display";
 import { RiskBadge } from "@/features/risk/RiskBadge";
@@ -17,7 +17,9 @@ const COUNT_COLOR: Partial<Record<DisplayLevel, string>> = {
 
 export function deviceMeta(device: Pick<DeviceSummary, "product" | "room">): string {
   const { product, room } = device;
-  return [product?.vendor, product?.name, room].filter(Boolean).join(" · ");
+  return [product?.vendor ? vendorName(product.vendor) : null, product?.name, room]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function footerText(device: DeviceSummary): string {

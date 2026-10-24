@@ -48,3 +48,31 @@ export function firstTwoSentences(text: string): string {
   if (!sentences) return text;
   return sentences.slice(0, 2).join("").trim();
 }
+
+const VENDOR_ACRONYMS: Record<string, string> = {
+  "tp-link": "TP-Link",
+  tplink: "TP-Link",
+  lg: "LG",
+  hp: "HP",
+  ibm: "IBM",
+  asus: "ASUS",
+  htc: "HTC",
+  zte: "ZTE",
+  "d-link": "D-Link",
+  qnap: "QNAP",
+  ubiquiti: "Ubiquiti",
+  amd: "AMD",
+  "3com": "3Com",
+};
+
+/** "sony" -> "Sony", "tp-link" -> "TP-Link", "western digital" -> "Western Digital". */
+export function vendorName(raw: string): string {
+  return raw
+    .trim()
+    .split(/[\s_]+/)
+    .filter(Boolean)
+    .map(
+      (word) => VENDOR_ACRONYMS[word.toLowerCase()] ?? word.charAt(0).toUpperCase() + word.slice(1),
+    )
+    .join(" ");
+}

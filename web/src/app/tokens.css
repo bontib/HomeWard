@@ -1,46 +1,91 @@
 /* HomeGuard tokens as CSS variables (from the system's tokens.json) */
 :root {
-  --surface-0: #f6f4ef; --surface-100: #ffffff; --surface-200: #eeebe4;
-  --line: #dcd7cc; --line-strong: #7f8780;
-  --ink: #1d2422; --ink-muted: #5a6360;
-  --brand: #0e6b62; --brand-hover: #0a5850; --on-brand: #ffffff; --brand-tint: #dcefeb;
-  --safe: #1b7038; --safe-tint: #e2f2e6;
-  --update: #8a5a00; --update-tint: #fbf0d6;
-  --vulnerable: #a8410c; --vulnerable-tint: #fbe7da;
-  --critical: #b3192b; --critical-tint: #fbe1e3; --on-critical: #ffffff;
-  --unknown: var(--ink-muted); --unknown-tint: var(--surface-200);
+  --surface-0: #f6f4ef;
+  --surface-100: #ffffff;
+  --surface-200: #eeebe4;
+  --line: #dcd7cc;
+  --line-strong: #7f8780;
+  --ink: #1d2422;
+  --ink-muted: #5a6360;
+  --brand: #0e6b62;
+  --brand-hover: #0a5850;
+  --on-brand: #ffffff;
+  --brand-tint: #dcefeb;
+  --safe: #1b7038;
+  --safe-tint: #e2f2e6;
+  --update: #8a5a00;
+  --update-tint: #fbf0d6;
+  --vulnerable: #a8410c;
+  --vulnerable-tint: #fbe7da;
+  --critical: #b3192b;
+  --critical-tint: #fbe1e3;
+  --on-critical: #ffffff;
+  --unknown: var(--ink-muted);
+  --unknown-tint: var(--surface-200);
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px; --space-8: 32px;
-  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px; --radius-pill: 999px;
-  --shadow-card: 0 1px 2px rgba(29,36,34,0.06), 0 2px 8px rgba(29,36,34,0.04);
-  --shadow-raised: 0 4px 16px rgba(29,36,34,0.10);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(29, 36, 34, 0.06), 0 2px 8px rgba(29, 36, 34, 0.04);
+  --shadow-raised: 0 4px 16px rgba(29, 36, 34, 0.1);
 }
 
 /* Dark: follows the OS unless the user picked a theme. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-  --surface-0: #121614; --surface-100: #1b201e; --surface-200: #242a27;
-  --line: #333a37; --line-strong: #6d7672;
-  --ink: #edf0ee; --ink-muted: #a3aca8;
-  --brand: #4fc4b4; --brand-hover: #6fd3c5; --on-brand: #0b1a17; --brand-tint: #17322e;
-  --safe: #5fcf86; --safe-tint: #183323;
-  --update: #f0bf4c; --update-tint: #33290f;
-  --vulnerable: #ff9a5c; --vulnerable-tint: #3a2116;
-  --critical: #ff7a85; --critical-tint: #3d1a1e; --on-critical: #1a0b0d;
-  --shadow-card: 0 1px 2px rgba(0,0,0,0.4);
-  --shadow-raised: 0 4px 16px rgba(0,0,0,0.5);
+    --surface-0: #121614;
+    --surface-100: #1b201e;
+    --surface-200: #242a27;
+    --line: #333a37;
+    --line-strong: #6d7672;
+    --ink: #edf0ee;
+    --ink-muted: #a3aca8;
+    --brand: #4fc4b4;
+    --brand-hover: #6fd3c5;
+    --on-brand: #0b1a17;
+    --brand-tint: #17322e;
+    --safe: #5fcf86;
+    --safe-tint: #183323;
+    --update: #f0bf4c;
+    --update-tint: #33290f;
+    --vulnerable: #ff9a5c;
+    --vulnerable-tint: #3a2116;
+    --critical: #ff7a85;
+    --critical-tint: #3d1a1e;
+    --on-critical: #1a0b0d;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-raised: 0 4px 16px rgba(0, 0, 0, 0.5);
   }
 }
 :root[data-theme="dark"] {
-  --surface-0: #121614; --surface-100: #1b201e; --surface-200: #242a27;
-  --line: #333a37; --line-strong: #6d7672;
-  --ink: #edf0ee; --ink-muted: #a3aca8;
-  --brand: #4fc4b4; --brand-hover: #6fd3c5; --on-brand: #0b1a17; --brand-tint: #17322e;
-  --safe: #5fcf86; --safe-tint: #183323;
-  --update: #f0bf4c; --update-tint: #33290f;
-  --vulnerable: #ff9a5c; --vulnerable-tint: #3a2116;
-  --critical: #ff7a85; --critical-tint: #3d1a1e; --on-critical: #1a0b0d;
-  --shadow-card: 0 1px 2px rgba(0,0,0,0.4);
-  --shadow-raised: 0 4px 16px rgba(0,0,0,0.5);
+  --surface-0: #121614;
+  --surface-100: #1b201e;
+  --surface-200: #242a27;
+  --line: #333a37;
+  --line-strong: #6d7672;
+  --ink: #edf0ee;
+  --ink-muted: #a3aca8;
+  --brand: #4fc4b4;
+  --brand-hover: #6fd3c5;
+  --on-brand: #0b1a17;
+  --brand-tint: #17322e;
+  --safe: #5fcf86;
+  --safe-tint: #183323;
+  --update: #f0bf4c;
+  --update-tint: #33290f;
+  --vulnerable: #ff9a5c;
+  --vulnerable-tint: #3a2116;
+  --critical: #ff7a85;
+  --critical-tint: #3d1a1e;
+  --on-critical: #1a0b0d;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-raised: 0 4px 16px rgba(0, 0, 0, 0.5);
 }

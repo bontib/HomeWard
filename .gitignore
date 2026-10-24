@@ -3,3 +3,5 @@
 .playwright-mcp/
 worker/target/
 .env
+test-results/
+playwright-report/

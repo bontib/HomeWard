@@ -1,0 +1,60 @@
+{
+  "resultsPerPage": 6,
+  "startIndex": 0,
+  "totalResults": 6,
+  "format": "NVD_CPE",
+  "version": "2.0",
+  "timestamp": "2026-10-01T10:00:00.000",
+  "products": [
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:o:microsoft:xbox_one_firmware:10.0.19041.1000:*:*:*:*:*:*:*",
+        "cpeNameId": "1",
+        "lastModified": "2023-01-01T00:00:00.000",
+        "created": "2020-01-01T00:00:00.000",
+        "titles": [{ "title": "Microsoft Xbox One Firmware 10.0.19041.1000", "lang": "en" }]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:o:microsoft:xbox_one_firmware:10.0.19041.1500:*:*:*:*:*:*:*",
+        "cpeNameId": "2",
+        "titles": [{ "title": "Microsoft Xbox One Firmware 10.0.19041.1500", "lang": "en" }]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": true,
+        "cpeName": "cpe:2.3:o:microsoft:xbox_360_software:2.0.17559.0:*:*:*:*:*:*:*",
+        "cpeNameId": "3",
+        "titles": [{ "title": "Microsoft Xbox 360 Software 2.0.17559.0", "lang": "en" }]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:a:microsoft:xbox:*:*:*:*:*:*:*:*",
+        "cpeNameId": "4",
+        "titles": [{ "title": "Microsoft Xbox", "lang": "en" }]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:h:microsoft:xbox_series_x:-:*:*:*:*:*:*:*",
+        "cpeNameId": "5",
+        "titles": [{ "title": "Microsoft Xbox Series X", "lang": "en" }]
+      }
+    },
+    {
+      "cpe": {
+        "deprecated": false,
+        "cpeName": "cpe:2.3:a:xbox_live_tool_project:xbox_live_tool:1.0:*:*:*:*:*:*:*",
+        "cpeNameId": "6",
+        "titles": [{ "lang": "de", "title": "Xbox Live Werkzeug 1.0" }]
+      }
+    }
+  ]
+}

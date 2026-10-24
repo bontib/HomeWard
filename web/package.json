@@ -17,7 +17,8 @@
     "test:watch": "vitest",
     "db:dev": "node scripts/dev-db.mjs",
     "db:migrate": "prisma migrate deploy",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
