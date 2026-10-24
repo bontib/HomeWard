@@ -1,0 +1,12 @@
+node_modules
+.next
+.devdb
+.env
+.env.*
+coverage
+e2e
+test-results
+playwright-report
+src/generated
+*.tsbuildinfo
+Dockerfile

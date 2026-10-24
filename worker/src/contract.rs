@@ -98,6 +98,21 @@ db_enum!(
 db_enum!(DataSourceId, "data_source_id", [Nvd, TrivyDb, Kev]);
 
 impl JobErrorCode {
+    /// The name stored in Postgres and sent to the browser.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::NvdUnavailable => "NVD_UNAVAILABLE",
+            Self::TrivyFailed => "TRIVY_FAILED",
+            Self::TrivyDbMissing => "TRIVY_DB_MISSING",
+            Self::SbomInvalid => "SBOM_INVALID",
+            Self::KevUnavailable => "KEV_UNAVAILABLE",
+            Self::Timeout => "TIMEOUT",
+            Self::WorkerLost => "WORKER_LOST",
+            Self::BadPayload => "BAD_PAYLOAD",
+            Self::Internal => "INTERNAL",
+        }
+    }
+
     /// Retrying will not help for these (architecture section 4.3).
     pub fn is_retryable(self) -> bool {
         !matches!(self, Self::SbomInvalid | Self::BadPayload)

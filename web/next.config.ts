@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   // No sharp in the image; the app shows few raster images.
   images: { unoptimized: true },
   poweredByHeader: false,
+  // Do not write agent rule files into the project.
+  agentRules: false,
 };
 
 export default nextConfig;

@@ -1224,3 +1224,18 @@ New env vars (add to `.env.example` and plan section 12): `TZ` (schedule time zo
 - Worker unit: `version.rs` table (P5-3), `cpe.rs` on NVD fixtures (P5-4), `sbom.rs` on CycloneDX and SPDX fixtures (P6-2), `trivy.rs` on Trivy JSON fixtures (P6-4), `status.rs` on `risk-levels.json`, NVD limiter timing with a mock clock, contract sync.
 - Worker DB: claim order and `SKIP LOCKED` with two connections, retry backoff, final failure hook, reaper, `CHECK_DEVICE` twice gives the same rows, ignored finding keeps its state on rerun, deleted device finishes `DONE`.
 - E2E: P9-8 paths, with the NVD/KEV stub and fake Trivy.
+
+
+---
+
+## 10. Deviations made while building (backend track)
+
+- `component."check"`: `check` is a reserved SQL word. Worker SQL must quote it (`"check"`). Prisma already does.
+- Prisma columns are `timestamp(3)` (no zone, UTC, millisecond precision). The worker opens every session with `TimeZone=UTC`, casts to `timestamptz` when it reads, and never compares rows by time: stale findings are removed by id (a `last_seen_at < now()` rule deleted fresh rows when rounding went down).
+- Product CVE cache lifetime is 24 hours, not 7 days, so the nightly rescan sees new CVEs. If NVD is down and an older list exists, the check uses the old list and `data_source` shows the error.
+- SBOM components with a CPE but no purl are `UNSUPPORTED` (NVD matching is for the manual product only). A new SBOM upload keeps component rows (and ignored findings) that are unchanged.
+- `TRUSTED_ORIGINS` (env, optional) lists extra origins for Better Auth. `TRIVY_CACHE_DIR` sets the Trivy cache.
+- `prisma` and `dotenv` moved to `dependencies` in `web/package.json` (the image runs `prisma migrate deploy`). Tools (migration CLI, scripts) live in `/app/tools` of the web image; reset password: `node /app/tools/scripts/reset-password.mjs`.
+- SBOM upload also refuses JSON nested deeper than 128 levels (same limit as the worker's parser) and reads the body in a capped stream.
+- Compose picks images with `HOMEGUARD_OWNER` and `HOMEGUARD_TAG`. `release.yml` builds and pushes both images; the Playwright run against compose (P9-8) is not in it yet.
+- Dockerfiles, compose and the release workflow could not be built or run here (no Docker).

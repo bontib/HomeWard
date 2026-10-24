@@ -3,7 +3,9 @@
 
 use std::time::Duration;
 
-use sqlx::postgres::PgPoolOptions;
+use std::str::FromStr;
+
+use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::PgPool;
 use thiserror::Error;
 use tracing::warn;
@@ -47,6 +49,16 @@ pub struct ConnectPolicy {
     pub attempt_timeout: Duration,
 }
 
+/// Prisma stores times as `timestamp` (no zone) in UTC, so every worker session runs in UTC.
+/// Otherwise `now()` would be written in the server's local time.
+pub fn options(url: &str) -> Result<PgConnectOptions, DbError> {
+    let options = PgConnectOptions::from_str(url).map_err(|source| DbError::Connect {
+        attempts: 0,
+        source,
+    })?;
+    Ok(options.options([("TimeZone", "UTC")]))
+}
+
 /// Retries because the database container may still be starting.
 pub async fn connect_with_retry(url: &str, policy: &ConnectPolicy) -> Result<PgPool, DbError> {
     let max_attempts = policy.max_attempts;
@@ -56,7 +68,7 @@ pub async fn connect_with_retry(url: &str, policy: &ConnectPolicy) -> Result<PgP
         let result = PgPoolOptions::new()
             .max_connections(policy.pool_size)
             .acquire_timeout(policy.attempt_timeout)
-            .connect(url)
+            .connect_with(options(url)?)
             .await;
         match result {
             Ok(pool) => return Ok(pool),

@@ -1,4 +1,4 @@
-# Only the database for now. web and worker services arrive in phase 9.
+# HomeGuard: web, worker and database. Run one worker only (see README).
 services:
   db:
     image: postgres:17-alpine
@@ -19,5 +19,44 @@ services:
       timeout: 3s
       retries: 10
 
+  web:
+    image: ghcr.io/${HOMEGUARD_OWNER:-homeguard}/homeguard-web:${HOMEGUARD_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-homeguard}:${POSTGRES_PASSWORD:-homeguard}@db:5432/${POSTGRES_DB:-homeguard}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  worker:
+    image: ghcr.io/${HOMEGUARD_OWNER:-homeguard}/homeguard-worker:${HOMEGUARD_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-homeguard}:${POSTGRES_PASSWORD:-homeguard}@db:5432/${POSTGRES_DB:-homeguard}
+    volumes:
+      - trivy-cache:/var/cache/trivy
+    depends_on:
+      db:
+        condition: service_healthy
+      web:
+        condition: service_healthy # web has run the migrations
+    healthcheck:
+      test: ["CMD", "/app/worker", "healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
 volumes:
   db-data:
+  trivy-cache:

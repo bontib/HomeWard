@@ -414,6 +414,15 @@ The designs show more than v1 includes. Until decided otherwise:
 | SBOM upload | **Not in the design.** Add it ourselves in the same style: on device detail ("Software on this device" card with FileDrop) and as a fifth device type option "PC with an SBOM file". |
 | Vulnerabilities list / CVE detail pages | **Not in the design.** Build them from the same parts (CveItem, Table, FactList). |
 
+### V1 changes from the design (recorded by the ux-designer)
+Full table: `docs/design/v1-changes.md`. SBOM help wording: `docs/design/sbom-howto.md`. These supersede the matching text above.
+
+- **D4 wording.** The green level says **No known vulnerabilities** (never "safe" or "up to date"); the unknown level says **Not tracked**. The headline "Safe, with updates waiting" becomes **Some updates are waiting**. The summary carries a caption: "No known vulnerabilities" only means nothing is known yet.
+- **D11 CVE titles.** Not rewritten by hand. Title is "Security problem in <product>", then the first two sentences of the NVD summary, then "Full details on NVD". Replaces "CVE titles are rewritten in plain words" in the Wording section.
+- **D15 SBOM.** No fifth device type "PC with an SBOM file". The "Software on this device" card is on every device page. Replaces the SBOM row above.
+- **D9 Add device Result card.** Shows name, product, room, version and "We'll check this after you save." No CVE count before saving. "Other" shows Not tracked.
+- Also: "Scanner" becomes Settings > Checks; no passkey, "Keep me signed in", forgot-password link, notifications, or household/roles; the "Good news" line is replaced by a "not a promise it is safe" line.
+
 ---
 
 ## 10. Phases

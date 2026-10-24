@@ -8,6 +8,17 @@ const EnvSchema = z.object({
     .enum(["true", "false"])
     .default("true")
     .transform((v) => v === "true"),
+  // Extra browser origins allowed to call the auth API, comma separated. Needed when the
+  // app is opened by a LAN address that differs from BETTER_AUTH_URL.
+  TRUSTED_ORIGINS: z
+    .string()
+    .default("")
+    .transform((v) =>
+      v
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean),
+    ),
   MAX_SBOM_MB: z.coerce.number().int().min(1).max(100).default(20),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });

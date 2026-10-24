@@ -1,0 +1,28 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "smart-hub",
+  "documentNamespace": "https://example.com/spdx/smart-hub",
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-curl",
+      "name": "curl",
+      "versionInfo": "7.68.0",
+      "supplier": "Organization: curl project",
+      "externalRefs": [
+        { "referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:deb/ubuntu/curl@7.68.0-1ubuntu2.1?arch=amd64" },
+        { "referenceCategory": "SECURITY", "referenceType": "cpe23Type", "referenceLocator": "cpe:2.3:a:haxx:curl:7.68.0:*:*:*:*:*:*:*" }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-vendor-blob",
+      "name": "vendor-blob",
+      "versionInfo": "2.0",
+      "externalRefs": [
+        { "referenceCategory": "SECURITY", "referenceType": "cpe23Type", "referenceLocator": "cpe:2.3:a:vendor:blob:2.0:*:*:*:*:*:*:*" }
+      ]
+    },
+    { "SPDXID": "SPDXRef-Package-nothing", "name": "nothing-known", "versionInfo": "NOASSERTION" }
+  ]
+}

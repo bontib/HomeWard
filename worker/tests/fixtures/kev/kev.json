@@ -1,0 +1,12 @@
+{
+  "title": "CISA Catalog of Known Exploited Vulnerabilities",
+  "catalogVersion": "2026.10.20",
+  "dateReleased": "2026-10-20T14:30:12.4Z",
+  "count": 3,
+  "vulnerabilities": [
+    { "cveID": "CVE-2024-1111", "vendorProject": "Microsoft", "product": "Xbox", "dateAdded": "2026-10-20", "shortDescription": "x", "requiredAction": "y", "dueDate": "2026-11-10" },
+    { "cveID": "CVE-2021-44228", "vendorProject": "Apache", "product": "Log4j2", "dateAdded": "2021-12-10" },
+    { "cveID": "not a cve", "dateAdded": "2021-12-10" },
+    { "cveID": "CVE-2020-0001", "dateAdded": "bad date" }
+  ]
+}

@@ -1,1 +1,121 @@
 @import "tailwindcss";
+@import "./tokens.css";
+
+/* Map design tokens to Tailwind utilities (bg-surface-100, text-ink-muted, ...). */
+@theme inline {
+  --color-surface-0: var(--surface-0);
+  --color-surface-100: var(--surface-100);
+  --color-surface-200: var(--surface-200);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-on-brand: var(--on-brand);
+  --color-brand-tint: var(--brand-tint);
+  --color-safe: var(--safe);
+  --color-safe-tint: var(--safe-tint);
+  --color-update: var(--update);
+  --color-update-tint: var(--update-tint);
+  --color-vulnerable: var(--vulnerable);
+  --color-vulnerable-tint: var(--vulnerable-tint);
+  --color-critical: var(--critical);
+  --color-critical-tint: var(--critical-tint);
+  --color-on-critical: var(--on-critical);
+  --color-unknown: var(--unknown);
+  --color-unknown-tint: var(--unknown-tint);
+
+  --radius-field: var(--radius-sm);
+  --radius-control: var(--radius-md);
+  --radius-card: var(--radius-lg);
+
+  --shadow-rest: var(--shadow-card);
+  --shadow-pop: var(--shadow-raised);
+}
+
+/* Fonts come from next/font (see layout.tsx); the tokens name them. */
+:root {
+  --font-sans: var(--font-figtree), "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+html {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--surface-0);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 22px;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Type styles from the design (section 9 of the plan). */
+@utility t-display {
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+@utility t-page {
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+@utility t-title {
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+@utility t-heading {
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+}
+@utility t-body {
+  font-size: 15px;
+  line-height: 22px;
+}
+@utility t-label {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+@utility t-caption {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+@utility t-mono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+}
