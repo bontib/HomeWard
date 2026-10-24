@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My home — HomeGuard</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="app.css">
+<script src="ds/homeguard/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0e6b62}a:hover{color:#0a5850}
+</style>
+</helmet>
+<div class="app" style="font-family: var(--font-sans); color: var(--ink);">
+
+  <aside class="side">
+    <a href="Home.dc.html" class="logo">
+      <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
+      <span style="font-size: 18px; font-weight: 700;">HomeGuard</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a href="Home.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M10 20v-6h4v6"></path></svg>My home<span class="count">3</span></a></li>
+        <li><a href="AddDevice.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add a device</a></li>
+        <li><a href="SettingsScanner.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9"></path><path d="M17 12a5 5 0 1 1-5-5"></path><path d="M12 12l7-7"></path></svg>Scanner</a></li>
+        <li><a href="SettingsNotifications.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>Notifications</a></li>
+        <li><a href="SettingsUsers.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M4.9 4.9L7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg>Settings</a></li>
+      </ul>
+    </nav>
+    <div class="side-foot">
+      <span class="avatar">B</span>
+      <div style="flex: 1; min-width: 0;">
+        <p class="t-label">Bon</p>
+        <p class="t-caption">Owner · Our home</p>
+      </div>
+      <a href="Main.dc.html" class="icon-btn" aria-label="Sign out"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap">
+
+      <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <p class="t-caption">Our home</p>
+          <h1 class="t-title" style="font-size: 28px; line-height: 34px;">Good afternoon, Bon</h1>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <x-import component-from-global-scope="HomeGuard.Button" variant="secondary">Scan my network</x-import>
+          <a href="AddDevice.dc.html" class="hg-btn hg-btn-primary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add a device</a>
+        </div>
+      </header>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <x-import component-from-global-scope="HomeGuard.NetworkSummary" counts="{{counts}}" checked="checked 2 hours ago"></x-import>
+
+        <div class="banner banner-critical">
+          <x-import component-from-global-scope="HomeGuard.RiskBadge" level="critical"></x-import>
+          <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 2px;">
+            <p class="t-heading">Front door camera needs an update now</p>
+            <p class="t-body muted">Someone on your Wi‑Fi could watch the camera feed. Updating to <span class="t-mono">v3.1.2</span> fixes it and takes about five minutes.</p>
+          </div>
+          <a href="DeviceDetail.dc.html" class="hg-btn hg-btn-danger">Fix now</a>
+        </div>
+      </div>
+
+      <section style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="devices-h">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+          <h2 class="t-heading" id="devices-h">Devices <span class="muted" style="font-weight: 500;">· 11</span></h2>
+          <div class="input-icon" style="flex: 0 1 280px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+            <label for="find" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Find a device</label>
+            <input class="input" id="find" type="search" placeholder="Find a device">
+          </div>
+        </div>
+
+        <div class="chips" role="group" aria-label="Filter devices">
+          <sc-for list="{{filters}}" as="f" hint-placeholder-count="6">
+            <button type="button" class="chip" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.label}}</button>
+          </sc-for>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;">
+          <sc-for list="{{shown}}" as="d" hint-placeholder-count="11">
+            <x-import component-from-global-scope="HomeGuard.DeviceCard" type="{{d.type}}" name="{{d.name}}" vendor="{{d.vendor}}" product="{{d.product}}" room="{{d.room}}" risk="{{d.risk}}" version="{{d.version}}" latest="{{d.latest}}" cve-count="{{d.cves}}" checked="{{d.checked}}" style="display: flex; flex-direction: column;"></x-import>
+          </sc-for>
+          <a href="AddDevice.dc.html" class="hg-add" style="text-decoration: none;">
+            <svg class="hg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+            Add a device
+            <small>Console, TV, PC or smart home</small>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1560}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { filter: 'all' }; }
+  renderVals() {
+    const devices = [
+      { type: 'camera', name: 'Front door camera', vendor: 'Reolink', product: 'E1 Outdoor', room: 'Front door', risk: 'critical', version: '3.1.0', latest: '3.1.2', cves: 2, checked: '2 hours ago', group: 'smart' },
+      { type: 'console', name: 'Living room PlayStation', vendor: 'Sony', product: 'PlayStation 5', room: 'Living room', risk: 'vulnerable', version: '24.06', latest: '25.02', cves: 1, checked: '2 hours ago', group: 'games' },
+      { type: 'plug', name: 'Kitchen smart plug', vendor: 'TP-Link', product: 'Tapo P110', room: 'Kitchen', risk: 'vulnerable', version: '1.2.3', latest: '1.3.1', cves: 1, checked: '2 hours ago', group: 'smart' },
+      { type: 'tv', name: 'Living room TV', vendor: 'Samsung', product: 'QE55Q80', room: 'Living room', risk: 'update', version: '1420.1', latest: '1460.2', cves: 0, checked: '2 hours ago', group: 'media' },
+      { type: 'pc', name: 'Study PC', vendor: 'Microsoft', product: 'Windows 11', room: 'Study', risk: 'update', version: '23H2', latest: '24H2', cves: 0, checked: '2 hours ago', group: 'computers' },
+      { type: 'console', name: "Kids' Xbox", vendor: 'Microsoft', product: 'Xbox Series S', room: "Kids' room", risk: 'safe', version: '10.0.26100', latest: '10.0.26100', cves: 0, checked: '2 hours ago', group: 'games' },
+      { type: 'router', name: 'Router', vendor: 'AVM', product: 'FRITZ!Box 7590', room: 'Hallway', risk: 'safe', version: '8.02', latest: '8.02', cves: 0, checked: '2 hours ago', group: 'smart' },
+      { type: 'laptop', name: "Bon's laptop", vendor: 'Apple', product: 'MacBook Pro', room: 'Study', risk: 'safe', version: '26.0.1', latest: '26.0.1', cves: 0, checked: '2 hours ago', group: 'computers' },
+      { type: 'bulb', name: 'Living room lights', vendor: 'Philips Hue', product: 'Bridge v2', room: 'Living room', risk: 'safe', version: '1.68', latest: '1.68', cves: 0, checked: '2 hours ago', group: 'smart' },
+      { type: 'thermostat', name: 'Thermostat', vendor: 'Tado', product: 'Smart Thermostat X', room: 'Hallway', risk: 'safe', version: '2.4.0', latest: '2.4.0', cves: 0, checked: '2 hours ago', group: 'smart' },
+      { type: 'printer', name: 'Study printer', vendor: 'HP', product: 'OfficeJet Pro 9010', room: 'Study', risk: 'unknown', version: '', latest: '', cves: 0, checked: 'Version not entered', group: 'computers' }
+    ];
+    const defs = [
+      ['all', 'All 11'], ['attention', 'Needs attention · 5'], ['games', 'Game consoles'], ['media', 'TV & media'], ['computers', 'Computers'], ['smart', 'Smart home']
+    ];
+    const f = this.state.filter;
+    const shown = devices.filter((d) => f === 'all' ? true : f === 'attention' ? ['critical', 'vulnerable', 'update'].indexOf(d.risk) >= 0 : d.group === f);
+    return {
+      counts: { critical: 1, vulnerable: 2, update: 2, safe: 5, unknown: 1 },
+      shown,
+      filters: defs.map(([id, label]) => ({ label, on: f === id ? 'true' : 'false', pick: () => this.setState({ filter: id }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

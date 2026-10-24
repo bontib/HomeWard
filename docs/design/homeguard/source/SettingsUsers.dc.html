@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Household and users — HomeGuard settings</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="app.css">
+<script src="ds/homeguard/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0e6b62}a:hover{color:#0a5850}
+</style>
+</helmet>
+<div class="app" style="font-family: var(--font-sans); color: var(--ink);">
+
+  <aside class="side">
+    <a href="Home.dc.html" class="logo">
+      <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
+      <span style="font-size: 18px; font-weight: 700;">HomeGuard</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a href="Home.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M10 20v-6h4v6"></path></svg>My home<span class="count">3</span></a></li>
+        <li><a href="AddDevice.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add a device</a></li>
+        <li><a href="SettingsScanner.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9"></path><path d="M17 12a5 5 0 1 1-5-5"></path><path d="M12 12l7-7"></path></svg>Scanner</a></li>
+        <li><a href="SettingsNotifications.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>Notifications</a></li>
+        <li><a href="SettingsUsers.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M4.9 4.9L7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg>Settings</a></li>
+      </ul>
+    </nav>
+    <div class="side-foot">
+      <span class="avatar">B</span>
+      <div style="flex: 1; min-width: 0;">
+        <p class="t-label">Bon</p>
+        <p class="t-caption">Owner · Our home</p>
+      </div>
+      <a href="Main.dc.html" class="icon-btn" aria-label="Sign out"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap" style="max-width: 880px; gap: 24px;">
+
+      <header style="display: flex; flex-direction: column; gap: 16px;">
+        <h1 class="t-title" style="font-size: 28px; line-height: 34px;">Settings</h1>
+        <nav class="subnav" aria-label="Settings sections">
+          <a href="SettingsUsers.dc.html" aria-current="page">Household &amp; users</a>
+          <a href="SettingsNotifications.dc.html">Notifications</a>
+          <a href="SettingsScanner.dc.html">Vulnerability scanner</a>
+        </nav>
+      </header>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="hh-h">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 class="t-heading" id="hh-h">Household</h2>
+          <p class="t-body muted">Everyone in the household sees the same devices.</p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
+          <div class="field" style="flex: 1 1 280px;">
+            <label for="hh-name">Household name</label>
+            <input class="input" id="hh-name" type="text" value="Our home">
+          </div>
+          <div class="field" style="flex: 1 1 200px;">
+            <label for="tz">Time zone</label>
+            <select class="input" id="tz"><option>Europe/Amsterdam</option><option>Europe/London</option></select>
+          </div>
+          <x-import component-from-global-scope="HomeGuard.Button" variant="primary">Save</x-import>
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="mem-h">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <h2 class="t-heading" id="mem-h">People <span class="muted" style="font-weight: 500;">· 3 of 6</span></h2>
+            <p class="t-body muted">Invite the people you live with so they get alerts too.</p>
+          </div>
+          <x-import component-from-global-scope="HomeGuard.Button" variant="primary">Invite someone</x-import>
+        </div>
+
+        <div class="table-box">
+          <table class="table">
+            <thead>
+              <tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">Last active</th><th scope="col"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Actions</span></th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div style="display: flex; align-items: center; gap: 12px;"><span class="avatar">B</span><div><p class="t-label" style="font-size: 15px; line-height: 22px;">Bon <span class="muted" style="font-weight: 500;">(you)</span></p><p class="t-caption">you@example.com</p></div></div></td>
+                <td><span class="pill pill-brand">Owner</span></td>
+                <td class="muted">Now</td>
+                <td style="text-align: right;"><span class="t-caption">—</span></td>
+              </tr>
+              <tr>
+                <td><div style="display: flex; align-items: center; gap: 12px;"><span class="avatar">S</span><div><p class="t-label" style="font-size: 15px; line-height: 22px;">Sam</p><p class="t-caption">sam@example.com</p></div></div></td>
+                <td><label for="role-sam" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Role for Sam</label><select class="input" id="role-sam" style="width: 140px; height: 36px;"><option selected>Admin</option><option>Member</option><option>Viewer</option></select></td>
+                <td class="muted">Yesterday</td>
+                <td style="text-align: right;"><x-import component-from-global-scope="HomeGuard.Button" variant="quiet" size="sm">Remove</x-import></td>
+              </tr>
+              <tr>
+                <td><div style="display: flex; align-items: center; gap: 12px;"><span class="avatar">N</span><div><p class="t-label" style="font-size: 15px; line-height: 22px;">Noor</p><p class="t-caption">noor@example.com</p></div></div></td>
+                <td><label for="role-noor" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Role for Noor</label><select class="input" id="role-noor" style="width: 140px; height: 36px;"><option>Admin</option><option>Member</option><option selected>Viewer</option></select></td>
+                <td class="muted">3 days ago</td>
+                <td style="text-align: right;"><x-import component-from-global-scope="HomeGuard.Button" variant="quiet" size="sm">Remove</x-import></td>
+              </tr>
+              <tr>
+                <td><div style="display: flex; align-items: center; gap: 12px;"><span class="avatar" style="background: transparent; border: 1.5px dashed var(--line-strong); box-sizing: border-box;">?</span><div><p class="t-label" style="font-size: 15px; line-height: 22px;">guest@example.com</p><p class="t-caption">Invited 2 days ago</p></div></div></td>
+                <td><span class="pill">Invite pending</span></td>
+                <td class="muted">—</td>
+                <td style="text-align: right;"><x-import component-from-global-scope="HomeGuard.Button" variant="quiet" size="sm">Resend</x-import></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="roles-h">
+        <h2 class="t-heading" id="roles-h">What each role can do</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+          <div style="display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 10px; background: var(--surface-200);">
+            <p class="t-label">Admin</p>
+            <p class="t-body muted">Add and remove devices, run scans, change settings and invite people.</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 10px; background: var(--surface-200);">
+            <p class="t-label">Member</p>
+            <p class="t-body muted">Add their own devices, mark them as updated and get alerts.</p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 10px; background: var(--surface-200);">
+            <p class="t-label">Viewer</p>
+            <p class="t-body muted">See which devices are safe. Good for kids or a house-sitter.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="padding-top: 8px; padding-bottom: 8px;" aria-label="Sign-in security">
+        <div class="switch-row">
+          <div class="text">
+            <label class="t-label" for="mfa" style="font-size: 15px; line-height: 22px;">Require two-step sign-in for admins</label>
+            <span class="t-caption">Admins confirm each sign-in with a code or passkey.</span>
+          </div>
+          <input class="switch" id="mfa" type="checkbox" role="switch" checked>
+        </div>
+        <div class="switch-row">
+          <div class="text">
+            <label class="t-label" for="approve" style="font-size: 15px; line-height: 22px;">Ask me before a new person joins</label>
+            <span class="t-caption">You approve every invite someone else sends.</span>
+          </div>
+          <input class="switch" id="approve" type="checkbox" role="switch">
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

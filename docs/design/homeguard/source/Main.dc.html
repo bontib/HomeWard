@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sign in to HomeGuard</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="app.css">
+<script src="ds/homeguard/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0e6b62}a:hover{color:#0a5850}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: var(--surface-0); color: var(--ink); font-family: var(--font-sans);">
+
+  <section style="flex: 1 1 420px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; padding: 48px; background: var(--brand-tint);">
+    <div class="logo" style="padding: 0;">
+      <span class="logo-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
+      <span style="font-size: 20px; line-height: 28px; font-weight: 700;">HomeGuard</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 24px; max-width: 460px;">
+      <h1 class="t-display" style="font-size: 40px; line-height: 46px;">See which devices in your home need an update</h1>
+      <p class="t-body muted" style="font-size: 17px; line-height: 26px;">Add your consoles, TV, PC and smart home gear once. HomeGuard checks their software against known vulnerabilities and tells you what to do, in plain words.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <x-import component-from-global-scope="HomeGuard.RiskBadge" level="safe"></x-import>
+        <x-import component-from-global-scope="HomeGuard.RiskBadge" level="update"></x-import>
+        <x-import component-from-global-scope="HomeGuard.RiskBadge" level="vulnerable"></x-import>
+        <x-import component-from-global-scope="HomeGuard.RiskBadge" level="critical"></x-import>
+      </div>
+      <div style="max-width: 360px; display: flex; flex-direction: column;">
+        <x-import component-from-global-scope="HomeGuard.DeviceCard" type="tv" name="Living room TV" vendor="Samsung" product="QE55Q80" room="Living room" risk="update" version="1420.1" latest="1460.2" cve-count="{{zero}}" checked="Checked 2 hours ago" style="display: flex; flex-direction: column;"></x-import>
+      </div>
+    </div>
+
+    <p class="t-caption">Made for households, not security teams.</p>
+  </section>
+
+  <section style="flex: 1 1 420px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 48px 24px;">
+    <form style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 24px;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <h2 class="t-title">Welcome back</h2>
+        <p class="t-body muted">Sign in to check on your home network.</p>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <label class="label" for="password">Password</label>
+          <a href="#" class="t-label" style="text-decoration: none;">Forgot password?</a>
+        </div>
+        <input class="input" id="password" type="password" autocomplete="current-password" placeholder="••••••••••">
+      </div>
+
+      <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; line-height: 22px; min-height: 44px;">
+        <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--brand); margin: 0;">
+        Keep me signed in on this device
+      </label>
+
+      <a href="Home.dc.html" class="hg-btn hg-btn-primary" style="min-height: 48px; font-size: 15px;">Sign in</a>
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <hr class="divider" style="flex: 1;">
+        <span class="t-caption">or</span>
+        <hr class="divider" style="flex: 1;">
+      </div>
+
+      <a href="Home.dc.html" class="hg-btn hg-btn-secondary" style="min-height: 48px; font-size: 15px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"></circle><path d="M2 21v-1a6 6 0 0 1 9-5.2"></path><circle cx="18" cy="15" r="2.5"></circle><path d="M18 17.5V22"></path><path d="M18 20h2"></path></svg>
+        Sign in with a passkey
+      </a>
+
+      <p class="t-body muted" style="text-align: center;">New to HomeGuard? <a href="#" style="font-weight: 600;">Create a household</a></p>
+    </form>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":860}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { zero: 0 };
+  }
+}
+</script>
+</body>
+</html>

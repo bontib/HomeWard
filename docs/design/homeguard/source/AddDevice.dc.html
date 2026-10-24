@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add a device — HomeGuard</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="app.css">
+<script src="ds/homeguard/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0e6b62}a:hover{color:#0a5850}
+</style>
+</helmet>
+<div class="app" style="font-family: var(--font-sans); color: var(--ink);">
+
+  <aside class="side">
+    <a href="Home.dc.html" class="logo">
+      <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
+      <span style="font-size: 18px; font-weight: 700;">HomeGuard</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a href="Home.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M10 20v-6h4v6"></path></svg>My home<span class="count">3</span></a></li>
+        <li><a href="AddDevice.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add a device</a></li>
+        <li><a href="SettingsScanner.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9"></path><path d="M17 12a5 5 0 1 1-5-5"></path><path d="M12 12l7-7"></path></svg>Scanner</a></li>
+        <li><a href="SettingsNotifications.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>Notifications</a></li>
+        <li><a href="SettingsUsers.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M4.9 4.9L7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg>Settings</a></li>
+      </ul>
+    </nav>
+    <div class="side-foot">
+      <span class="avatar">B</span>
+      <div style="flex: 1; min-width: 0;">
+        <p class="t-label">Bon</p>
+        <p class="t-caption">Owner · Our home</p>
+      </div>
+      <a href="Main.dc.html" class="icon-btn" aria-label="Sign out"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div style="max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px;">
+
+      <header style="display: flex; flex-direction: column; gap: 16px;">
+        <a href="Home.dc.html" class="t-label" style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px; text-decoration: none; align-self: flex-start;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>Cancel</a>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <h1 class="t-title" style="font-size: 28px; line-height: 34px;">Add a device</h1>
+          <p class="t-body muted">Tell us what it is and which version it runs. We'll check it against the vulnerability catalogue straight away.</p>
+        </div>
+        <ol class="steps" aria-label="Progress">
+          <li class="done"><span class="step-num"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Type</li>
+          <li class="done"><span class="step-num"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Brand &amp; model</li>
+          <li class="now"><span class="step-num">3</span>Version</li>
+          <li><span class="step-num">4</span>Name &amp; room</li>
+        </ol>
+      </header>
+
+      <div class="banner banner-info" style="padding: 16px 20px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: var(--brand); flex: none;"><path d="M21 12a9 9 0 1 1-9-9"></path><path d="M17 12a5 5 0 1 1-5-5"></path><path d="M12 12l7-7"></path></svg>
+        <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 2px;">
+          <p class="t-label">The scanner found 2 new devices on your Wi‑Fi</p>
+          <p class="t-caption" style="color: var(--ink);">Add them with one tap instead of typing.</p>
+        </div>
+        <a href="SettingsScanner.dc.html" class="hg-btn hg-btn-secondary hg-btn-sm">Review found devices</a>
+      </div>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="s1">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <h2 class="t-heading" id="s1">1. What kind of device is it?</h2>
+          <span class="pill pill-brand">Game console</span>
+        </div>
+        <x-import component-from-global-scope="HomeGuard.DeviceTypePicker" value="console"></x-import>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="s2">
+        <h2 class="t-heading" id="s2">2. Which brand and model?</h2>
+        <div class="input-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+          <label for="model-search" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Search the catalogue</label>
+          <input class="input" id="model-search" type="search" value="PlayStation">
+        </div>
+        <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px;">
+          <legend class="t-caption" style="margin-bottom: 8px;">4 matches in the catalogue</legend>
+          <label class="option"><input type="radio" name="model" checked><span style="flex: 1; display: flex; flex-direction: column;"><span class="t-label" style="font-size: 15px; line-height: 22px;">Sony PlayStation 5</span><span class="t-caption">Latest system software <span class="t-mono" style="font-size: 12px;">v25.02</span></span></span></label>
+          <label class="option"><input type="radio" name="model"><span style="flex: 1; display: flex; flex-direction: column;"><span class="t-label" style="font-size: 15px; line-height: 22px;">Sony PlayStation 5 Pro</span><span class="t-caption">Latest system software <span class="t-mono" style="font-size: 12px;">v25.02</span></span></span></label>
+          <label class="option"><input type="radio" name="model"><span style="flex: 1; display: flex; flex-direction: column;"><span class="t-label" style="font-size: 15px; line-height: 22px;">Sony PlayStation 4</span><span class="t-caption">Latest system software <span class="t-mono" style="font-size: 12px;">v12.50</span></span></span></label>
+          <label class="option"><input type="radio" name="model"><span style="flex: 1; display: flex; flex-direction: column;"><span class="t-label" style="font-size: 15px; line-height: 22px;">Sony PlayStation Portal</span><span class="t-caption">Latest system software <span class="t-mono" style="font-size: 12px;">v6.0</span></span></span></label>
+        </fieldset>
+        <p class="help">Can't find it? <a href="#" style="font-weight: 600;">Add it as "Other"</a> and we'll match it later.</p>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px; border-color: var(--brand);" aria-labelledby="s3">
+        <h2 class="t-heading" id="s3">3. Which version is installed?</h2>
+        <div class="field" style="max-width: 320px;">
+          <label for="ver">System software version</label>
+          <input class="input" id="ver" type="text" value="25.02" style="font-family: var(--font-mono); font-size: 15px;">
+          <p class="help">Type it exactly as shown on the device, without the "v".</p>
+        </div>
+        <details open style="background: var(--surface-200); border-radius: 10px; padding: 12px 16px;">
+          <summary class="t-label" style="cursor: pointer; color: var(--brand); min-height: 24px;">Where do I find this on a PlayStation 5?</summary>
+          <p class="t-body" style="margin-top: 8px;">On the home screen open <b>Settings → System → System software → Console information</b>. The version is next to "System software".</p>
+        </details>
+        <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; line-height: 22px; min-height: 44px;">
+          <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--brand); margin: 0;">
+          I don't know — let the scanner try to find it
+        </label>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="s4">
+        <h2 class="t-heading" id="s4">4. What do you call it?</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+          <div class="field" style="flex: 1 1 240px;">
+            <label for="dname">Name</label>
+            <input class="input" id="dname" type="text" value="Bedroom PlayStation">
+          </div>
+          <div class="field" style="flex: 1 1 200px;">
+            <label for="room">Room</label>
+            <select class="input" id="room">
+              <option>Bedroom</option><option>Living room</option><option>Kids' room</option><option>Study</option><option>Kitchen</option><option>Add a room…</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section style="display: flex; flex-direction: column; gap: 12px;" aria-labelledby="s5">
+        <h2 class="t-heading" id="s5">Result</h2>
+        <div style="max-width: 360px; display: flex; flex-direction: column;">
+          <x-import component-from-global-scope="HomeGuard.DeviceCard" type="console" name="Bedroom PlayStation" vendor="Sony" product="PlayStation 5" room="Bedroom" risk="safe" version="25.02" latest="25.02" cve-count="{{zero}}" checked="Checked just now" style="display: flex; flex-direction: column;"></x-import>
+        </div>
+        <p class="t-body muted">Good news: this version has no known vulnerabilities. We'll let you know if that changes.</p>
+      </section>
+
+      <footer style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding-top: 16px; border-top: 1px solid var(--line);">
+        <a href="Home.dc.html" class="hg-btn hg-btn-secondary">Cancel</a>
+        <a href="Home.dc.html" class="hg-btn hg-btn-primary">Add device</a>
+      </footer>
+
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { zero: 0 };
+  }
+}
+</script>
+</body>
+</html>

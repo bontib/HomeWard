@@ -1,0 +1,24 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-10-24T10:56:00Z"},
+  "title": "HomeGuard home network app",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1280, "h": 860, "title": "Sign in", "expand": "fill", "is_interactive": true},
+    "Home.dc.html": {"x": 1360, "y": 0, "w": 1280, "h": 1560, "title": "My home — devices", "expand": "fill", "is_interactive": true},
+    "DeviceDetail.dc.html": {"x": 2720, "y": 0, "w": 1280, "h": 1500, "title": "Device detail", "expand": "fill", "is_interactive": true},
+    "AddDevice.dc.html": {"x": 4080, "y": 0, "w": 1280, "h": 1900, "title": "Add a device", "expand": "fill", "is_interactive": true},
+    "SettingsUsers.dc.html": {"x": 0, "y": 2400, "w": 1280, "h": 1200, "title": "Settings — household & users", "expand": "fill", "is_interactive": true},
+    "SettingsNotifications.dc.html": {"x": 1360, "y": 2400, "w": 1280, "h": 1300, "title": "Settings — notifications", "expand": "fill", "is_interactive": true},
+    "SettingsScanner.dc.html": {"x": 2720, "y": 2400, "w": 1280, "h": 1400, "title": "Settings — vulnerability scanner", "expand": "fill", "is_interactive": true}
+  },
+  "order": ["Main.dc.html", "Home.dc.html", "DeviceDetail.dc.html", "AddDevice.dc.html", "SettingsUsers.dc.html", "SettingsNotifications.dc.html", "SettingsScanner.dc.html"],
+  "notes": {
+    "rowCore": {"x": 0, "y": -300, "text": "Core flow: sign in → my home → device → add a device", "kind": "title1", "maxW": 5360},
+    "rowSettings": {"x": 0, "y": 2100, "text": "Settings: users, notifications, scanner", "kind": "title1", "maxW": 4000}
+  },
+  "designSystems": [
+    {"title": "HomeGuard", "namespace": "homeguard", "artifact": "https://claude.ai/code/artifact/dcd34d40-b5f3-4f6f-9f7f-5e59456a344f", "version": "1792838632-cc70", "copiedAt": "2026-10-24T10:56:00Z"}
+  ]
+}

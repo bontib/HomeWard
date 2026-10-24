@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vulnerability scanner — HomeGuard settings</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="app.css">
+<script src="ds/homeguard/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0e6b62}a:hover{color:#0a5850}
+</style>
+</helmet>
+<div class="app" style="font-family: var(--font-sans); color: var(--ink);">
+
+  <aside class="side">
+    <a href="Home.dc.html" class="logo">
+      <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
+      <span style="font-size: 18px; font-weight: 700;">HomeGuard</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a href="Home.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M10 20v-6h4v6"></path></svg>My home<span class="count">3</span></a></li>
+        <li><a href="AddDevice.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add a device</a></li>
+        <li><a href="SettingsScanner.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9"></path><path d="M17 12a5 5 0 1 1-5-5"></path><path d="M12 12l7-7"></path></svg>Scanner</a></li>
+        <li><a href="SettingsNotifications.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>Notifications</a></li>
+        <li><a href="SettingsUsers.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M4.9 4.9L7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg>Settings</a></li>
+      </ul>
+    </nav>
+    <div class="side-foot">
+      <span class="avatar">B</span>
+      <div style="flex: 1; min-width: 0;">
+        <p class="t-label">Bon</p>
+        <p class="t-caption">Owner · Our home</p>
+      </div>
+      <a href="Main.dc.html" class="icon-btn" aria-label="Sign out"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap" style="max-width: 880px; gap: 24px;">
+
+      <header style="display: flex; flex-direction: column; gap: 16px;">
+        <h1 class="t-title" style="font-size: 28px; line-height: 34px;">Settings</h1>
+        <nav class="subnav" aria-label="Settings sections">
+          <a href="SettingsUsers.dc.html">Household &amp; users</a>
+          <a href="SettingsNotifications.dc.html">Notifications</a>
+          <a href="SettingsScanner.dc.html" aria-current="page">Vulnerability scanner</a>
+        </nav>
+      </header>
+
+      <section class="card" style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px; background: var(--brand-tint); border-color: transparent;" aria-labelledby="st-h">
+        <span style="display: grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: var(--surface-100); color: var(--brand); flex: none;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9"></path><path d="M17 12a5 5 0 1 1-5-5"></path><path d="M12 12l7-7"></path></svg></span>
+        <div style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: center; gap: 8px;"><span class="hg-dot hg-fill-safe" aria-hidden="true"></span><h2 class="t-heading" id="st-h">The scanner is on</h2></div>
+          <p class="t-body">Last scan 2 hours ago found 11 devices and 3 problems. Next scan tonight at 03:00.</p>
+          <p class="t-caption" style="color: var(--ink);">Catalogue updated 14 minutes ago</p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <x-import component-from-global-scope="HomeGuard.Button" variant="secondary">Pause</x-import>
+          <x-import component-from-global-scope="HomeGuard.Button" variant="primary">Scan now</x-import>
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 12px;" aria-labelledby="found-h">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 class="t-heading" id="found-h">New on your network <span class="muted" style="font-weight: 500;">· 2</span></h2>
+          <p class="t-body muted">The scanner saw these but they aren't in your home yet.</p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line);">
+          <x-import component-from-global-scope="HomeGuard.DeviceIcon" type="speaker"></x-import>
+          <div style="flex: 1 1 220px; min-width: 0;">
+            <p class="t-label" style="font-size: 15px; line-height: 22px;">Probably a Sonos speaker</p>
+            <p class="t-caption"><span class="t-mono" style="font-size: 12px;">192.168.1.57</span> · first seen today</p>
+          </div>
+          <x-import component-from-global-scope="HomeGuard.Button" variant="quiet" size="sm">Ignore</x-import>
+          <a href="AddDevice.dc.html" class="hg-btn hg-btn-secondary hg-btn-sm">Add to my home</a>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line);">
+          <x-import component-from-global-scope="HomeGuard.DeviceIcon" type="other"></x-import>
+          <div style="flex: 1 1 220px; min-width: 0;">
+            <p class="t-label" style="font-size: 15px; line-height: 22px;">Unknown device</p>
+            <p class="t-caption"><span class="t-mono" style="font-size: 12px;">192.168.1.83</span> · first seen 3 days ago</p>
+          </div>
+          <x-import component-from-global-scope="HomeGuard.Button" variant="quiet" size="sm">Ignore</x-import>
+          <a href="AddDevice.dc.html" class="hg-btn hg-btn-secondary hg-btn-sm">Tell us what it is</a>
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 20px;" aria-labelledby="sch-h">
+        <h2 class="t-heading" id="sch-h">Schedule</h2>
+        <fieldset class="seg">
+          <legend class="label" style="margin-bottom: 8px;">How often</legend>
+          <label><input type="radio" name="freq" checked>Every night</label>
+          <label><input type="radio" name="freq">Once a week</label>
+          <label><input type="radio" name="freq">Only when I ask</label>
+        </fieldset>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+          <div class="field" style="flex: 0 1 160px;"><label for="at">At</label><input class="input" id="at" type="time" value="03:00"></div>
+          <div class="field" style="flex: 1 1 260px;">
+            <span class="label">Also scan</span>
+            <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; line-height: 22px; min-height: 44px;"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--brand); margin: 0;">When a new device joins the Wi‑Fi</label>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="depth-h">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 class="t-heading" id="depth-h">How deep to look</h2>
+          <p class="t-body muted">Deeper scans find more but take longer and may wake sleeping devices.</p>
+        </div>
+        <fieldset style="border: 0; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px;">
+          <legend style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Scan depth</legend>
+          <label class="option" style="align-items: flex-start;"><input type="radio" name="depth" style="margin-top: 2px;"><span style="display: flex; flex-direction: column; gap: 2px;"><span class="t-label" style="font-size: 15px; line-height: 22px;">Light</span><span class="t-caption">Checks the versions you entered. About 1 minute.</span></span></label>
+          <label class="option" style="align-items: flex-start;"><input type="radio" name="depth" checked style="margin-top: 2px;"><span style="display: flex; flex-direction: column; gap: 2px;"><span class="t-label" style="font-size: 15px; line-height: 22px;">Standard <span class="pill pill-brand" style="margin-left: 4px;">Recommended</span></span><span class="t-caption">Also finds devices and reads their versions. About 5 minutes.</span></span></label>
+          <label class="option" style="align-items: flex-start;"><input type="radio" name="depth" style="margin-top: 2px;"><span style="display: flex; flex-direction: column; gap: 2px;"><span class="t-label" style="font-size: 15px; line-height: 22px;">Deep</span><span class="t-caption">Also checks open ports and default passwords. Up to 20 minutes.</span></span></label>
+        </fieldset>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="src-h">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 class="t-heading" id="src-h">Vulnerability catalogue</h2>
+          <p class="t-body muted">Where we look up known problems for your devices.</p>
+        </div>
+        <div class="table-box">
+          <table class="table">
+            <thead><tr><th scope="col">Source</th><th scope="col">Updated</th><th scope="col">Use</th></tr></thead>
+            <tbody>
+              <tr><td><p class="t-label" style="font-size: 15px; line-height: 22px;">National Vulnerability Database</p><p class="t-caption">All published CVEs and their scores</p></td><td class="muted">14 min ago</td><td><label for="src1" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Use National Vulnerability Database</label><input class="switch" id="src1" type="checkbox" role="switch" checked></td></tr>
+              <tr><td><p class="t-label" style="font-size: 15px; line-height: 22px;">Known exploited vulnerabilities</p><p class="t-caption">Flaws attackers are using right now</p></td><td class="muted">14 min ago</td><td><label for="src2" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Use known exploited list</label><input class="switch" id="src2" type="checkbox" role="switch" checked></td></tr>
+              <tr><td><p class="t-label" style="font-size: 15px; line-height: 22px;">Vendor security notices</p><p class="t-caption">Sony, Microsoft, Samsung and 40 more</p></td><td class="muted">1 hour ago</td><td><label for="src3" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Use vendor security notices</label><input class="switch" id="src3" type="checkbox" role="switch" checked></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="net-h">
+        <h2 class="t-heading" id="net-h">Network</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+          <div class="field" style="flex: 1 1 240px;">
+            <label for="range">Address range</label>
+            <input class="input" id="range" type="text" value="192.168.1.0/24" style="font-family: var(--font-mono); font-size: 15px;">
+            <p class="help">Filled in from your router. Change only if you have more than one network.</p>
+          </div>
+          <div class="field" style="flex: 1 1 240px;">
+            <label for="skip">Don't scan these devices</label>
+            <select class="input" id="skip"><option>None</option><option>Study printer</option></select>
+            <p class="help">Useful for devices that act up when scanned.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 12px;" aria-labelledby="hist-h">
+        <h2 class="t-heading" id="hist-h">Recent scans</h2>
+        <div class="table-box">
+          <table class="table">
+            <thead><tr><th scope="col">When</th><th scope="col">Devices</th><th scope="col">Result</th><th scope="col">Took</th></tr></thead>
+            <tbody>
+              <tr><td>Today, 10:48</td><td>11</td><td><x-import component-from-global-scope="HomeGuard.RiskBadge" level="critical">1 new critical</x-import></td><td class="t-mono">4m 12s</td></tr>
+              <tr><td>Today, 03:00</td><td>11</td><td class="muted">No change</td><td class="t-mono">4m 03s</td></tr>
+              <tr><td>Yesterday, 03:00</td><td>10</td><td><x-import component-from-global-scope="HomeGuard.RiskBadge" level="update">1 new device</x-import></td><td class="t-mono">3m 58s</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <x-import component-from-global-scope="HomeGuard.Button" variant="secondary">Cancel</x-import>
+        <x-import component-from-global-scope="HomeGuard.Button" variant="primary">Save changes</x-import>
+      </div>
+
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

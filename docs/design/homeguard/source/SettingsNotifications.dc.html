@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Notifications — HomeGuard settings</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="app.css">
+<script src="ds/homeguard/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0e6b62}a:hover{color:#0a5850}
+</style>
+</helmet>
+<div class="app" style="font-family: var(--font-sans); color: var(--ink);">
+
+  <aside class="side">
+    <a href="Home.dc.html" class="logo">
+      <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
+      <span style="font-size: 18px; font-weight: 700;">HomeGuard</span>
+    </a>
+    <nav aria-label="Main">
+      <ul class="nav">
+        <li><a href="Home.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M10 20v-6h4v6"></path></svg>My home<span class="count">3</span></a></li>
+        <li><a href="AddDevice.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add a device</a></li>
+        <li><a href="SettingsScanner.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9"></path><path d="M17 12a5 5 0 1 1-5-5"></path><path d="M12 12l7-7"></path></svg>Scanner</a></li>
+        <li><a href="SettingsNotifications.dc.html" aria-current="page"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>Notifications</a></li>
+        <li><a href="SettingsUsers.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M4.9 4.9L7 7M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"></path></svg>Settings</a></li>
+      </ul>
+    </nav>
+    <div class="side-foot">
+      <span class="avatar">B</span>
+      <div style="flex: 1; min-width: 0;">
+        <p class="t-label">Bon</p>
+        <p class="t-caption">Owner · Our home</p>
+      </div>
+      <a href="Main.dc.html" class="icon-btn" aria-label="Sign out"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="wrap" style="max-width: 880px; gap: 24px;">
+
+      <header style="display: flex; flex-direction: column; gap: 16px;">
+        <h1 class="t-title" style="font-size: 28px; line-height: 34px;">Settings</h1>
+        <nav class="subnav" aria-label="Settings sections">
+          <a href="SettingsUsers.dc.html">Household &amp; users</a>
+          <a href="SettingsNotifications.dc.html" aria-current="page">Notifications</a>
+          <a href="SettingsScanner.dc.html">Vulnerability scanner</a>
+        </nav>
+      </header>
+
+      <section style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; padding: 8px 0;" aria-labelledby="prev-h">
+        <div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px;">
+          <h2 class="t-heading" id="prev-h">This is what an alert looks like</h2>
+          <p class="t-body muted">Always the device's name, how bad it is and one thing to do.</p>
+        </div>
+        <div style="flex: 1 1 340px; max-width: 400px; display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: var(--surface-100); box-shadow: var(--shadow-raised);">
+          <span class="logo-mark" style="width: 32px; height: 32px; border-radius: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; justify-content: space-between; gap: 8px;"><p class="t-label">HomeGuard</p><span class="t-caption">now</span></div>
+            <p class="t-label" style="font-size: 15px; line-height: 22px;">Front door camera is now Critical</p>
+            <p class="t-body muted" style="font-size: 13px; line-height: 18px;">Someone on your Wi‑Fi could watch the feed. Update to v3.1.2.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 4px; padding-bottom: 8px;" aria-labelledby="ch-h">
+        <h2 class="t-heading" id="ch-h" style="margin-bottom: 4px;">How we reach you</h2>
+        <div class="switch-row">
+          <div class="text">
+            <label class="t-label" for="push" style="font-size: 15px; line-height: 22px;">Push notifications</label>
+            <span class="t-caption">On the HomeGuard app · Bon's phone</span>
+          </div>
+          <input class="switch" id="push" type="checkbox" role="switch" checked>
+        </div>
+        <div class="switch-row">
+          <div class="text">
+            <label class="t-label" for="mail" style="font-size: 15px; line-height: 22px;">Email</label>
+            <span class="t-caption">you@example.com</span>
+          </div>
+          <input class="switch" id="mail" type="checkbox" role="switch" checked>
+        </div>
+        <div class="switch-row">
+          <div class="text">
+            <label class="t-label" for="weekly" style="font-size: 15px; line-height: 22px;">Weekly home report</label>
+            <span class="t-caption">A short email every Sunday morning with the state of every device.</span>
+          </div>
+          <input class="switch" id="weekly" type="checkbox" role="switch">
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="when-h">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 class="t-heading" id="when-h">When should we tell you?</h2>
+          <p class="t-body muted">Choose per risk level. We only send what you'd want to act on.</p>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <sc-for list="{{levels}}" as="l" hint-placeholder-count="4">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 0; border-top: 1px solid var(--line);">
+              <div style="flex: 0 0 168px;"><x-import component-from-global-scope="HomeGuard.RiskBadge" level="{{l.level}}"></x-import></div>
+              <p class="t-body muted" style="flex: 1 1 220px; min-width: 0;">{{l.text}}</p>
+              <label for="{{l.id}}" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">{{l.sr}}</label>
+              <select class="input" id="{{l.id}}" style="flex: 0 0 200px; width: 200px;" value="{{l.value}}" onChange="{{noop}}">
+                <option value="now">Right away</option>
+                <option value="daily">Daily summary</option>
+                <option value="weekly">Weekly report</option>
+                <option value="off">Don't notify</option>
+              </select>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="quiet-h">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <h2 class="t-heading" id="quiet-h">Quiet hours</h2>
+            <p class="t-body muted">No pushes at night. Critical alerts still come through.</p>
+          </div>
+          <label for="quiet" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Quiet hours on</label>
+          <input class="switch" id="quiet" type="checkbox" role="switch" checked>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+          <div class="field" style="flex: 0 1 160px;"><label for="q-from">From</label><input class="input" id="q-from" type="time" value="22:00"></div>
+          <div class="field" style="flex: 0 1 160px;"><label for="q-to">Until</label><input class="input" id="q-to" type="time" value="07:00"></div>
+        </div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="who-h">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <h2 class="t-heading" id="who-h">Who gets alerts</h2>
+          <p class="t-body muted">People only get alerts for devices they can see.</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label class="option"><input type="checkbox" checked><span class="avatar" style="width: 32px; height: 32px;">B</span><span style="flex: 1;" class="t-label">Bon <span class="muted" style="font-weight: 500;">· all devices</span></span></label>
+          <label class="option"><input type="checkbox" checked><span class="avatar" style="width: 32px; height: 32px;">S</span><span style="flex: 1;" class="t-label">Sam <span class="muted" style="font-weight: 500;">· all devices</span></span></label>
+          <label class="option"><input type="checkbox"><span class="avatar" style="width: 32px; height: 32px;">N</span><span style="flex: 1;" class="t-label">Noor <span class="muted" style="font-weight: 500;">· only Kids' Xbox</span></span></label>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <x-import component-from-global-scope="HomeGuard.Button" variant="secondary">Send a test alert</x-import>
+          <x-import component-from-global-scope="HomeGuard.Button" variant="primary">Save changes</x-import>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      noop: () => {},
+      levels: [
+        { level: 'critical', id: 'n-critical', value: 'now', sr: 'When a device becomes critical', text: 'Someone could take over a device. Always on.' },
+        { level: 'vulnerable', id: 'n-vulnerable', value: 'now', sr: 'When a device becomes vulnerable', text: 'A known problem affects one of your devices.' },
+        { level: 'update', id: 'n-update', value: 'weekly', sr: 'When an update is available', text: 'A newer version is out, nothing urgent.' },
+        { level: 'unknown', id: 'n-unknown', value: 'weekly', sr: 'When a device can\'t be checked', text: 'We can\'t check a device until you add its version.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
