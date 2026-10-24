@@ -19,6 +19,8 @@ services:
       retries: 10
 
   web:
+    build:
+      context: ./web
     image: ghcr.io/${HOMEGUARD_OWNER:-homeguard}/homeguard-web:${HOMEGUARD_TAG:-latest}
     restart: unless-stopped
     # Each service gets only the settings it uses, not the whole .env.
@@ -48,6 +50,8 @@ services:
       start_period: 30s
 
   worker:
+    build:
+      context: ./worker
     image: ghcr.io/${HOMEGUARD_OWNER:-homeguard}/homeguard-worker:${HOMEGUARD_TAG:-latest}
     restart: unless-stopped
     environment:

@@ -36,6 +36,10 @@ export function SbomHelp() {
           . Open a terminal on that computer and run the two commands for your system. The second
           one can take a few minutes.
         </p>
+        <p className="t-caption">
+          Scanning the whole disk can take a long time and may need an administrator (Windows) or
+          sudo (Mac, Linux).
+        </p>
         <Step
           title="Windows (open PowerShell)"
           install="scoop install syft"

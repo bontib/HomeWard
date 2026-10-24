@@ -7,11 +7,10 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Field";
 import { fieldMessages } from "@/features/common/forms";
 import { signUp } from "@/lib/auth-client";
-import { MIN_PASSWORD, SignupFormSchema } from "./schemas";
+import { MIN_PASSWORD, SignupFormSchema, nameFromEmail } from "./schemas";
 
 export function SignupForm() {
   const router = useRouter();
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -21,14 +20,17 @@ export function SignupForm() {
   async function submit(event: FormEvent) {
     event.preventDefault();
     setFormError(null);
-    const parsed = SignupFormSchema.safeParse({ name, email, password });
+    const parsed = SignupFormSchema.safeParse({ email, password });
     if (!parsed.success) {
       setErrors(fieldMessages(parsed.error));
       return;
     }
     setErrors({});
     setBusy(true);
-    const { error } = await signUp.email(parsed.data);
+    const { error } = await signUp.email({
+      ...parsed.data,
+      name: nameFromEmail(parsed.data.email),
+    });
     if (error) {
       setBusy(false);
       // Same text for every failure, so the page does not reveal which emails exist.
@@ -46,13 +48,6 @@ export function SignupForm() {
         <p className="t-body text-ink-muted">Your devices stay private to you.</p>
       </div>
       <form onSubmit={submit} noValidate className="flex flex-col gap-4">
-        <Input
-          label="Your name"
-          autoComplete="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          error={errors.name}
-        />
         <Input
           label="Email"
           type="email"

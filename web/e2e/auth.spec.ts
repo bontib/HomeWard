@@ -6,7 +6,6 @@ test.use({ extraHTTPHeaders: { "x-forwarded-for": newClientIp() } });
 test("sign up, sign out, sign in again", async ({ page }) => {
   const account = newAccount();
   await page.goto("/signup");
-  await page.getByLabel("Your name").fill(account.name);
   await page.getByLabel("Email").fill(account.email);
   await page.getByLabel("Password").fill(account.password);
   await page.getByRole("button", { name: /create account/i }).click();

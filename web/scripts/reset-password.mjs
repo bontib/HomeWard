@@ -73,7 +73,7 @@ try {
   const user = await client.query("SELECT id FROM app_user WHERE lower(email) = lower($1)", [
     email,
   ]);
-  if (user.rowCount === 0) fail(`No account found for ${email}.`);
+  if (user.rowCount === 0) fail("No account with that email.");
   const userId = user.rows[0].id;
 
   const hash = await hashPassword(newPassword);

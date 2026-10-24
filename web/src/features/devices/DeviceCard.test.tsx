@@ -48,6 +48,6 @@ describe("DeviceCard", () => {
         })}
       />,
     );
-    expect(screen.getByText(/couldn't reach the vulnerability list/)).toBeInTheDocument();
+    expect(screen.getByText(/NVD is busy/)).toBeInTheDocument();
   });
 });

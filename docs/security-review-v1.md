@@ -1,5 +1,7 @@
 # Security review of V1 (commit 86d6dfa)
 
+**Result.** Findings 1 to 12 below were reported against commit `86d6dfa`. The fixes were applied in commit `8077a7f` ("Apply security review fixes and UX findings"); each fix has a test or a config change named in the notes. No must-fix item is open. Numbers 10, 13 and 14 were not findings in this round (marked Skipped). Two accepted residual risks, both Low: the default database password is only warned about (finding 9), and `autoSignIn` stays on (finding 4). Checked on 2026-10-24 against the files named in the notes.
+
 | # | Severity | Finding | Status |
 |---|----------|---------|--------|
 | 1 | Medium | Login rate limit bypass with a spoofed `X-Forwarded-For` | Fixed |

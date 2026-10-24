@@ -32,6 +32,11 @@ Reference: `docs/design/homeguard/`. Visual language (tokens, type, icons, compo
 | 19 | Version arrow `v3.1.0 -> 3.1.2` always | Arrow only when a fixed version is known | No "latest version" source. |
 | 20 | Vulnerabilities list, CVE detail | New screens built from CveItem, Table, FactList. Open/Ignored filter. Ignore needs a reason. | Not in the design. |
 | 21 | Dashboard and Devices pages | One page, "My home" | As in the design. |
+| 22 (Q9) | No "Vulnerabilities" nav item | Sidebar and top bar have **Vulnerabilities** (route `/vulnerabilities`). | P7-4 needs a route; this is the simplest way to reach it. |
+| 23 (Q4) | Sign-up asks for a name | Sign-up asks only for email and password. The account name is the part of the email before the @ (the server still limits names to 80 characters). | Fewer fields for a home user; matches P1-1. |
+| 24 (Q8) | Tagline "Made for households, not security teams." | "Plain answers about your devices, not a security console." | Accounts are per person (D1), not households. |
+| 25 (Q7) | SBOM help: one line per system | Adds: scanning the whole disk can take a long time and may need an administrator or sudo. | `syft dir:/` scans everything. |
+| 26 (Q10) | Product CVE cache 7 days (P8-2) | 24 hours. Recorded in `docs/architecture-v1.md` section 10. Revisit if NVD limits are hit. | Nightly rescan sees new CVEs. |
 
 ## Open design issue (needs frontend)
 

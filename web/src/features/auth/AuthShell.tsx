@@ -34,7 +34,9 @@ export function AuthShell({ children }: { children: ReactNode }) {
             </li>
           </ul>
         </div>
-        <p className="t-caption hidden md:block">Made for households, not security teams.</p>
+        <p className="t-caption hidden md:block">
+          Plain answers about your devices, not a security console.
+        </p>
       </div>
       <main className="flex items-center justify-center p-6 md:p-12">
         <div className="flex w-full max-w-md flex-col gap-6">{children}</div>

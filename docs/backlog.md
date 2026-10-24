@@ -345,6 +345,7 @@ Story format: "As a home user, I want … so that …" for user-facing work. Dev
 - Notifications: email, push, quiet hours, per-device alerts, the Notifications page (non-goal).
 - Household with several people, roles (Owner, Admin, Member, Viewer), invites, 2-step sign-in for admins.
 - Passkey sign-in.
+- A CI job that runs the Playwright happy paths against `docker compose` (V1 uses a manual compose run as the gate).
 - Forgot password by email (needs email sending).
 - Automatic version detection on devices.
 - Vendor-specific "What to do" steps.
@@ -419,8 +420,8 @@ A user can set up the app with `docker compose up -d` and use it.
 - [ ] The daily Trivy data update and CVE refresh run on schedule.
 
 **Honesty and wording**
-- [ ] The word "safe" and the label "Up to date" appear nowhere in the UI.
-- [ ] Every "No known vulnerabilities" also shows when it was checked and that it does not mean "safe".
+- [ ] "Safe" is never used as a claim, and the label "Up to date" appears nowhere in the UI.
+- [ ] Every "No known vulnerabilities" also shows when it was checked and the line "This does not mean the device is safe."
 - [ ] Every risk shows an icon and text.
 
 **Quality**

@@ -3,6 +3,7 @@ import { Banner } from "@/components/ui/Banner";
 import { Button } from "@/components/ui/Button";
 import { Card, type CardTone } from "@/components/ui/Card";
 import { RiskBadge } from "@/features/risk/RiskBadge";
+import { formatDate } from "@/features/common/format";
 import { DEVICE_TYPES } from "./device-types";
 
 const TONE: Partial<Record<DeviceDetail["status"], CardTone>> = {
@@ -105,8 +106,11 @@ export function WhatToDoCard({
           No known vulnerabilities
         </h2>
         <p className="t-body text-ink-muted">
-          Nothing is known for this version as of the last check. That is not a promise it is safe:
-          new problems are found all the time, so we check again every day.
+          {device.lastCheckedAt
+            ? `Checked against NVD on ${formatDate(device.lastCheckedAt)}. `
+            : "Checked against NVD. "}
+          This does not mean the device is safe. New problems are found all the time, so we check
+          again regularly.
         </p>
         {device.uncheckedCount > 0 ? (
           <p className="t-body">

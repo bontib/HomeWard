@@ -103,6 +103,8 @@ describe("scripts/reset-password.mjs", () => {
   });
 
   it("says so when the email is unknown", () => {
-    expect(() => run("nobody@example.com", "long-enough-password")).toThrow(/No account found/);
+    expect(() => run("nobody@example.com", "long-enough-password")).toThrow(
+      /No account with that email/,
+    );
   });
 });

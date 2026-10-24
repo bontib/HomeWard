@@ -8,7 +8,7 @@ import { FactList } from "@/components/ui/FactList";
 import { Icon } from "@/components/ui/icons";
 import { Spinner } from "@/components/ui/Spinner";
 import { Table, Td, Th } from "@/components/ui/Table";
-import { formatDateTime, timeAgo } from "@/features/common/format";
+import { formatDate, formatDateTime, timeAgo } from "@/features/common/format";
 import { ErrorBlock, LoadingBlock } from "@/features/common/QueryStates";
 import { jobErrorText } from "@/features/jobs/messages";
 import { errorMessage } from "@/store/api";
@@ -66,6 +66,29 @@ function checkTarget(check: RecentCheck): string {
   return check.type === "RESCAN_ALL" ? "All devices" : "Removed device";
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Plain lines for data that is old or could not be refreshed. Empty when all is fresh. */
+export function staleDataNotes(
+  sources: Record<DataSourceId, SourceView>,
+  now: number = Date.now(),
+): string[] {
+  const notes: string[] = [];
+  const kev = sources.KEV;
+  if (
+    kev.dataUpdatedAt &&
+    (kev.lastErrorCode || now - Date.parse(kev.dataUpdatedAt) > 2 * DAY_MS)
+  ) {
+    const days = Math.floor((now - Date.parse(kev.dataUpdatedAt)) / DAY_MS);
+    notes.push(`Known exploited list is ${days} ${days === 1 ? "day" : "days"} old.`);
+  }
+  const trivy = sources.TRIVY_DB;
+  if (trivy.dataUpdatedAt && trivy.lastErrorCode) {
+    notes.push(`Scanner data is from ${formatDate(trivy.dataUpdatedAt)}.`);
+  }
+  return notes;
+}
+
 export function ChecksScreen() {
   const { data, error, isLoading, refetch, fulfilledTimeStamp } = useGetChecksQuery();
   const [run, { isLoading: starting, error: runError }] = useRunChecksMutation();
@@ -81,6 +104,7 @@ export function ChecksScreen() {
   if (error || !data) return <ErrorBlock error={error} onRetry={refetch} />;
 
   const { scanner, sources, recent } = data;
+  const staleNotes = staleDataNotes(sources);
 
   return (
     <div className="flex flex-col gap-6">
@@ -147,6 +171,11 @@ export function ChecksScreen() {
             ))}
           </tbody>
         </Table>
+        {staleNotes.map((note) => (
+          <p key={note} className="t-body px-2 pb-2">
+            {note}
+          </p>
+        ))}
       </Card>
 
       <Card aria-labelledby="recent-heading" className="flex flex-col gap-3 p-4">

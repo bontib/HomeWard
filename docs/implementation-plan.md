@@ -415,7 +415,7 @@ The designs show more than v1 includes. Until decided otherwise:
 | Vulnerabilities list / CVE detail pages | **Not in the design.** Build them from the same parts (CveItem, Table, FactList). |
 
 ### V1 changes from the design (recorded by the ux-designer)
-Full table: `docs/design/v1-changes.md`. SBOM help wording: `docs/design/sbom-howto.md`. These supersede the matching text above.
+Full table: `docs/design/v1-changes.md`. SBOM help wording: `docs/design/sbom-howto.md`. These supersede the matching text above. Added after the V1 acceptance review: a Vulnerabilities nav item, no name field on sign-up, a new sign-in tagline, a slow-scan note in the SBOM help, and a 24-hour product CVE cache (changes 22 to 26).
 
 - **D4 wording.** The green level says **No known vulnerabilities** (never "safe" or "up to date"); the unknown level says **Not tracked**. The headline "Safe, with updates waiting" becomes **Some updates are waiting**. The summary carries a caption: "No known vulnerabilities" only means nothing is known yet.
 - **D11 CVE titles.** Not rewritten by hand. Title is "Security problem in <product>", then the first two sentences of the NVD summary, then "Full details on NVD". Replaces "CVE titles are rewritten in plain words" in the Wording section.

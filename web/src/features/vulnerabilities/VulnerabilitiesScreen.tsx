@@ -106,14 +106,12 @@ export function VulnerabilitiesScreen({ filters }: { filters: VulnerabilityFilte
           title={
             filters.state === "IGNORED"
               ? "Nothing ignored"
-              : notChecked > 0
-                ? "No known problems so far, but not everything is checked."
-                : "No known problems at the last check."
+              : "No known vulnerabilities on your devices right now."
           }
         >
           {filtered ? "Try removing a filter. " : ""}
           {notChecked > 0
-            ? `${countOf(notChecked, "device", "devices")} not checked yet or not tracked, so this list may be incomplete.`
+            ? `${notChecked} ${notChecked === 1 ? "device" : "devices"} can't be fully checked.`
             : "That only means nothing is known yet. New problems are found all the time."}
         </EmptyState>
       ) : null}

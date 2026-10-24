@@ -22,6 +22,10 @@ describe("parseEnv", () => {
     );
   });
 
+  it("rejects a DATABASE_URL that is not a postgres address", () => {
+    expect(() => parseEnv({ ...valid, DATABASE_URL: "mysql://x" })).toThrow(/DATABASE_URL/);
+  });
+
   it("reads ALLOW_SIGNUP=false", () => {
     expect(parseEnv({ ...valid, ALLOW_SIGNUP: "false" }).ALLOW_SIGNUP).toBe(false);
   });

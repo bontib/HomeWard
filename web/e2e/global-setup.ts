@@ -101,7 +101,7 @@ export default async function globalSetup() {
       TRUSTED_PROXY: "true",
       NODE_ENV: "production",
     };
-    if (!process.env.E2E_SKIP_BUILD) {
+    if (!["1", "true"].includes(process.env.E2E_SKIP_BUILD ?? "")) {
       execFileSync("npx", ["next", "build"], {
         cwd: webDir,
         env: withProcessEnv(webEnv),

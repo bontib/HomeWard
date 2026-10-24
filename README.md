@@ -6,14 +6,20 @@ problems (CVEs) affect them. A simple home version of OWASP Dependency-Track.
 
 Runs on a NAS or any Linux box with Docker. Three containers: `web`, `worker`, `db`.
 
+Disk: plan for about 2 GB free. The Trivy vulnerability database alone is about 1 GB (it
+lives in the `trivy-cache` volume), plus the images and your data.
+
 ## Install
 
 1. Copy `.env.example` to `.env`.
 2. Set `BETTER_AUTH_SECRET` (at least 32 random characters: `openssl rand -base64 32`),
-   `BETTER_AUTH_URL` (the address you open the app at) and `HOMEGUARD_OWNER`.
+   and `BETTER_AUTH_URL` (the address you open the app at).
    Change the database password in `POSTGRES_PASSWORD` too. The default (`homeguard`) is
    fine for a first try, but change it before anyone else can reach the machine.
-3. `docker compose up -d`
+3. `docker compose up -d --build`. This builds the images on your machine from this
+   folder, so it works without any published image. The first build takes several minutes.
+   The web container refuses to start, with a clear message in `docker compose logs web`,
+   if `BETTER_AUTH_SECRET` is shorter than 32 characters or `DATABASE_URL` is wrong.
 4. Open http://localhost:3000 and create the first account.
 5. Sign-up is open to anyone who can reach the app. When everyone in the home has an
    account, set `ALLOW_SIGNUP=false` in `.env` and run `docker compose up -d` again.
@@ -27,10 +33,15 @@ then, SBOM checks wait and retry.
 
 ## Update
 
+Building is the default. Fetch the new code, then rebuild:
+
 ```
-docker compose pull
-docker compose up -d
+git pull
+docker compose up -d --build
 ```
+
+Once a release exists you can pull tagged images instead: set `HOMEGUARD_OWNER` and
+`HOMEGUARD_TAG` in `.env`, then run `docker compose pull && docker compose up -d`.
 
 The web container applies database changes on start and stops if one fails. Web and worker
 are released together with the same tag.
@@ -41,7 +52,13 @@ are released together with the same tag.
 docker compose exec db pg_dump -U homeguard homeguard > homeguard-backup.sql
 ```
 
-Restore into an empty database with `psql`. The `db-data` volume holds everything; the
+Restore into an empty database (a fresh install, before you create accounts):
+
+```
+docker compose exec -T db psql -U homeguard -d homeguard < homeguard-backup.sql
+```
+
+If you changed `POSTGRES_USER` or `POSTGRES_DB` in `.env`, use those names. The `db-data` volume holds everything; the
 `trivy-cache` volume can be rebuilt and does not need a backup.
 
 ## Reset a password
@@ -75,8 +92,8 @@ Please read this. "No known vulnerabilities" is not "safe".
 - NVD can say a problem only affects a product on a certain platform. We do not check the
   platform, so you may see a problem that does not apply to you. You can ignore it.
 - CVEs that NVD has not analysed yet (no product list) cannot be matched.
-- Memory: about 300 MB while idle. A Trivy scan or database update needs a few hundred
-  MB more for a short time.
+- Memory has not been measured yet. Trivy scans and database updates need more memory
+  than idle; expect a few hundred MB extra for a short time.
 - It does not scan your network, install agents or fix anything.
 
 ## Development

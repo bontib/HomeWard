@@ -6,6 +6,8 @@ Panel title: **How do I make this file?**
 
 Intro: A software list (called an SBOM) is a file that names the programs on a computer. You make it with a free tool called syft (link to https://github.com/anchore/syft). Open a terminal on that computer and run the two commands for your system. The second one can take a few minutes.
 
+Note (shown under the intro): Scanning the whole disk can take a long time and may need an administrator (Windows) or sudo (Mac, Linux).
+
 | System | 1. Install syft (once) | 2. Make the file |
 |--------|------------------------|------------------|
 | Windows (PowerShell) | `scoop install syft` | `syft dir:C:\ -o cyclonedx-json=sbom.json` |

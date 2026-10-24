@@ -10,10 +10,15 @@ export const LoginFormSchema = z.object({
 });
 
 export const SignupFormSchema = z.object({
-  name: z.string().trim().min(1, "Enter your name.").max(80, "Use 80 characters or fewer."),
   email,
   password: z.string().min(MIN_PASSWORD, `Use at least ${MIN_PASSWORD} characters.`),
 });
+
+/** The sign-up form has no name field. Better Auth needs one, so use the part before the @. */
+export function nameFromEmail(email: string): string {
+  const local = email.split("@")[0] ?? "";
+  return (local || email).slice(0, 80);
+}
 
 export const ChangePasswordFormSchema = z.object({
   currentPassword: z.string().min(1, "Enter your current password."),

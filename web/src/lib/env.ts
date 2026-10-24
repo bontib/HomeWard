@@ -1,7 +1,10 @@
 import { z } from "zod";
 
 const EnvSchema = z.object({
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  DATABASE_URL: z
+    .string()
+    .min(1, "DATABASE_URL is required")
+    .regex(/^postgres(ql)?:\/\//, "DATABASE_URL must start with postgresql://"),
   BETTER_AUTH_SECRET: z.string().min(32, "BETTER_AUTH_SECRET must be at least 32 characters"),
   BETTER_AUTH_URL: z.string().url().default("http://localhost:3000"),
   ALLOW_SIGNUP: z

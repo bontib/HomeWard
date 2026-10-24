@@ -1239,3 +1239,5 @@ New env vars (add to `.env.example` and plan section 12): `TZ` (schedule time zo
 - SBOM upload also refuses JSON nested deeper than 128 levels (same limit as the worker's parser) and reads the body in a capped stream.
 - Compose picks images with `HOMEGUARD_OWNER` and `HOMEGUARD_TAG`. `release.yml` builds and pushes both images; the Playwright run against compose (P9-8) is not in it yet.
 - Dockerfiles, compose and the release workflow could not be built or run here (no Docker).
+- Compose has `build:` contexts for `web` and `worker` next to `image:`, so `docker compose up -d --build` works without published images. The web container checks `BETTER_AUTH_SECRET` and `DATABASE_URL` at start (`docker-entrypoint.sh`, `src/instrumentation.ts`) and exits with a plain message. Memory targets (under 512 MB idle) are not measured yet.
+- The Playwright suite is the V1 gate on embedded Postgres and a mock NVD; a manual `docker compose` run is the release gate. A compose CI job is on the Later list.
