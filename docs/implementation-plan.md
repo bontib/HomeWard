@@ -523,7 +523,8 @@ The designs arrived before building, so each phase builds to them directly. This
 - **Version strings differ** between what a console shows and what NVD uses. The product search should show example versions from NVD where possible.
 - **NVD rate limits / outages.** Everything is cached; the app works with stale data and shows "last updated".
 - **Trivy DB size** (~1 GB unpacked over time) on small NAS disks. Document it.
-- **Open:** one shared household account vs. one account per person? The plan assumes per-user devices with the option to disable sign-up. The designs show a household with several people and roles (`05-settings-users`); that would change "every query filters by `userId`" to a household filter. Decide before Phase 3.
-- **Open:** network discovery and notifications are designed (`06`, `07`) but are v1 non-goals. Keep them out or move them into a later phase?
-- **Design vs. honesty:** the design labels the green level "Up to date" and shows unknown devices as "Not checked". We show "No known vulnerabilities" and "Not tracked" instead (section 9). Confirm with the designer.
-- **Open:** should we offer an SBOM generation how-to (e.g. `syft` on Windows/Linux) in the UI? Probably yes, as a help panel in Phase 6.
+- **Decided (v1): one account per person.** Devices are per user; no household, roles or invites. Settings shows Account only. See `docs/backlog.md` → Decisions D1.
+- **Decided (v1): network discovery and notifications are out.** Both are in "Later" in `docs/backlog.md`. Hide their nav items and switches. See Decisions D2 and D3.
+- **Decided (v1): honest wording.** We show "No known vulnerabilities" and "Not tracked", never "Up to date" or "safe". The ux-designer records the design change. See Decisions D4.
+- **Decided (v1): SBOM how-to.** A static, text-only help panel on the SBOM card in Phase 6 (story P6-6). The app does not run syft. See Decisions D5.
+- Other decisions made while writing the backlog (NVD calls only in the worker, device status with unchecked parts, and others) are listed in `docs/backlog.md` → Decisions D6 to D24.
