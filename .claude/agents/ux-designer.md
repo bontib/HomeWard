@@ -30,3 +30,7 @@ A non-technical home user. They open the app now and then to ask: "Is anything i
 
 ## Output
 Specs in `docs/design/<screen-or-component>.md`. Reviews as a short list ordered by impact, each with the problem and a concrete fix.
+
+## Lessons from V1
+- Record every deviation from `docs/design/homeguard/` in `docs/design/v1-changes.md` and plan section 9. Review built screens by reading code for wording that implies "safe", jargon and icon-less errors; fix copy strings directly, hand logic issues to the frontend-engineer.
+- Commands you write (for example syft for the SBOM help) cannot be run here; mark them as to be tried on a real machine.

@@ -36,3 +36,7 @@ For each finding:
 - **Confidence:** Confirmed (traced end to end) or Possible (needs checking).
 
 Order by severity. Only report what you traced in the code; say clearly when you are unsure. If you find nothing, say so and list what you checked.
+
+## Lessons from V1
+- You have no Write tool: return the full report in your reply so the lead can save it to `docs/security-review-v1.md`.
+- High-yield checks in this stack: rate-limit keys from spoofable headers, Origin/CSRF on custom routes, `?next=` redirects, SBOM upload limits, per-user resource caps, CSP/frame headers, compose env scoping and container hardening. The `userId` filtering and SQL were clean last time; still re-verify on changes.

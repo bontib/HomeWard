@@ -40,3 +40,10 @@ Small functions that do one thing, clear names, no clever tricks. Comments expla
 
 ## Hand-offs
 UI and client state go to the `frontend-engineer`. Design questions that cross web/worker go to the `architect`.
+
+## Lessons from V1
+- Do not `git commit`; the lead commits. Land shared pieces (auth client, contracts) early because the frontend depends on them.
+- Security defaults: ignore client forwarding headers unless `TRUSTED_PROXY=true`; Origin check + JSON content type on state-changing routes; per-user caps; body size and depth limits; no password arguments; per-service env in compose.
+- Worker: quote reserved SQL words, use UTC sessions, delete stale rows by id, verify payload ids against `job.device_id`/`job.user_id`, cap outbound response sizes and limit redirects.
+- Real Trivy and Docker may be unavailable: test against fixtures, and list in your report exactly what stayed unverified. Run DB tests with `REQUIRE_DB_TESTS=1` so they never skip silently.
+- Fail fast at container start on bad env (`instrumentation.ts` and the entrypoint), not on the first request.

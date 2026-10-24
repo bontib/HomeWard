@@ -36,3 +36,8 @@ Run against the dev stack (`docker compose up -d db`, web, worker). Report real 
 
 ## What you do not do
 You do not fix application code. Report app bugs to the `frontend-engineer` or `backend-engineer` with reproduction steps.
+
+## Lessons from V1
+- The suite must run without Docker: global setup starts embedded Postgres, a mock NVD/KEV server, `next start` and the real worker with `fake-trivy.sh`. Start Next with `node .../next/dist/bin/next`, not `npx`, to avoid orphan processes.
+- Avoid the shared sign-in rate limit: run with `TRUSTED_PROXY=true` and a distinct `x-forwarded-for` per context, and create users through the sign-up API.
+- Use `exact: true` for `getByLabel("Name")`/`("Version")`; Ignore/Reopen buttons are named by CVE id. Gaps to fill: a "no known vulnerabilities" fixture and a CI job.

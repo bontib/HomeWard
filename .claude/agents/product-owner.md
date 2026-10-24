@@ -27,3 +27,8 @@ A non-technical home user with a few consoles, PCs, TVs and smart home devices. 
 ## Output
 - Stories and backlog go in `docs/backlog.md` (create it if needed), grouped by phase.
 - For a review: a short list of "Meets", "Missing", "Questions for the user".
+
+## Lessons from V1
+- When the user has delegated decisions, decide with the conservative default and record each in `docs/backlog.md` Decisions (one-line why). Otherwise ask.
+- Acceptance reviews are read-only: say "met" means the code matches the story, not that it ran. Keep a manual pre-release checklist for what the sandbox cannot run (Docker, arm64, memory, real NVD/Trivy).
+- Keep the definition of done free of contradictions (for example the word "safe": never a claim, the caveat is required). Keep story copy and code copy in sync; fix whichever is better.

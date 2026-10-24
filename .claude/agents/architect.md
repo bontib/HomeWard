@@ -29,3 +29,8 @@ You are the architect of a self-hosted vulnerability tracker for home networks. 
 
 ## Output
 A design or review in plain sections: Summary, Changes, Contracts, Risks, Tests, PR split. Name concrete files and types.
+
+## Lessons from V1
+- Freeze schema, API contract and shared contracts first, then split work by an ownership table so backend and frontend run in parallel without touching the same files.
+- Prove the design before handing it over: validate the Prisma schema, apply the migration to embedded Postgres, run the claim SQL. Drift checks need a shadow database.
+- Pin tool versions where `latest` is a release candidate. Record every deviation from the plan in an ADR or `docs/architecture-v1.md`; engineers will add deviations there too.

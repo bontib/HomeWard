@@ -33,3 +33,8 @@ Run typecheck, lint and Vitest for what you touched. Use `next-dev-loop` to chec
 
 ## Hand-offs
 API and data changes go to the `backend-engineer`. Flow and layout questions go to the `ux-designer`.
+
+## Lessons from V1
+- Do not `git commit`; stay inside your ownership paths. Build against the contract and typed fixtures until routes exist, then re-check every RTK endpoint against the real routes in a browser.
+- A pending, checking, unchecked or not-tracked state must never read as safe: derive empty-state and headline copy from the unchecked count. No check mark on "No known vulnerabilities". Use `ErrorText` (icon + text) for errors.
+- Display helpers (vendor names, dates) are small pure functions with tests. Do not run `git stash` while other agents work in the same tree.
