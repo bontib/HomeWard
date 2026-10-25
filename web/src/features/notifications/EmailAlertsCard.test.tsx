@@ -55,6 +55,7 @@ describe("EmailAlertsCard", () => {
     const { onSetEnabled } = setup(alertsOff);
     expect(screen.getByText("Off")).toBeInTheDocument();
     expect(screen.getByText(/Off\. Turn it on and we'll send a link/)).toBeInTheDocument();
+    expect(screen.getByText(`Your address: ${alertsOff.email}`)).toBeInTheDocument();
     expect(screen.getByText("Turn on email alerts first.")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("switch", { name: "Email me about new problems" }));
     expect(onSetEnabled).toHaveBeenCalledWith(true);

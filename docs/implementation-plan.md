@@ -20,7 +20,7 @@ Think "OWASP Dependency-Track", but small, friendly and made for a home network.
 - Network discovery or active scanning of devices.
 - Automatic version detection on devices.
 - Policies, projects, teams, or audit workflows like Dependency-Track.
-- Notifications (email, push). Planned for later.
+- Push notifications, weekly reports, quiet hours and per-device alerts. Later. E-mail alerts are in V1.1 (Phase 11).
 - Translations. UI text is English, written so it can be translated later.
 
 ---
@@ -408,7 +408,7 @@ The designs show more than v1 includes. Until decided otherwise:
 | Known exploited (KEV) badge, "Exploited in the wild" | **In.** Worker imports the CISA KEV list (small JSON, daily). New `Vulnerability.exploited Boolean`. |
 | Version history | **In, simple.** Store previous versions when the user changes one. |
 | Network scanner (discover devices, IP, scan depth, ports, default passwords, "Scan my network") | **Out (non-goal).** Scanner tab shows only: schedule, catalogue sources/age, recent scans, "Check all now". Hide "Scan my network", "Found by", IP, "found devices" banner. |
-| Notifications (push, email, quiet hours, per-device alerts) | **Out (non-goal).** Hide the Notifications nav item and per-device alert switch. Keep the design for later. |
+| Notifications (push, quiet hours, per-device alerts, weekly report) | **Out (non-goal).** Hide the Notifications nav item and per-device alert switch. Keep the design for later. E-mail alerts are in V1.1 (Phase 11; see "E-mail alerts (changes 27 to 33)" below). |
 | Household with several people and roles (Owner/Admin/Member/Viewer), invites, 2-step for admins | **Out / open question** (see section 13). v1 is per-user. Settings shows Account instead. |
 | Passkey sign-in | **Later.** Better Auth has a passkey plugin; easy follow-up. |
 | SBOM upload | **Not in the design.** Add it ourselves in the same style: on device detail ("Software on this device" card with FileDrop) and as a fifth device type option "PC with an SBOM file". |
@@ -502,6 +502,11 @@ The designs arrived before building, so each phase builds to them directly. This
 - Empty, loading and error states (not in the designs), in the same style and wording.
 - Accessibility check: contrast, focus, 44 px targets, icon + text on every risk.
 
+### Phase 11: Email notifications (V1.1)
+Added after V1 was accepted. Scope is e-mail only (backlog N-D1, N-D2). Stories, Decisions and the definition of done: `docs/backlog-notifications.md`. Design: `docs/design/notifications.md`. Architecture: `docs/architecture-notifications.md`, ADR 0007. Acceptance: `docs/notifications-acceptance.md`.
+- The worker sends every mail (`SEND_EMAIL`, `SEND_DIGEST`). The web app only writes rows and jobs. SMTP settings go to the `worker` service only.
+- **Done when:** the M stories in `docs/backlog-notifications.md` pass, the security review has no open must-fix items, and the manual pre-release checklist is done on a real install.
+
 ---
 
 ## 11. Testing
@@ -524,7 +529,13 @@ The designs arrived before building, so each phase builds to them directly. This
 | `NVD_API_KEY`         | empty            | Optional, raises NVD rate limit      |
 | `RESCAN_CRON`         | `0 3 * * *`      | Daily rescan time                    |
 | `MAX_SBOM_MB`         | `20`             | Upload size limit                    |
-| `TZ`                  | `UTC`            | Time zone for `RESCAN_CRON` (worker) |
+| `TZ`                  | `UTC`            | Time zone for `RESCAN_CRON` and the 7 am daily summary (worker) |
+| `APP_URL` (compose: `BETTER_AUTH_URL`) | `http://localhost:3000` | Public address used for links in mail (worker) |
+| `SMTP_HOST`           | empty            | Mail server. Empty keeps e-mail alerts off (worker only) |
+| `SMTP_PORT`           | `587`            | Required with `SMTP_HOST`. 465 = TLS from the start, others STARTTLS (worker only) |
+| `SMTP_USER` / `SMTP_PASSWORD` | empty    | Login for the mail server. Set both or neither (worker only) |
+| `SMTP_FROM`           | empty            | Required with `SMTP_HOST`, e.g. `HomeGuard <alerts@example.com>` (worker only) |
+| `SMTP_TLS`            | `on`             | `off` only on purpose; the worker warns at start (worker only) |
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | `homeguard` | Compose `db` service credentials; must match `DATABASE_URL` |
 | `DB_PORT`             | `5432`           | Host port for the database (127.0.0.1 only) |
 
@@ -539,7 +550,7 @@ Test-only, not in the install steps: `NVD_BASE_URL`, `KEV_URL`, `TRIVY_PATH` (po
 - **NVD rate limits / outages.** Everything is cached; the app works with stale data and shows "last updated".
 - **Trivy DB size** (~1 GB unpacked over time) on small NAS disks. Document it.
 - **Decided (v1): one account per person.** Devices are per user; no household, roles or invites. Settings shows Account only. See `docs/backlog.md` → Decisions D1.
-- **Decided (v1): network discovery and notifications are out.** Both are in "Later" in `docs/backlog.md`. Hide their nav items and switches. See Decisions D2 and D3.
+- **Decided (v1): network discovery is out, and notifications are out except e-mail.** Both are in "Later" in `docs/backlog.md`. Hide their nav items and switches. See Decisions D2 and D3. E-mail alerts moved into V1.1 (Phase 11, backlog-notifications N-D1 and N-D2).
 - **Decided (v1): honest wording.** We show "No known vulnerabilities" and "Not tracked", never "Up to date" or "safe". The ux-designer records the design change. See Decisions D4.
 - **Decided (v1): SBOM how-to.** A static, text-only help panel on the SBOM card in Phase 6 (story P6-6). The app does not run syft. See Decisions D5.
 - Other decisions made while writing the backlog (NVD calls only in the worker, device status with unchecked parts, and others) are listed in `docs/backlog.md` → Decisions D6 to D24.

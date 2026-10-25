@@ -342,7 +342,7 @@ Story format: "As a home user, I want … so that …" for user-facing work. Dev
 ## Later (not in V1)
 
 - Network discovery, "Scan my network", found devices, IP addresses, default-password checks (non-goal, plan section 1).
-- Notifications: email, push, quiet hours, per-device alerts, the Notifications page (non-goal).
+- Notifications: push, weekly report, quiet hours, per-device alerts, per-level frequency choices (non-goal). E-mail alerts are in V1.1, Phase 11 (`docs/backlog-notifications.md`).
 - Household with several people, roles (Owner, Admin, Member, Viewer), invites, 2-step sign-in for admins.
 - Passkey sign-in.
 - A CI job that runs the Playwright happy paths against `docker compose` (V1 uses a manual compose run as the gate).
@@ -368,7 +368,7 @@ Decisions for V1 made by the product owner under the user's delegation. Each one
 |----|----------|----------|-----|
 | D1 | One shared household account or one account per person? | Per user. No household, roles or invites in V1. Every device query filters by `userId`. | Roles are a permission model nobody needs yet; keeps the access rule simple. |
 | D2 | Network discovery in V1? | No. Later. | Non-goal (section 1); needs network access and scanning rights, and the core value does not need it. |
-| D3 | Notifications in V1? | No. Hide the nav item and the per-device alert switch. | Non-goal (section 1); needs email or push services. |
+| D3 | Notifications in V1? | No. Hide the nav item and the per-device alert switch. Superseded for e-mail only, in V1.1 (N-D2 in `docs/backlog-notifications.md`): e-mail alerts are in, push and per-device switches stay out. | Non-goal (section 1); push needs a push service. E-mail was moved in by the user. |
 | D4 | Design says "Up to date" and "Not checked"; plan says "No known vulnerabilities" and "Not tracked". Which? | Plan wording. The green level never says "safe" or "Up to date"; the headline "Safe, with updates waiting" becomes "Some updates are waiting". The ux-designer records the change in `docs/design/`. | NVD data cannot prove a device is safe. |
 | D5 | Offer an SBOM how-to in the UI? | Yes. A text-only help panel on the SBOM card (P6-6). The app does not run syft. | The user needs help making the file; a generator would be another tool to maintain. |
 | D6 | Who calls NVD for product search? | Only the worker. Search reads the `CpeProduct` cache; a miss queues a worker job and the UI polls. This overrides plan section 10 Phase 5 ("web calls NVD directly"). | CLAUDE.md says NVD calls stay in the worker; one place to respect rate limits. Architect to confirm the wait in an ADR. |

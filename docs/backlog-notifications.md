@@ -1,6 +1,6 @@
 # Backlog: E-mail notifications
 
-Owner: product-owner. Branch: `feature/email-notifications`. Status: proposed, not yet started.
+Owner: product-owner. Branch: `feature/email-notifications`. Status: built on the branch; acceptance review in `docs/notifications-acceptance.md` (verdict there). Not yet merged.
 Inputs: `CLAUDE.md`, `docs/backlog.md` (Later list, D1 to D24), `docs/architecture-v1.md` (sections 2 to 4, 6, 7), `docs/implementation-plan.md` (sections 1, 9, 12), `docs/design/homeguard/screens/06-settings-notifications.png`, `docs/design/v1-changes.md`.
 
 Scope change: the user has moved **e-mail** notifications from "Later" into scope. Push, SMS, weekly report, quiet hours, per-device alerts and "who gets alerts" stay out (see N-D1). When this merges, plan section 1 ("Notifications (email, push)") and backlog D3 are updated for e-mail only. Nothing else in the V1 DoD changes.
@@ -38,6 +38,9 @@ Taken by the product owner under the user's delegation. Each has a one-line why.
 | N-D20 | Who sends? | The worker, always. The web app only inserts rows and jobs (`SEND_EMAIL`, `SEND_DIGEST`) through `enqueueJob`. Confirm and test mails are queued by the web app; alerts and summaries are queued by the worker. | CLAUDE.md: slow work and outside calls live in the worker. |
 | N-D21 | Rate limits on the web side? | Turning alerts on: one confirmation mail per person per 10 minutes. Test mail: once per 5 minutes. Over the limit: 429 with plain text. | Stops a signed-in user, or someone holding a copied session, from filling a mailbox. |
 | N-D22 | Mail library? | Architect's choice, recorded in a new ADR. Must support rustls, timeouts, and a stub transport for tests. | Architect owns the technical choice. |
+| N-D23 | Wording of the daily summary time and the "too many devices" line (NB-3, NF-3)? | Keep the built wording: "Daily summary, 7 am (server time, UTC)" and "and N more devices: <link>" (as in `docs/design/notifications.md` 5.3). | The later UX spec already says this; the zone shows where 7 am is measured. |
+| N-D24 | Label of the button that cancels a pending link (NF-2)? | "Turn off email alerts" instead of "Cancel" (`docs/design/notifications.md` updated). | Says what the button does; a person who wants out should see the word "off". |
+| N-D25 | Extra limits on confirm mail added by the security fix (3 per account until off and on again, 3 per address per 24 h, 20 per instance per hour)? | Keep. They are stricter than N-D21 and reset nothing that matters to a real person. | Open sign-up plus SMTP means a stranger can make HomeGuard mail any address. Question 3 asks the user to confirm. |
 
 ---
 

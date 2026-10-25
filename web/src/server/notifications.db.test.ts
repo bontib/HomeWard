@@ -255,7 +255,7 @@ describe("setEmailAlerts", () => {
 });
 
 describe("confirmEmailAlerts", () => {
-  it("turns alerts on and marks every existing finding as already told", async () => {
+  it("turns alerts on and marks every existing open finding as already told", async () => {
     const device = (
       await createDevice(
         "alice",
@@ -313,10 +313,37 @@ describe("confirmEmailAlerts", () => {
     ).not.toBeNull();
     expect(
       (await prisma.finding.findUniqueOrThrow({ where: { id: ignored.id } })).notifiedAt,
-    ).not.toBeNull();
+    ).toBeNull();
     expect(
       (await prisma.finding.findUniqueOrThrow({ where: { id: theirs.id } })).notifiedAt,
     ).toBeNull();
+  });
+
+  it("keeps an ignored finding eligible so it is mailed if it is reopened later", async () => {
+    const device = await prisma.device.create({
+      data: { userId: "alice", name: "Box", type: "OTHER" },
+    });
+    const component = await prisma.component.create({
+      data: { deviceId: device.id, source: "MANUAL", name: "x" },
+    });
+    await insertVulnerability(db, { id: "CVE-9" });
+    const finding = await prisma.finding.create({
+      data: {
+        deviceId: device.id,
+        componentId: component.id,
+        vulnerabilityId: "CVE-9",
+        source: "NVD",
+        state: "IGNORED",
+      },
+    });
+
+    await turnOn("alice");
+    await prisma.finding.update({ where: { id: finding.id }, data: { state: "OPEN" } });
+
+    const reopened = await prisma.finding.findFirstOrThrow({
+      where: { id: finding.id, state: "OPEN", notifiedAt: null },
+    });
+    expect(reopened.id).toBe(finding.id);
   });
 
   it("refuses a used nonce the second time but stays calm when alerts are already on", async () => {

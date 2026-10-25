@@ -147,6 +147,10 @@ export function EmailAlertsCard({
         </p>
       ) : null}
 
+      {view === "off" && busy === null ? (
+        <p className="t-body">Your address: {settings.email}</p>
+      ) : null}
+
       {view === "not-set-up" ? (
         <p className="t-caption">
           They can set this up in the .env file. The README has the steps.

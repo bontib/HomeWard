@@ -414,7 +414,7 @@ Every failure gives the same answer: 400 `INVALID_LINK` with the route's text. N
 
 ### 6.4 Confirm transaction (NB-8, NB-10)
 
-1. Baseline: `UPDATE finding f SET notified_at = now() FROM device d WHERE d.id = f.device_id AND d.user_id = $1 AND f.notified_at IS NULL`. This covers every finding, open and ignored.
+1. Baseline: `UPDATE finding f SET notified_at = now() FROM device d WHERE d.id = f.device_id AND d.user_id = $1 AND f.state = 'OPEN' AND f.notified_at IS NULL`. Only open findings are baselined. Findings in any other state stay eligible, so a Critical that is reopened or returns later is still mailed (NB-8).
 2. `UPDATE notification_pref SET email_state = 'ON', confirmed_at = now(), confirm_nonce = NULL, unsubscribe_token = $3 WHERE user_id = $1 AND email_state = 'PENDING_CONFIRM' AND confirm_nonce = $2`. 0 rows → rollback, then the "already ON?" check, else 400. A used nonce cannot be reused (proved).
 
 ### 6.5 Secret rotation

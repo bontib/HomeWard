@@ -68,7 +68,7 @@ Components: `Card`, `Pill` (state), `Switch` inside a `.switch-row` (label left,
 | SMTP not configured, state OFF | info icon, "Not set up" (neutral `unknown` colors) | disabled, off | "Email alerts aren't set up on this HomeGuard yet. Ask the person who runs it." | Under it, quiet caption: "They can set this up in the .env file. The README has the steps." No link to secrets, no variable names in the UI. |
 | Off | dash-circle icon, "Off" (neutral) | off | "Off. Turn it on and we'll send a link to confirm." | Address line: "Your address: you@example.com" |
 | Turning on (request running) | Spinner, "Sending link" | disabled, `aria-busy` | "Sending a link to you@example.com..." | None |
-| Confirm pending | clock icon, "Waiting for you" (`update` colors) | replaced by two buttons, see below | "We sent a link to you@example.com. Open it to turn on alerts." | Caption: "The link works for 48 hours. Alerts are not on until you open it." Buttons: "Send the link again" (secondary; disabled for 10 minutes with the text "You can ask again in 8 minutes." counting down by minute), "Cancel" (quiet; sets the state back to Off). Caption: "Nothing in the inbox? Look in your spam folder." |
+| Confirm pending | clock icon, "Waiting for you" (`update` colors) | replaced by two buttons, see below | "We sent a link to you@example.com. Open it to turn on alerts." | Caption: "The link works for 48 hours. Alerts are not on until you open it." Buttons: "Send the link again" (secondary; disabled for 10 minutes with the text "You can ask again in 8 minutes." counting down by minute), "Turn off email alerts" (quiet; sets the state back to Off; the built label, clearer than "Cancel"). Caption: "Nothing in the inbox? Look in your spam folder." |
 | On | bell-check is NOT used. Use bell icon, "On" (`brand` colors, not the green `safe` pair) | on, enabled | "On. Sent to you@example.com." | Last-email line and test button become active |
 | Turning off | Spinner | disabled | "Turning off..." | None |
 | On, but SMTP stopped working | critical icon, "Can't send" (`critical`) | on, enabled (so the person can turn it off) | "Email alerts are on for you, but this HomeGuard can't send email right now. Ask the person who runs it to check the email settings." | `Banner critical` with the same sentence. Test button disabled with reason. |
@@ -174,7 +174,7 @@ Show the address masked: `y***@example.com` (first letter, three stars, domain).
 | Network or server error | Critical icon, "We couldn't turn on email alerts. Try again in a minute." Button "Try again". |
 | Email not set up on the server | The API text "Email alerts aren't set up on this HomeGuard yet." |
 
-The success state must not use the green check or the word "safe". Heading focus: move focus to the h1 after each state change.
+The success state must not use the green check and must not claim safety. The footer line "No email does not mean a device is safe." is the only use of "safe", and it is kept on this page. Heading focus: move focus to the h1 after each state change.
 
 ## 4. Unsubscribe page
 

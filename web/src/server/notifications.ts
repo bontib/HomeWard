@@ -325,9 +325,10 @@ class NotConfirmed extends Error {}
 async function confirmInTransaction(userId: string, nonce: string, now: Date): Promise<boolean> {
   try {
     await getDb().$transaction(async (tx) => {
-      // Findings the person already has are not mailed (N-D8). Findings first, pref last.
+      // Open findings the person already has are not mailed (N-D8). Closed ones stay eligible
+      // so a Critical that returns later is still mailed. Findings first, pref last.
       await tx.finding.updateMany({
-        where: { device: { userId }, notifiedAt: null },
+        where: { device: { userId }, state: "OPEN", notifiedAt: null },
         data: { notifiedAt: now },
       });
       const changed = await tx.notificationPref.updateMany({
