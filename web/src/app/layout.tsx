@@ -18,7 +18,7 @@ const jetbrains = localFont({
 });
 
 export const metadata: Metadata = {
-  title: { default: "HomeGuard", template: "%s · HomeGuard" },
+  title: { default: "HomeWard", template: "%s · HomeWard" },
   description: "See which known security problems affect the devices in your home.",
 };
 

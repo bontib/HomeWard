@@ -24,7 +24,7 @@ Full plan: `docs/implementation-plan.md`. Read it before starting a new phase.
 - Style through design tokens (CSS variables). No hard-coded colors. Severity and status always show icon + text, not color alone.
 
 ## Designs
-- `docs/design/homeguard/` (screenshots in `screens/`, tokens and markup in `source/`) shows how the screens could look. It is a reference, not a strict spec.
+- `docs/design/homeward/` (screenshots in `screens/`, tokens and markup in `source/`) shows how the screens could look. It is a reference, not a strict spec.
 - The plan's requirements win over the designs. The `ux-designer` agent may adjust screens, flows and copy to match the plan (scope, non-goals, honest "Not tracked" wording). Record each change in `docs/design/` and section 9 of the plan.
 - Keep the visual language (tokens, type, icons, component style) unless there is a reason to change it.
 
@@ -51,7 +51,7 @@ Full plan: `docs/implementation-plan.md`. Read it before starting a new phase.
 | Next.js / React               | `nextjs-app-router-patterns`, `vercel-react-best-practices`, `next-dev-loop` |
 | Component structure           | `vercel-composition-patterns`                               |
 | Redux                         | `build-modern-redux-apps-modern-redux`, `model-redux-state-*`, `manage-server-data-adopt-rtk-query` |
-| Visual design                 | `frontend-design`, starting from `docs/design/homeguard/`   |
+| Visual design                 | `frontend-design`, starting from `docs/design/homeward/`   |
 
 ## Agents
 Team roles live in `.claude/agents/`:

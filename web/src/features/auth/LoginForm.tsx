@@ -72,7 +72,7 @@ export function LoginForm({ next, signupOpen }: { next: string; signupOpen: bool
       </form>
       {signupOpen ? (
         <p className="t-body text-ink-muted text-center">
-          New to HomeGuard? <Link href="/signup">Create an account</Link>
+          New to HomeWard? <Link href="/signup">Create an account</Link>
         </p>
       ) : null}
     </>

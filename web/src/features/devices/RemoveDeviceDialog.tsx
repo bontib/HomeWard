@@ -29,7 +29,7 @@ export function RemoveDeviceDialog({
       open={open}
       onClose={onClose}
       title={`Remove ${device.name}?`}
-      description="This deletes the device, its software list and its problems from HomeGuard. It doesn't change the device itself."
+      description="This deletes the device, its software list and its problems from HomeWard. It doesn't change the device itself."
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>

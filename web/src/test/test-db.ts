@@ -51,7 +51,7 @@ export async function startTestDb(): Promise<TestDb> {
 
   if (!url) {
     const port = await freePort();
-    dataDir = mkdtempSync(path.join(os.tmpdir(), "homeguard-testdb-"));
+    dataDir = mkdtempSync(path.join(os.tmpdir(), "homeward-testdb-"));
     embedded = new EmbeddedPostgres({
       databaseDir: dataDir,
       user: "test",

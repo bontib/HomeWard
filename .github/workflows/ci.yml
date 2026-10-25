@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DATABASE_URL: postgresql://homeguard:homeguard@localhost:5432/homeguard
-  SHADOW_DATABASE_URL: postgresql://homeguard:homeguard@localhost:5432/shadow
+  DATABASE_URL: postgresql://homeward:homeward@localhost:5432/homeward
+  SHADOW_DATABASE_URL: postgresql://homeward:homeward@localhost:5432/shadow
 
 jobs:
   web:
@@ -20,12 +20,12 @@ jobs:
       postgres:
         image: postgres:17-alpine
         env:
-          POSTGRES_USER: homeguard
-          POSTGRES_PASSWORD: homeguard
-          POSTGRES_DB: homeguard
+          POSTGRES_USER: homeward
+          POSTGRES_PASSWORD: homeward
+          POSTGRES_DB: homeward
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U homeguard" --health-interval 5s
+          --health-cmd "pg_isready -U homeward" --health-interval 5s
           --health-timeout 3s --health-retries 10
     defaults:
       run:
@@ -42,14 +42,14 @@ jobs:
       - run: npx prisma generate
       - name: Migration drift check
         run: |
-          PGPASSWORD=homeguard psql -h localhost -U homeguard -d homeguard -c 'CREATE DATABASE shadow' -c 'CREATE DATABASE homeguard_test'
+          PGPASSWORD=homeward psql -h localhost -U homeward -d homeward -c 'CREATE DATABASE shadow' -c 'CREATE DATABASE homeward_test'
           npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --exit-code
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run format:check
       - run: npm test
         env:
-          TEST_DATABASE_URL: postgresql://homeguard:homeguard@localhost:5432/homeguard_test
+          TEST_DATABASE_URL: postgresql://homeward:homeward@localhost:5432/homeward_test
       - run: npm run build
         env:
           BETTER_AUTH_SECRET: ci-build-secret-ci-build-secret-0123
@@ -60,12 +60,12 @@ jobs:
       postgres:
         image: postgres:17-alpine
         env:
-          POSTGRES_USER: homeguard
-          POSTGRES_PASSWORD: homeguard
-          POSTGRES_DB: homeguard
+          POSTGRES_USER: homeward
+          POSTGRES_PASSWORD: homeward
+          POSTGRES_DB: homeward
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U homeguard" --health-interval 5s
+          --health-cmd "pg_isready -U homeward" --health-interval 5s
           --health-timeout 3s --health-retries 10
     steps:
       - uses: actions/checkout@v4

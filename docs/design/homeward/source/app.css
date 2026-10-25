@@ -1,4 +1,4 @@
-/* HomeGuard app shell + form controls, built only from tokens.css variables */
+/* HomeWard app shell + form controls, built only from tokens.css variables */
 body { margin: 0; background: var(--surface-0); color: var(--ink); font-family: var(--font-sans); }
 a { color: var(--brand); }
 a:hover { color: var(--brand-hover); }

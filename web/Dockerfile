@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# HomeGuard web app. Build context: the web/ folder.
+# HomeWard web app. Build context: the web/ folder.
 # Prisma 7 with the pg adapter has no native query engine, so the app build is the same for
 # amd64 and arm64 and runs on the build machine. Only the migration tools stage is built for
 # the target platform, because the Prisma CLI downloads a native schema engine.

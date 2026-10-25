@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Household and users — HomeGuard settings</title>
+<title>Household and users — HomeWard settings</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="ds/homeward/components/bundle.css">
 <link rel="stylesheet" href="app.css">
-<script src="ds/homeguard/components/bundle.js"></script>
+<script src="ds/homeward/components/bundle.js"></script>
 </head>
 <body>
 <x-dc>
@@ -23,7 +23,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
   <aside class="side">
     <a href="Home.dc.html" class="logo">
       <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
-      <span style="font-size: 18px; font-weight: 700;">HomeGuard</span>
+      <span style="font-size: 18px; font-weight: 700;">HomeWard</span>
     </a>
     <nav aria-label="Main">
       <ul class="nav">
@@ -70,7 +70,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
             <label for="tz">Time zone</label>
             <select class="input" id="tz"><option>Europe/Amsterdam</option><option>Europe/London</option></select>
           </div>
-          <x-import component-from-global-scope="HomeGuard.Button" variant="primary">Save</x-import>
+          <x-import component-from-global-scope="HomeWard.Button" variant="primary">Save</x-import>
         </div>
       </section>
 
@@ -80,7 +80,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
             <h2 class="t-heading" id="mem-h">People <span class="muted" style="font-weight: 500;">· 3 of 6</span></h2>
             <p class="t-body muted">Invite the people you live with so they get alerts too.</p>
           </div>
-          <x-import component-from-global-scope="HomeGuard.Button" variant="primary">Invite someone</x-import>
+          <x-import component-from-global-scope="HomeWard.Button" variant="primary">Invite someone</x-import>
         </div>
 
         <div class="table-box">
@@ -99,19 +99,19 @@ a{color:#0e6b62}a:hover{color:#0a5850}
                 <td><div style="display: flex; align-items: center; gap: 12px;"><span class="avatar">S</span><div><p class="t-label" style="font-size: 15px; line-height: 22px;">Sam</p><p class="t-caption">sam@example.com</p></div></div></td>
                 <td><label for="role-sam" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Role for Sam</label><select class="input" id="role-sam" style="width: 140px; height: 36px;"><option selected>Admin</option><option>Member</option><option>Viewer</option></select></td>
                 <td class="muted">Yesterday</td>
-                <td style="text-align: right;"><x-import component-from-global-scope="HomeGuard.Button" variant="quiet" size="sm">Remove</x-import></td>
+                <td style="text-align: right;"><x-import component-from-global-scope="HomeWard.Button" variant="quiet" size="sm">Remove</x-import></td>
               </tr>
               <tr>
                 <td><div style="display: flex; align-items: center; gap: 12px;"><span class="avatar">N</span><div><p class="t-label" style="font-size: 15px; line-height: 22px;">Noor</p><p class="t-caption">noor@example.com</p></div></div></td>
                 <td><label for="role-noor" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Role for Noor</label><select class="input" id="role-noor" style="width: 140px; height: 36px;"><option>Admin</option><option>Member</option><option selected>Viewer</option></select></td>
                 <td class="muted">3 days ago</td>
-                <td style="text-align: right;"><x-import component-from-global-scope="HomeGuard.Button" variant="quiet" size="sm">Remove</x-import></td>
+                <td style="text-align: right;"><x-import component-from-global-scope="HomeWard.Button" variant="quiet" size="sm">Remove</x-import></td>
               </tr>
               <tr>
                 <td><div style="display: flex; align-items: center; gap: 12px;"><span class="avatar" style="background: transparent; border: 1.5px dashed var(--line-strong); box-sizing: border-box;">?</span><div><p class="t-label" style="font-size: 15px; line-height: 22px;">guest@example.com</p><p class="t-caption">Invited 2 days ago</p></div></div></td>
                 <td><span class="pill">Invite pending</span></td>
                 <td class="muted">—</td>
-                <td style="text-align: right;"><x-import component-from-global-scope="HomeGuard.Button" variant="quiet" size="sm">Resend</x-import></td>
+                <td style="text-align: right;"><x-import component-from-global-scope="HomeWard.Button" variant="quiet" size="sm">Resend</x-import></td>
               </tr>
             </tbody>
           </table>

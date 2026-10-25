@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sign in to HomeGuard</title>
+<title>Sign in to HomeWard</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="ds/homeward/components/bundle.css">
 <link rel="stylesheet" href="app.css">
-<script src="ds/homeguard/components/bundle.js"></script>
+<script src="ds/homeward/components/bundle.js"></script>
 </head>
 <body>
 <x-dc>
@@ -23,20 +23,20 @@ a{color:#0e6b62}a:hover{color:#0a5850}
   <section style="flex: 1 1 420px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; padding: 48px; background: var(--brand-tint);">
     <div class="logo" style="padding: 0;">
       <span class="logo-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
-      <span style="font-size: 20px; line-height: 28px; font-weight: 700;">HomeGuard</span>
+      <span style="font-size: 20px; line-height: 28px; font-weight: 700;">HomeWard</span>
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 24px; max-width: 460px;">
       <h1 class="t-display" style="font-size: 40px; line-height: 46px;">See which devices in your home need an update</h1>
-      <p class="t-body muted" style="font-size: 17px; line-height: 26px;">Add your consoles, TV, PC and smart home gear once. HomeGuard checks their software against known vulnerabilities and tells you what to do, in plain words.</p>
+      <p class="t-body muted" style="font-size: 17px; line-height: 26px;">Add your consoles, TV, PC and smart home gear once. HomeWard checks their software against known vulnerabilities and tells you what to do, in plain words.</p>
       <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-        <x-import component-from-global-scope="HomeGuard.RiskBadge" level="safe"></x-import>
-        <x-import component-from-global-scope="HomeGuard.RiskBadge" level="update"></x-import>
-        <x-import component-from-global-scope="HomeGuard.RiskBadge" level="vulnerable"></x-import>
-        <x-import component-from-global-scope="HomeGuard.RiskBadge" level="critical"></x-import>
+        <x-import component-from-global-scope="HomeWard.RiskBadge" level="safe"></x-import>
+        <x-import component-from-global-scope="HomeWard.RiskBadge" level="update"></x-import>
+        <x-import component-from-global-scope="HomeWard.RiskBadge" level="vulnerable"></x-import>
+        <x-import component-from-global-scope="HomeWard.RiskBadge" level="critical"></x-import>
       </div>
       <div style="max-width: 360px; display: flex; flex-direction: column;">
-        <x-import component-from-global-scope="HomeGuard.DeviceCard" type="tv" name="Living room TV" vendor="Samsung" product="QE55Q80" room="Living room" risk="update" version="1420.1" latest="1460.2" cve-count="{{zero}}" checked="Checked 2 hours ago" style="display: flex; flex-direction: column;"></x-import>
+        <x-import component-from-global-scope="HomeWard.DeviceCard" type="tv" name="Living room TV" vendor="Samsung" product="QE55Q80" room="Living room" risk="update" version="1420.1" latest="1460.2" cve-count="{{zero}}" checked="Checked 2 hours ago" style="display: flex; flex-direction: column;"></x-import>
       </div>
     </div>
 
@@ -80,7 +80,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
         Sign in with a passkey
       </a>
 
-      <p class="t-body muted" style="text-align: center;">New to HomeGuard? <a href="#" style="font-weight: 600;">Create a household</a></p>
+      <p class="t-body muted" style="text-align: center;">New to HomeWard? <a href="#" style="font-weight: 600;">Create a household</a></p>
     </form>
   </section>
 </div>

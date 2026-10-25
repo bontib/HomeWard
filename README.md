@@ -1,4 +1,4 @@
-# HomeGuard
+# HomeWard
 
 A self-hosted vulnerability tracker for home networks. Add your devices (console, PC, TV,
 smart home) with a software version, or upload an SBOM, and see which known security
@@ -14,7 +14,7 @@ lives in the `trivy-cache` volume), plus the images and your data.
 1. Copy `.env.example` to `.env`.
 2. Set `BETTER_AUTH_SECRET` (at least 32 random characters: `openssl rand -base64 32`),
    and `BETTER_AUTH_URL` (the address you open the app at).
-   Change the database password in `POSTGRES_PASSWORD` too. The default (`homeguard`) is
+   Change the database password in `POSTGRES_PASSWORD` too. The default (`homeward`) is
    fine for a first try, but change it before anyone else can reach the machine.
 3. `docker compose up -d --build`. This builds the images on your machine from this
    folder, so it works without any published image. The first build takes several minutes.
@@ -40,8 +40,8 @@ git pull
 docker compose up -d --build
 ```
 
-Once a release exists you can pull tagged images instead: set `HOMEGUARD_OWNER` and
-`HOMEGUARD_TAG` in `.env`, then run `docker compose pull && docker compose up -d`.
+Once a release exists you can pull tagged images instead: set `HOMEWARD_OWNER` and
+`HOMEWARD_TAG` in `.env`, then run `docker compose pull && docker compose up -d`.
 
 The web container applies database changes on start and stops if one fails. Web and worker
 are released together with the same tag.
@@ -49,13 +49,13 @@ are released together with the same tag.
 ## Back up
 
 ```
-docker compose exec db pg_dump -U homeguard homeguard > homeguard-backup.sql
+docker compose exec db pg_dump -U homeward homeward > homeward-backup.sql
 ```
 
 Restore into an empty database (a fresh install, before you create accounts):
 
 ```
-docker compose exec -T db psql -U homeguard -d homeguard < homeguard-backup.sql
+docker compose exec -T db psql -U homeward -d homeward < homeward-backup.sql
 ```
 
 If you changed `POSTGRES_USER` or `POSTGRES_DB` in `.env`, use those names. The `db-data` volume holds everything; the
@@ -79,7 +79,7 @@ The worker re-checks all devices every night (`RESCAN_CRON`, default `0 3 * * *`
 time zone `TZ`). If the machine was off at that time, it catches up at the next start.
 Run exactly one worker.
 
-## What HomeGuard can and cannot tell you
+## What HomeWard can and cannot tell you
 
 Please read this. "No known vulnerabilities" is not "safe".
 

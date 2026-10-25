@@ -50,7 +50,7 @@ C stories: P3-3 met, P5-2 example versions not built, P8-5 missing, P10-1 and P1
 
 ## Blockers
 
-- **B1. No published images.** There is no release tag in the repo, so `release.yml` has never run. `docker-compose.yml` has no `build:` fallback, so a clean `docker compose up -d` cannot pull `ghcr.io/<owner>/homeguard-web`. The owner is also commented out in `.env.example` (line 48). (P9-3 and the V1 "images published" item.)
+- **B1. No published images.** There is no release tag in the repo, so `release.yml` has never run. `docker-compose.yml` has no `build:` fallback, so a clean `docker compose up -d` cannot pull `ghcr.io/<owner>/homeward-web`. The owner is also commented out in `.env.example` (line 48). (P9-3 and the V1 "images published" item.)
 - **B2. The web container does not refuse to start on a bad secret (P9-4).** `web/src/lib/env.ts:51` exits the process, but only when `getEnv()` first runs, which is the first request. There is no `instrumentation.ts`. The container starts, passes its first check, and then exits on the health check and restarts in a loop. Add a boot-time check that exits with the plain message before the server accepts traffic.
 - **B3. README gaps (P9-7) and unmeasured memory (P9-5).** The README has no disk need (about 1 GB for Trivy data, from the plan). Restore has no command ("Restore into an empty database with `psql`"). "About 300 MB while idle" (`README.md:78`) has no `docker stats` source; `docs/architecture-v1.md:1183` lists targets only. Measure on a NAS-class box and record the number and method.
 - **B4. No security review record (P9-9).** Commit `8077a7f` says "Apply security review fixes", but `docs/` has no written review or must-fix list. The "no open must-fix items" condition cannot be confirmed.
@@ -156,7 +156,7 @@ No text in `web/src` or `worker/src` uses "Up to date" or claims a device is "sa
 
 Run on a Docker host, on amd64 and then arm64. Tick each item and note the result in the release.
 
-1. Publish images: tag, wait for `release.yml`, then `docker manifest inspect` for `homeguard-web` and `homeguard-worker` on both architectures.
+1. Publish images: tag, wait for `release.yml`, then `docker manifest inspect` for `homeward-web` and `homeward-worker` on both architectures.
 2. Clean install: copy `.env.example`, set the secret, `docker compose up -d`. All three services healthy within 2 minutes; sign-in page at `:3000`.
 3. Bad secret: set `BETTER_AUTH_SECRET` to 10 characters. The web container should refuse to start with the plain message. Right now it will restart in a loop. Record the logs.
 4. Bad config for the worker: missing `DATABASE_URL` and invalid `RESCAN_CRON` both give plain messages that name the variable.
@@ -171,7 +171,7 @@ Run on a Docker host, on amd64 and then arm64. Tick each item and note the resul
 13. Sign-up off: `ALLOW_SIGNUP=false`, restart; `/signup` text and API refusal; existing users still sign in.
 14. Two accounts: user B cannot see or open user A's device in the UI or by URL (404).
 15. Ignore and reopen a finding; device status updates. "Check again" shows "Checking…" then a result. "Check all now" is disabled while it runs.
-16. Visual check against `docs/design/homeguard/screens/`: light, dark (system setting), 390 px phone width, sidebar switch point.
+16. Visual check against `docs/design/homeward/screens/`: light, dark (system setting), 390 px phone width, sidebar switch point.
 17. Keyboard: focus ring is visible on every control. Quick screen-reader pass (no automated accessibility check exists in CI).
 18. Run `cargo test`, `cargo clippy -- -D warnings`, `npm run typecheck`, `npm run lint`, `npm test`. Run the Playwright suite against the compose stack (see Q5).
 19. Security review record exists, and every must-fix item is closed (B4).
@@ -191,9 +191,9 @@ Each question has my recommended answer. Please reply with yes or with a change 
 
 ---
 
-❓ **Q2** - **Image owner and first release**: Compose pulls `ghcr.io/${HOMEGUARD_OWNER}/…`. `.env.example` comments the variable out, and the README says to set it. Which GitHub owner publishes the images? Should I cut `v0.1.0` after the blockers close?
+❓ **Q2** - **Image owner and first release**: Compose pulls `ghcr.io/${HOMEWARD_OWNER}/…`. `.env.example` comments the variable out, and the README says to set it. Which GitHub owner publishes the images? Should I cut `v0.1.0` after the blockers close?
 
-➡️ Use the GitHub account that owns this repository (the git user here is `bontib`, please confirm). Make `HOMEGUARD_OWNER` required in `.env.example`. Tag `v0.1.0` after B1 to B6 are closed and CI is green.
+➡️ Use the GitHub account that owns this repository (the git user here is `bontib`, please confirm). Make `HOMEWARD_OWNER` required in `.env.example`. Tag `v0.1.0` after B1 to B6 are closed and CI is green.
 
 ---
 

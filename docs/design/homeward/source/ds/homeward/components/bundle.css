@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap");
 
-/* HomeGuard components — every value comes from tokens.css */
+/* HomeWard components — every value comes from tokens.css */
 body { margin: 0; background: var(--surface-0); color: var(--ink); font-family: var(--font-sans); font-size: 15px; line-height: 22px; -webkit-font-smoothing: antialiased; }
 .hg-row { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; padding: var(--space-4); }
 .hg-stack { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); }

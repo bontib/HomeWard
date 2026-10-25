@@ -49,7 +49,7 @@ Story format: "As a home user, I want … so that …" for user-facing work. Dev
 - Given `ALLOW_SIGNUP=false`, when I open `/signup`, then I see "Sign-up is turned off. Ask the person who runs this app." and the sign-up API refuses new accounts.
 - Given `ALLOW_SIGNUP=false`, when an existing user signs in, then sign-in still works.
 
-**P1-5 (M) Sign-in page in the HomeGuard style.** As a home user, I want a clear sign-in page, so that I know where to start.
+**P1-5 (M) Sign-in page in the HomeWard style.** As a home user, I want a clear sign-in page, so that I know where to start.
 - Given I open `/login` on desktop, then the split layout from `01-sign-in` is shown in light and dark, with email, password, Sign in and "Create an account".
 - Given the page, then there is no passkey button, no "Forgot password?" link, no "Keep me signed in" checkbox and no "Create a household" link (see Decisions D13, D14).
 - Given a phone-width screen, then the page stacks into one column.
@@ -331,7 +331,7 @@ Story format: "As a home user, I want … so that …" for user-facing work. Dev
 
 ## Phase 10: Design polish
 
-**P10-1 (C) Design comparison pass.** Compare each screen with `docs/design/homeguard/screens/` (light, dark, mobile). Record deltas in `docs/design/` and plan section 9.
+**P10-1 (C) Design comparison pass.** Compare each screen with `docs/design/homeward/screens/` (light, dark, mobile). Record deltas in `docs/design/` and plan section 9.
 
 **P10-2 (M) Empty, loading and error states, consistency pass.** Empty, loading and error states are built with each feature (they are in the stories above). This phase only checks that the wording and style match across pages.
 

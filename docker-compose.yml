@@ -1,19 +1,19 @@
-# HomeGuard: web, worker and database. Run one worker only (see README).
+# HomeWard: web, worker and database. Run one worker only (see README).
 services:
   db:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-homeguard}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-homeguard}
-      POSTGRES_DB: ${POSTGRES_DB:-homeguard}
+      POSTGRES_USER: ${POSTGRES_USER:-homeward}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-homeward}
+      POSTGRES_DB: ${POSTGRES_DB:-homeward}
     command: ["postgres", "-c", "shared_buffers=64MB", "-c", "max_connections=30", "-c", "work_mem=4MB"]
     ports:
       - "127.0.0.1:${DB_PORT:-5432}:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-homeguard} -d $${POSTGRES_DB:-homeguard}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-homeward} -d $${POSTGRES_DB:-homeward}"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -21,11 +21,11 @@ services:
   web:
     build:
       context: ./web
-    image: ghcr.io/${HOMEGUARD_OWNER:-homeguard}/homeguard-web:${HOMEGUARD_TAG:-latest}
+    image: ghcr.io/${HOMEWARD_OWNER:-homeward}/homeward-web:${HOMEWARD_TAG:-latest}
     restart: unless-stopped
     # Each service gets only the settings it uses, not the whole .env.
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-homeguard}:${POSTGRES_PASSWORD:-homeguard}@db:5432/${POSTGRES_DB:-homeguard}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-homeward}:${POSTGRES_PASSWORD:-homeward}@db:5432/${POSTGRES_DB:-homeward}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
       ALLOW_SIGNUP: ${ALLOW_SIGNUP:-true}
@@ -52,10 +52,10 @@ services:
   worker:
     build:
       context: ./worker
-    image: ghcr.io/${HOMEGUARD_OWNER:-homeguard}/homeguard-worker:${HOMEGUARD_TAG:-latest}
+    image: ghcr.io/${HOMEWARD_OWNER:-homeward}/homeward-worker:${HOMEWARD_TAG:-latest}
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-homeguard}:${POSTGRES_PASSWORD:-homeguard}@db:5432/${POSTGRES_DB:-homeguard}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-homeward}:${POSTGRES_PASSWORD:-homeward}@db:5432/${POSTGRES_DB:-homeward}
       NVD_API_KEY: ${NVD_API_KEY:-}
       RESCAN_CRON: ${RESCAN_CRON:-0 3 * * *}
       TZ: ${TZ:-UTC}

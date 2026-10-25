@@ -76,7 +76,7 @@ impl NvdClient {
     pub fn new(settings: NvdSettings) -> Result<Self, NvdError> {
         crate::install_crypto_provider();
         let http = reqwest::Client::builder()
-            .user_agent(concat!("homeguard-worker/", env!("CARGO_PKG_VERSION")))
+            .user_agent(concat!("homeward-worker/", env!("CARGO_PKG_VERSION")))
             .timeout(REQUEST_TIMEOUT)
             .redirect(http_limits::same_host_redirects())
             .build()?;

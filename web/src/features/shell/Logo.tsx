@@ -7,7 +7,7 @@ export function Logo({ href = "/" }: { href?: string }) {
       <span className="rounded-control bg-brand text-on-brand grid size-9 flex-none place-items-center">
         <Icon name="shieldCheck" />
       </span>
-      <span className="t-title">HomeGuard</span>
+      <span className="t-title">HomeWard</span>
     </Link>
   );
 }

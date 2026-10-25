@@ -40,7 +40,7 @@ Notes for both sides:
 - Reserved words are avoided in SQL names (`app_user`, `reference_urls`), so worker SQL needs no quotes.
 
 ```prisma
-// HomeGuard V1 schema. Source of truth: docs/architecture-v1.md section 2.
+// HomeWard V1 schema. Source of truth: docs/architecture-v1.md section 2.
 // Prisma owns this schema. The worker reads and writes these tables with sqlx
 // but never creates or alters them.
 // Tables and columns are snake_case (@@map / @map) so worker SQL needs no quoting.
@@ -1175,8 +1175,8 @@ ADR 0006 has the reasoning.
 | Service | Image | Healthcheck | Depends on | Notes |
 |---|---|---|---|---|
 | `db` | `postgres:17-alpine` | `pg_isready` | | `-c shared_buffers=64MB -c max_connections=30 -c work_mem=4MB`; volume `db-data`; port only on `127.0.0.1:${DB_PORT:-5432}` for dev and `pg_dump` |
-| `web` | `ghcr.io/<owner>/homeguard-web:<tag>` | `node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"` | `db` healthy | port `3000`; migrations on start |
-| `worker` | `ghcr.io/<owner>/homeguard-worker:<tag>` | `["CMD", "/app/worker", "healthcheck"]` | `db` healthy, `web` healthy (migrations done) | volume `trivy-cache`; one replica only |
+| `web` | `ghcr.io/<owner>/homeward-web:<tag>` | `node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"` | `db` healthy | port `3000`; migrations on start |
+| `worker` | `ghcr.io/<owner>/homeward-worker:<tag>` | `["CMD", "/app/worker", "healthcheck"]` | `db` healthy, `web` healthy (migrations done) | volume `trivy-cache`; one replica only |
 
 All three: `restart: unless-stopped`, `env_file: .env`. Same image tag for web and worker; they are released together. Connection pools: web 5, worker 5 (listener, two lanes, scheduler, spare).
 
@@ -1237,7 +1237,7 @@ New env vars (add to `.env.example` and plan section 12): `TZ` (schedule time zo
 - `TRUSTED_ORIGINS` (env, optional) lists extra origins for Better Auth. `TRIVY_CACHE_DIR` sets the Trivy cache.
 - `prisma` and `dotenv` moved to `dependencies` in `web/package.json` (the image runs `prisma migrate deploy`). Tools (migration CLI, scripts) live in `/app/tools` of the web image; reset password: `node /app/tools/scripts/reset-password.mjs`.
 - SBOM upload also refuses JSON nested deeper than 128 levels (same limit as the worker's parser) and reads the body in a capped stream.
-- Compose picks images with `HOMEGUARD_OWNER` and `HOMEGUARD_TAG`. `release.yml` builds and pushes both images; the Playwright run against compose (P9-8) is not in it yet.
+- Compose picks images with `HOMEWARD_OWNER` and `HOMEWARD_TAG`. `release.yml` builds and pushes both images; the Playwright run against compose (P9-8) is not in it yet.
 - Dockerfiles, compose and the release workflow could not be built or run here (no Docker).
 - Compose has `build:` contexts for `web` and `worker` next to `image:`, so `docker compose up -d --build` works without published images. The web container checks `BETTER_AUTH_SECRET` and `DATABASE_URL` at start (`docker-entrypoint.sh`, `src/instrumentation.ts`) and exits with a plain message. Memory targets (under 512 MB idle) are not measured yet.
 - The Playwright suite is the V1 gate on embedded Postgres and a mock NVD; a manual `docker compose` run is the release gate. A compose CI job is on the Later list.

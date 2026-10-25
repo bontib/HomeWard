@@ -8,9 +8,9 @@ import EmbeddedPostgres from "embedded-postgres";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(here, "../.devdb");
 const port = Number(process.env.DEV_DB_PORT ?? 54329);
-const user = "homeguard";
-const password = "homeguard";
-const database = "homeguard";
+const user = "homeward";
+const password = "homeward";
+const database = "homeward";
 
 const pg = new EmbeddedPostgres({
   databaseDir: dataDir,

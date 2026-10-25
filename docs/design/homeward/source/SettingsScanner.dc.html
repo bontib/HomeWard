@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Vulnerability scanner — HomeGuard settings</title>
+<title>Vulnerability scanner — HomeWard settings</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="ds/homeward/components/bundle.css">
 <link rel="stylesheet" href="app.css">
-<script src="ds/homeguard/components/bundle.js"></script>
+<script src="ds/homeward/components/bundle.js"></script>
 </head>
 <body>
 <x-dc>
@@ -23,7 +23,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
   <aside class="side">
     <a href="Home.dc.html" class="logo">
       <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
-      <span style="font-size: 18px; font-weight: 700;">HomeGuard</span>
+      <span style="font-size: 18px; font-weight: 700;">HomeWard</span>
     </a>
     <nav aria-label="Main">
       <ul class="nav">
@@ -64,8 +64,8 @@ a{color:#0e6b62}a:hover{color:#0a5850}
           <p class="t-caption" style="color: var(--ink);">Catalogue updated 14 minutes ago</p>
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-          <x-import component-from-global-scope="HomeGuard.Button" variant="secondary">Pause</x-import>
-          <x-import component-from-global-scope="HomeGuard.Button" variant="primary">Scan now</x-import>
+          <x-import component-from-global-scope="HomeWard.Button" variant="secondary">Pause</x-import>
+          <x-import component-from-global-scope="HomeWard.Button" variant="primary">Scan now</x-import>
         </div>
       </section>
 
@@ -75,21 +75,21 @@ a{color:#0e6b62}a:hover{color:#0a5850}
           <p class="t-body muted">The scanner saw these but they aren't in your home yet.</p>
         </div>
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line);">
-          <x-import component-from-global-scope="HomeGuard.DeviceIcon" type="speaker"></x-import>
+          <x-import component-from-global-scope="HomeWard.DeviceIcon" type="speaker"></x-import>
           <div style="flex: 1 1 220px; min-width: 0;">
             <p class="t-label" style="font-size: 15px; line-height: 22px;">Probably a Sonos speaker</p>
             <p class="t-caption"><span class="t-mono" style="font-size: 12px;">192.168.1.57</span> · first seen today</p>
           </div>
-          <x-import component-from-global-scope="HomeGuard.Button" variant="quiet" size="sm">Ignore</x-import>
+          <x-import component-from-global-scope="HomeWard.Button" variant="quiet" size="sm">Ignore</x-import>
           <a href="AddDevice.dc.html" class="hg-btn hg-btn-secondary hg-btn-sm">Add to my home</a>
         </div>
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line);">
-          <x-import component-from-global-scope="HomeGuard.DeviceIcon" type="other"></x-import>
+          <x-import component-from-global-scope="HomeWard.DeviceIcon" type="other"></x-import>
           <div style="flex: 1 1 220px; min-width: 0;">
             <p class="t-label" style="font-size: 15px; line-height: 22px;">Unknown device</p>
             <p class="t-caption"><span class="t-mono" style="font-size: 12px;">192.168.1.83</span> · first seen 3 days ago</p>
           </div>
-          <x-import component-from-global-scope="HomeGuard.Button" variant="quiet" size="sm">Ignore</x-import>
+          <x-import component-from-global-scope="HomeWard.Button" variant="quiet" size="sm">Ignore</x-import>
           <a href="AddDevice.dc.html" class="hg-btn hg-btn-secondary hg-btn-sm">Tell us what it is</a>
         </div>
       </section>
@@ -163,17 +163,17 @@ a{color:#0e6b62}a:hover{color:#0a5850}
           <table class="table">
             <thead><tr><th scope="col">When</th><th scope="col">Devices</th><th scope="col">Result</th><th scope="col">Took</th></tr></thead>
             <tbody>
-              <tr><td>Today, 10:48</td><td>11</td><td><x-import component-from-global-scope="HomeGuard.RiskBadge" level="critical">1 new critical</x-import></td><td class="t-mono">4m 12s</td></tr>
+              <tr><td>Today, 10:48</td><td>11</td><td><x-import component-from-global-scope="HomeWard.RiskBadge" level="critical">1 new critical</x-import></td><td class="t-mono">4m 12s</td></tr>
               <tr><td>Today, 03:00</td><td>11</td><td class="muted">No change</td><td class="t-mono">4m 03s</td></tr>
-              <tr><td>Yesterday, 03:00</td><td>10</td><td><x-import component-from-global-scope="HomeGuard.RiskBadge" level="update">1 new device</x-import></td><td class="t-mono">3m 58s</td></tr>
+              <tr><td>Yesterday, 03:00</td><td>10</td><td><x-import component-from-global-scope="HomeWard.RiskBadge" level="update">1 new device</x-import></td><td class="t-mono">3m 58s</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
-        <x-import component-from-global-scope="HomeGuard.Button" variant="secondary">Cancel</x-import>
-        <x-import component-from-global-scope="HomeGuard.Button" variant="primary">Save changes</x-import>
+        <x-import component-from-global-scope="HomeWard.Button" variant="secondary">Cancel</x-import>
+        <x-import component-from-global-scope="HomeWard.Button" variant="primary">Save changes</x-import>
       </div>
 
     </div>

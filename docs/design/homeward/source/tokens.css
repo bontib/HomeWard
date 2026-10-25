@@ -1,4 +1,4 @@
-/* HomeGuard tokens as CSS variables (from the system's tokens.json) */
+/* HomeWard tokens as CSS variables (from the system's tokens.json) */
 :root {
   --surface-0: #f6f4ef; --surface-100: #ffffff; --surface-200: #eeebe4;
   --line: #dcd7cc; --line-strong: #7f8780;

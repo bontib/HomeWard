@@ -1,7 +1,7 @@
 {
   "v": 3,
   "createdOnFiles": {"v": 1, "at": "2026-10-24T10:56:00Z"},
-  "title": "HomeGuard home network app",
+  "title": "HomeWard home network app",
   "launch": {"view": "canvas"},
   "pages": [],
   "boards": {
@@ -19,6 +19,6 @@
     "rowSettings": {"x": 0, "y": 2100, "text": "Settings: users, notifications, scanner", "kind": "title1", "maxW": 4000}
   },
   "designSystems": [
-    {"title": "HomeGuard", "namespace": "homeguard", "artifact": "https://claude.ai/code/artifact/dcd34d40-b5f3-4f6f-9f7f-5e59456a344f", "version": "1792838632-cc70", "copiedAt": "2026-10-24T10:56:00Z"}
+    {"title": "HomeWard", "namespace": "homeward", "artifact": "https://claude.ai/code/artifact/dcd34d40-b5f3-4f6f-9f7f-5e59456a344f", "version": "1792838632-cc70", "copiedAt": "2026-10-24T10:56:00Z"}
   ]
 }

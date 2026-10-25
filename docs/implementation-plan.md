@@ -104,7 +104,7 @@ Honest limitation to show in the UI: NVD coverage of consumer devices is thin an
 ├─ .env.example
 ├─ docs/
 │  ├─ implementation-plan.md
-│  └─ design/homeguard/         official designs: screens/*.png + source/ (tokens, markup)
+│  └─ design/homeward/         official designs: screens/*.png + source/ (tokens, markup)
 ├─ web/                         Next.js app
 │  ├─ prisma/schema.prisma
 │  ├─ src/app/
@@ -293,7 +293,7 @@ Every handler: check session → validate input with Zod → call a function in 
 
 ## 8. Pages
 
-Layout, components and copy follow section 9 and the screenshots in `docs/design/homeguard/screens/`.
+Layout, components and copy follow section 9 and the screenshots in `docs/design/homeward/screens/`.
 
 | Page                  | Route | Content                                                       |
 |-----------------------|-------|---------------------------------------------------------------|
@@ -309,18 +309,18 @@ Wording: short and plain. "Update to 10.0.26100 to fix this" instead of jargon. 
 
 ---
 
-## 9. Design system: "HomeGuard"
+## 9. Design system: "HomeWard"
 
-The official designs are in. Source: the design canvas "HomeGuard home network app" (https://claude.ai/artifact/SAvjn46s7smodZVMViweQj), copied into the repo:
+The official designs are in. Source: the design canvas "HomeWard home network app" (https://claude.ai/artifact/SAvjn46s7smodZVMViweQj), copied into the repo:
 
 | Path | What |
 |------|------|
-| `docs/design/homeguard/screens/*.png` | Screenshots of every screen: light (1280 wide), `-dark`, `-mobile` (390 wide) |
-| `docs/design/homeguard/source/*.dc.html` | Screen markup (exact copy, spacing and wording) |
-| `docs/design/homeguard/source/ds/homeguard/tokens.json` | Token spec with a usage note per token |
-| `docs/design/homeguard/source/tokens.css` | Same tokens as CSS variables, light + dark |
-| `docs/design/homeguard/source/app.css` | App shell, forms, switch, chips, tables, steps, sub-nav |
-| `docs/design/homeguard/source/ds/homeguard/components/bundle.{js,css}` | Reference React components and their icon paths |
+| `docs/design/homeward/screens/*.png` | Screenshots of every screen: light (1280 wide), `-dark`, `-mobile` (390 wide) |
+| `docs/design/homeward/source/*.dc.html` | Screen markup (exact copy, spacing and wording) |
+| `docs/design/homeward/source/ds/homeward/tokens.json` | Token spec with a usage note per token |
+| `docs/design/homeward/source/tokens.css` | Same tokens as CSS variables, light + dark |
+| `docs/design/homeward/source/app.css` | App shell, forms, switch, chips, tables, steps, sub-nav |
+| `docs/design/homeward/source/ds/homeward/components/bundle.{js,css}` | Reference React components and their icon paths |
 
 The designs show how the screens could look; they are not a strict spec. When they conflict with this plan, the plan wins, and the `ux-designer` agent adjusts the design and records the change here.
 
@@ -386,7 +386,7 @@ We change the `safe` and `unknown` labels on purpose: "no known vulnerabilities"
 ### App shell
 Left sidebar (232 px, `surface-100`, right border) with logo (36 px teal square + shield), nav: My home (red count = devices needing attention), Add a device, Scanner, Notifications, Settings; footer with avatar, name, sign-out icon button. Main area padding 32, content max 1040 px (settings 880, add device 760). Below ~800 px the sidebar stacks above the content (flex-wrap); on phones turn it into a top bar + menu.
 
-### Screens (see `docs/design/homeguard/screens/`)
+### Screens (see `docs/design/homeward/screens/`)
 1. **Sign in** (`01-sign-in`) — split: left `brand-tint` panel with pitch "See which devices in your home need an update", the four risk badges and a sample DeviceCard; right form (email, password + "Forgot password?", "Keep me signed in", Sign in, passkey button, "Create a household" link).
 2. **My home** (`02-my-home`) — greeting header with "Scan my network" + "Add a device"; NetworkSummary; critical Banner for the worst device with "Fix now"; "Devices · 11" with search; filter chips (All, Needs attention, Game consoles, TV & media, Computers, Smart home); DeviceCard grid ending with AddDeviceTile. This replaces the separate Dashboard and Devices pages.
 3. **Device detail** (`03-device-detail`) — back link, large icon, name, meta, RiskBadge + VersionTag + checked time, "Edit device" / "Check again". Main column: "What to do" card (border in risk color; title "Update the camera to v3.1.2", steps, "I've updated it", vendor link, info banner with a stop-gap tip) and "Known vulnerabilities · 2, worst first" list of CveItems. Side column: "About this device" facts, version history, alert switch, "Remove device".
@@ -443,7 +443,7 @@ Each phase ends with something that runs. Keep PRs small.
 
 ### Phase 2: Data model and UI base
 - Prisma schema from section 5, first migration.
-- HomeGuard tokens (light + dark), Figtree + JetBrains Mono via `next/font`, Tailwind theme mapping.
+- HomeWard tokens (light + dark), Figtree + JetBrains Mono via `next/font`, Tailwind theme mapping.
 - Primitives from section 9, styled to the design from the start.
 - Redux store, typed hooks, RTK Query base api.
 - App shell from the design: sidebar with logo, nav, user footer; stacks on mobile.
@@ -474,7 +474,7 @@ Each phase ends with something that runs. Keep PRs small.
 - Worker image includes Trivy; `UPDATE_TRIVY_DB` job; cache volume.
 - `sbom.rs`: parse CycloneDX and SPDX JSON into components.
 - `trivy.rs`: run Trivy, parse JSON, map to findings + vulnerabilities.
-- Upload UI with `FileDrop`, size and format checks, in the HomeGuard style (not in the designs; see section 9).
+- Upload UI with `FileDrop`, size and format checks, in the HomeWard style (not in the designs; see section 9).
 - **Done when:** uploading a CycloneDX SBOM of a test PC lists its components and vulnerabilities.
 
 ### Phase 7: Vulnerability views and dashboard
@@ -497,7 +497,7 @@ Each phase ends with something that runs. Keep PRs small.
 
 ### Phase 10: Design polish
 The designs arrived before building, so each phase builds to them directly. This phase is a final pass:
-- Compare every screen with `docs/design/homeguard/screens/` (light, dark, mobile).
+- Compare every screen with `docs/design/homeward/screens/` (light, dark, mobile).
 - Empty, loading and error states (not in the designs), in the same style and wording.
 - Accessibility check: contrast, focus, 44 px targets, icon + text on every risk.
 
@@ -524,7 +524,7 @@ The designs arrived before building, so each phase builds to them directly. This
 | `RESCAN_CRON`         | `0 3 * * *`      | Daily rescan time                    |
 | `MAX_SBOM_MB`         | `20`             | Upload size limit                    |
 | `TZ`                  | `UTC`            | Time zone for `RESCAN_CRON` (worker) |
-| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | `homeguard` | Compose `db` service credentials; must match `DATABASE_URL` |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | `homeward` | Compose `db` service credentials; must match `DATABASE_URL` |
 | `DB_PORT`             | `5432`           | Host port for the database (127.0.0.1 only) |
 
 Test-only, not in the install steps: `NVD_BASE_URL`, `KEV_URL`, `TRIVY_PATH` (point the worker at a stub or a fake Trivy), `TEST_DATABASE_URL` (database for DB tests; must have "test" in its name), `DEV_DB_PORT` (port for `npm run db:dev`, default 54329).

@@ -1,4 +1,4 @@
-// HomeGuard V1 schema. Source of truth: docs/architecture-v1.md section 2.
+// HomeWard V1 schema. Source of truth: docs/architecture-v1.md section 2.
 // Prisma owns this schema. The worker reads and writes these tables with sqlx
 // but never creates or alters them.
 // Tables and columns are snake_case (@@map / @map) so worker SQL needs no quoting.

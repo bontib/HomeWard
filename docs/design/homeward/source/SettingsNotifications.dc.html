@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Notifications — HomeGuard settings</title>
+<title>Notifications — HomeWard settings</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="ds/homeward/components/bundle.css">
 <link rel="stylesheet" href="app.css">
-<script src="ds/homeguard/components/bundle.js"></script>
+<script src="ds/homeward/components/bundle.js"></script>
 </head>
 <body>
 <x-dc>
@@ -23,7 +23,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
   <aside class="side">
     <a href="Home.dc.html" class="logo">
       <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
-      <span style="font-size: 18px; font-weight: 700;">HomeGuard</span>
+      <span style="font-size: 18px; font-weight: 700;">HomeWard</span>
     </a>
     <nav aria-label="Main">
       <ul class="nav">
@@ -64,7 +64,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
         <div style="flex: 1 1 340px; max-width: 400px; display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: var(--surface-100); box-shadow: var(--shadow-raised);">
           <span class="logo-mark" style="width: 32px; height: 32px; border-radius: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
           <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;">
-            <div style="display: flex; justify-content: space-between; gap: 8px;"><p class="t-label">HomeGuard</p><span class="t-caption">now</span></div>
+            <div style="display: flex; justify-content: space-between; gap: 8px;"><p class="t-label">HomeWard</p><span class="t-caption">now</span></div>
             <p class="t-label" style="font-size: 15px; line-height: 22px;">Front door camera is now Critical</p>
             <p class="t-body muted" style="font-size: 13px; line-height: 18px;">Someone on your Wi‑Fi could watch the feed. Update to v3.1.2.</p>
           </div>
@@ -76,7 +76,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
         <div class="switch-row">
           <div class="text">
             <label class="t-label" for="push" style="font-size: 15px; line-height: 22px;">Push notifications</label>
-            <span class="t-caption">On the HomeGuard app · Bon's phone</span>
+            <span class="t-caption">On the HomeWard app · Bon's phone</span>
           </div>
           <input class="switch" id="push" type="checkbox" role="switch" checked>
         </div>
@@ -104,7 +104,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
         <div style="display: flex; flex-direction: column;">
           <sc-for list="{{levels}}" as="l" hint-placeholder-count="4">
             <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 0; border-top: 1px solid var(--line);">
-              <div style="flex: 0 0 168px;"><x-import component-from-global-scope="HomeGuard.RiskBadge" level="{{l.level}}"></x-import></div>
+              <div style="flex: 0 0 168px;"><x-import component-from-global-scope="HomeWard.RiskBadge" level="{{l.level}}"></x-import></div>
               <p class="t-body muted" style="flex: 1 1 220px; min-width: 0;">{{l.text}}</p>
               <label for="{{l.id}}" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">{{l.sr}}</label>
               <select class="input" id="{{l.id}}" style="flex: 0 0 200px; width: 200px;" value="{{l.value}}" onChange="{{noop}}">
@@ -144,8 +144,8 @@ a{color:#0e6b62}a:hover{color:#0a5850}
           <label class="option"><input type="checkbox"><span class="avatar" style="width: 32px; height: 32px;">N</span><span style="flex: 1;" class="t-label">Noor <span class="muted" style="font-weight: 500;">· only Kids' Xbox</span></span></label>
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 8px;">
-          <x-import component-from-global-scope="HomeGuard.Button" variant="secondary">Send a test alert</x-import>
-          <x-import component-from-global-scope="HomeGuard.Button" variant="primary">Save changes</x-import>
+          <x-import component-from-global-scope="HomeWard.Button" variant="secondary">Send a test alert</x-import>
+          <x-import component-from-global-scope="HomeWard.Button" variant="primary">Save changes</x-import>
         </div>
       </section>
 

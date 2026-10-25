@@ -13,7 +13,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
             See which devices in your home need an update
           </h1>
           <p className="t-body text-ink-muted">
-            Add your consoles, TV, PC and smart home gear once. HomeGuard checks their software
+            Add your consoles, TV, PC and smart home gear once. HomeWard checks their software
             against known vulnerabilities and tells you what to do, in plain words.
           </p>
           <ul className="m-0 hidden list-none flex-wrap gap-2 p-0 md:flex">

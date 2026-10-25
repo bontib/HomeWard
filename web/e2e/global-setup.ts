@@ -50,15 +50,15 @@ function start(
 }
 
 export default async function globalSetup() {
-  const tmp = mkdtempSync(path.join(os.tmpdir(), "homeguard-e2e-"));
+  const tmp = mkdtempSync(path.join(os.tmpdir(), "homeward-e2e-"));
   const logDir = path.join(webDir, "test-results", "stack-logs");
   mkdirSync(logDir, { recursive: true });
   const children: ChildProcess[] = [];
 
   const pg = new EmbeddedPostgres({
     databaseDir: path.join(tmp, "pg"),
-    user: "homeguard",
-    password: "homeguard",
+    user: "homeward",
+    password: "homeward",
     port: PORTS.db,
     persistent: false,
     onLog: () => {},
@@ -66,7 +66,7 @@ export default async function globalSetup() {
   });
   await pg.initialise();
   await pg.start();
-  await pg.createDatabase("homeguard_e2e");
+  await pg.createDatabase("homeward_e2e");
 
   const teardown = async () => {
     for (const child of children) child.kill("SIGTERM");

@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"HomeGuard","components":[{"name":"Button"},{"name":"RiskBadge"},{"name":"VersionTag"},{"name":"DeviceIcon"},{"name":"DeviceCard"},{"name":"CveItem"},{"name":"NetworkSummary"},{"name":"DeviceTypePicker"},{"name":"AddDeviceTile"}]} */
+/* @ds-bundle: {"format":4,"namespace":"HomeWard","components":[{"name":"Button"},{"name":"RiskBadge"},{"name":"VersionTag"},{"name":"DeviceIcon"},{"name":"DeviceCard"},{"name":"CveItem"},{"name":"NetworkSummary"},{"name":"DeviceTypePicker"},{"name":"AddDeviceTile"}]} */
 (function () {
   var R = window.React, h = R.createElement;
   function cx() { return Array.prototype.filter.call(arguments, Boolean).join(' '); }
@@ -115,5 +115,5 @@
       Svg(['M12 5v14', 'M5 12h14'], 'hg-icon'), p.label || 'Add a device', h('small', null, p.hint || 'Console, TV, PC or smart home'));
   }
 
-  window.HomeGuard = Object.assign(window.HomeGuard || {}, { Button: Button, RiskBadge: RiskBadge, VersionTag: VersionTag, DeviceIcon: DeviceIcon, DeviceCard: DeviceCard, CveItem: CveItem, NetworkSummary: NetworkSummary, DeviceTypePicker: DeviceTypePicker, AddDeviceTile: AddDeviceTile, riskFromScore: riskFromScore });
+  window.HomeWard = Object.assign(window.HomeWard || {}, { Button: Button, RiskBadge: RiskBadge, VersionTag: VersionTag, DeviceIcon: DeviceIcon, DeviceCard: DeviceCard, CveItem: CveItem, NetworkSummary: NetworkSummary, DeviceTypePicker: DeviceTypePicker, AddDeviceTile: AddDeviceTile, riskFromScore: riskFromScore });
 })();

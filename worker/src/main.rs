@@ -80,7 +80,7 @@ async fn build_context(config: Config, pool: PgPool) -> anyhow::Result<Context> 
     ))?;
     let trivy = Trivy::new(config.trivy_path.clone(), config.trivy_cache_dir.clone());
     let http = reqwest::Client::builder()
-        .user_agent(concat!("homeguard-worker/", env!("CARGO_PKG_VERSION")))
+        .user_agent(concat!("homeward-worker/", env!("CARGO_PKG_VERSION")))
         .redirect(worker::http_limits::same_host_redirects())
         .build()
         .context("could not build the HTTP client")?;

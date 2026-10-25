@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Add a device — HomeGuard</title>
+<title>Add a device — HomeWard</title>
 <script src="./support.js"></script>
 <link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="ds/homeguard/components/bundle.css">
+<link rel="stylesheet" href="ds/homeward/components/bundle.css">
 <link rel="stylesheet" href="app.css">
-<script src="ds/homeguard/components/bundle.js"></script>
+<script src="ds/homeward/components/bundle.js"></script>
 </head>
 <body>
 <x-dc>
@@ -23,7 +23,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
   <aside class="side">
     <a href="Home.dc.html" class="logo">
       <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg></span>
-      <span style="font-size: 18px; font-weight: 700;">HomeGuard</span>
+      <span style="font-size: 18px; font-weight: 700;">HomeWard</span>
     </a>
     <nav aria-label="Main">
       <ul class="nav">
@@ -75,7 +75,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
           <h2 class="t-heading" id="s1">1. What kind of device is it?</h2>
           <span class="pill pill-brand">Game console</span>
         </div>
-        <x-import component-from-global-scope="HomeGuard.DeviceTypePicker" value="console"></x-import>
+        <x-import component-from-global-scope="HomeWard.DeviceTypePicker" value="console"></x-import>
       </section>
 
       <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="s2">
@@ -131,7 +131,7 @@ a{color:#0e6b62}a:hover{color:#0a5850}
       <section style="display: flex; flex-direction: column; gap: 12px;" aria-labelledby="s5">
         <h2 class="t-heading" id="s5">Result</h2>
         <div style="max-width: 360px; display: flex; flex-direction: column;">
-          <x-import component-from-global-scope="HomeGuard.DeviceCard" type="console" name="Bedroom PlayStation" vendor="Sony" product="PlayStation 5" room="Bedroom" risk="safe" version="25.02" latest="25.02" cve-count="{{zero}}" checked="Checked just now" style="display: flex; flex-direction: column;"></x-import>
+          <x-import component-from-global-scope="HomeWard.DeviceCard" type="console" name="Bedroom PlayStation" vendor="Sony" product="PlayStation 5" room="Bedroom" risk="safe" version="25.02" latest="25.02" cve-count="{{zero}}" checked="Checked just now" style="display: flex; flex-direction: column;"></x-import>
         </div>
         <p class="t-body muted">Good news: this version has no known vulnerabilities. We'll let you know if that changes.</p>
       </section>

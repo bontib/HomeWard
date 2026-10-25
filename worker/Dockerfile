@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# HomeGuard worker. Build context: the worker/ folder.
+# HomeWard worker. Build context: the worker/ folder.
 # Rust is cross-compiled on the build machine with cargo-zigbuild (no QEMU), static musl.
 
 FROM --platform=$BUILDPLATFORM rust:1-alpine AS build

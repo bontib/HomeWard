@@ -1,6 +1,6 @@
-# V1 changes from the HomeGuard design
+# V1 changes from the HomeWard design
 
-Reference: `docs/design/homeguard/`. Visual language (tokens, type, icons, component style) is unchanged. Plan wins over the design (CLAUDE.md). Summary also in plan section 9.
+Reference: `docs/design/homeward/`. Visual language (tokens, type, icons, component style) is unchanged. Plan wins over the design (CLAUDE.md). Summary also in plan section 9.
 
 ## Wording and meaning
 

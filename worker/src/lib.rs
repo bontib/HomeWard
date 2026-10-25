@@ -1,4 +1,4 @@
-//! HomeGuard worker library. The binary in `main.rs` wires these modules together.
+//! HomeWard worker library. The binary in `main.rs` wires these modules together.
 
 pub mod config;
 pub mod context;

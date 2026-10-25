@@ -40,7 +40,7 @@ export function assertSameSite(req: Request, allowed: string[]): void {
 }
 
 const forbidden = () =>
-  new AppError("FORBIDDEN", "This request came from another site. Open HomeGuard directly.");
+  new AppError("FORBIDDEN", "This request came from another site. Open HomeWard directly.");
 
 export async function withSession(req: Request): Promise<SessionInfo> {
   assertSameSite(req, allowedOrigins(getEnv()));
