@@ -10,6 +10,8 @@ const TEXT: Record<JobErrorCode, string> = {
   WORKER_LOST: "We couldn't check this device. Try again.",
   BAD_PAYLOAD: "We couldn't check this device. Try again.",
   INTERNAL: "We couldn't check this device. Try again.",
+  SMTP_FAILED: "Last email couldn't be sent. We'll try again with the next daily summary.",
+  SMTP_NOT_CONFIGURED: "Email alerts aren't set up on this HomeGuard yet.",
 };
 
 export function jobErrorText(code: JobErrorCode | null): string {

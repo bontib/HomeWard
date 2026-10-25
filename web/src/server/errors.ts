@@ -10,6 +10,8 @@ const STATUS: Record<ApiErrorCode, number> = {
   PAYLOAD_TOO_LARGE: 413,
   UNSUPPORTED_FILE: 415,
   RATE_LIMITED: 429,
+  CONFLICT: 409,
+  INVALID_LINK: 400,
   INTERNAL: 500,
 };
 

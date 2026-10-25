@@ -14,6 +14,8 @@ const DEFAULTS: Record<JobType, { priority: number; maxAttempts: number }> = {
   UPDATE_TRIVY_DB: { priority: 5, maxAttempts: 3 },
   IMPORT_KEV: { priority: 5, maxAttempts: 3 },
   DEV_NOOP: { priority: 20, maxAttempts: 1 },
+  SEND_EMAIL: { priority: 20, maxAttempts: 3 },
+  SEND_DIGEST: { priority: 0, maxAttempts: 3 },
 };
 
 type NewJob<T extends JobType> = {

@@ -26,6 +26,8 @@ pub fn timeout_for(job_type: crate::contract::JobType) -> Duration {
         ImportKev => Duration::from_secs(2 * 60),
         SearchProducts => Duration::from_secs(60),
         RecomputeStatus | DevNoop => Duration::from_secs(30),
+        SendEmail => Duration::from_secs(60),
+        SendDigest => Duration::from_secs(2 * 60),
     }
 }
 

@@ -38,7 +38,11 @@ pub async fn on_failed(
         JobType::UpdateTrivyDb => {
             data_source::record_failure(pool, DataSourceId::TrivyDb, code).await?;
         }
-        JobType::RecomputeStatus | JobType::RescanAll | JobType::DevNoop => {}
+        JobType::RecomputeStatus
+        | JobType::RescanAll
+        | JobType::DevNoop
+        | JobType::SendEmail
+        | JobType::SendDigest => {}
     }
     Ok(())
 }

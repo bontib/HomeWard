@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   CreateDeviceSchema,
+  NotificationLinkQuerySchema,
+  NotificationTokenSchema,
   ProductSearchQuerySchema,
+  SendTestEmailSchema,
+  SetEmailAlertsSchema,
   UpdateDeviceSchema,
   UpdateFindingSchema,
 } from "./api";
@@ -78,5 +82,44 @@ describe("UpdateFindingSchema", () => {
 
   it("reopens without a reason", () => {
     expect(UpdateFindingSchema.safeParse({ state: "OPEN" }).success).toBe(true);
+  });
+});
+
+describe("SetEmailAlertsSchema", () => {
+  it("accepts a boolean", () => {
+    expect(SetEmailAlertsSchema.safeParse({ enabled: true }).success).toBe(true);
+  });
+
+  it("rejects a string and extra fields", () => {
+    expect(SetEmailAlertsSchema.safeParse({ enabled: "yes" }).success).toBe(false);
+    expect(SetEmailAlertsSchema.safeParse({ enabled: true, userId: "x" }).success).toBe(false);
+  });
+});
+
+describe("SendTestEmailSchema", () => {
+  it("accepts only an empty object", () => {
+    expect(SendTestEmailSchema.safeParse({}).success).toBe(true);
+    expect(SendTestEmailSchema.safeParse({ to: "a@b.c" }).success).toBe(false);
+  });
+});
+
+describe("NotificationTokenSchema", () => {
+  const token = "v1.eyJwIjoiY29uZmlybSJ9.c2lnbmF0dXJl";
+
+  it("accepts a base64url token", () => {
+    expect(NotificationTokenSchema.safeParse({ token }).success).toBe(true);
+  });
+
+  it.each([
+    ["too short", "v1.abc"],
+    ["too long", "a".repeat(513)],
+    ["bad characters", "v1.abc def ghi jkl mno pqr"],
+  ])("rejects a token that is %s", (_name, bad) => {
+    expect(NotificationTokenSchema.safeParse({ token: bad }).success).toBe(false);
+  });
+
+  it("needs a known purpose for the link query", () => {
+    expect(NotificationLinkQuerySchema.safeParse({ token, purpose: "confirm" }).success).toBe(true);
+    expect(NotificationLinkQuerySchema.safeParse({ token, purpose: "other" }).success).toBe(false);
   });
 });

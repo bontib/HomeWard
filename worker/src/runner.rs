@@ -25,6 +25,7 @@ pub const POLL_INTERVAL: Duration = Duration::from_secs(30);
 pub enum Lane {
     Fast,
     Slow,
+    Mail,
 }
 
 impl Lane {
@@ -41,6 +42,7 @@ impl Lane {
                 JobType::UpdateTrivyDb,
                 JobType::ImportKev,
             ],
+            Self::Mail => &[JobType::SendEmail, JobType::SendDigest],
         }
     }
 
@@ -48,6 +50,7 @@ impl Lane {
         match self {
             Self::Fast => "fast",
             Self::Slow => "slow",
+            Self::Mail => "mail",
         }
     }
 }
@@ -57,6 +60,7 @@ impl Lane {
 pub struct Wakeups {
     pub fast: Notify,
     pub slow: Notify,
+    pub mail: Notify,
 }
 
 impl Wakeups {
@@ -64,12 +68,14 @@ impl Wakeups {
         // notify_one stores a permit, so a job queued while a lane is busy is not missed.
         self.fast.notify_one();
         self.slow.notify_one();
+        self.mail.notify_one();
     }
 
     fn for_lane(&self, lane: Lane) -> &Notify {
         match lane {
             Lane::Fast => &self.fast,
             Lane::Slow => &self.slow,
+            Lane::Mail => &self.mail,
         }
     }
 }
@@ -222,6 +228,10 @@ async fn execute(ctx: &Context, job: &ClaimedJob) -> Result<(), JobError> {
         JobPayload::UpdateTrivyDb => jobs::update_trivy_db::run(ctx).await,
         JobPayload::ImportKev => jobs::import_kev::run(ctx).await,
         JobPayload::DevNoop(p) => jobs::dev_noop::run(&p).await,
+        // The mail lane is not started yet (PR-N4); these arms keep the match complete.
+        JobPayload::SendEmail(_) | JobPayload::SendDigest => Err(JobError::Internal(
+            "e-mail jobs are not implemented yet".into(),
+        )),
     }
 }
 
@@ -232,9 +242,12 @@ mod tests {
     #[test]
     fn every_job_type_belongs_to_exactly_one_lane() {
         for job_type in crate::contract::JobType::ALL {
-            let fast = Lane::Fast.job_types().contains(job_type);
-            let slow = Lane::Slow.job_types().contains(job_type);
-            assert!(fast ^ slow, "{job_type:?} must be in one lane");
+            let lanes = [Lane::Fast, Lane::Slow, Lane::Mail];
+            let count = lanes
+                .iter()
+                .filter(|lane| lane.job_types().contains(job_type))
+                .count();
+            assert!(count == 1, "{job_type:?} must be in one lane");
         }
     }
 }

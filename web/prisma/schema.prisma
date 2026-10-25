@@ -114,6 +114,8 @@ enum JobType {
   UPDATE_TRIVY_DB
   IMPORT_KEV
   DEV_NOOP
+  SEND_EMAIL // one notification row: CONFIRM, TEST, INSTANT or DIGEST
+  SEND_DIGEST // daily 07:00 summary, system job
 
   @@map("job_type")
 }
@@ -138,8 +140,38 @@ enum JobErrorCode {
   WORKER_LOST // job was RUNNING when its worker died
   BAD_PAYLOAD
   INTERNAL
+  SMTP_FAILED // mail server refused, timed out or could not be reached
+  SMTP_NOT_CONFIGURED // the worker has no valid SMTP_* settings
 
   @@map("job_error_code")
+}
+
+// ---------- E-mail notifications (V1.1, docs/architecture-notifications.md section 2) ----------
+
+enum EmailAlertState {
+  OFF
+  PENDING_CONFIRM // confirm mail sent, link not used yet
+  ON
+
+  @@map("email_alert_state")
+}
+
+enum NotificationKind {
+  CONFIRM
+  TEST
+  INSTANT
+  DIGEST
+
+  @@map("notification_kind")
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  FAILED
+  CANCELLED
+
+  @@map("notification_status")
 }
 
 enum ProductSearchStatus {
@@ -175,6 +207,9 @@ model User {
   accounts Account[]
   devices  Device[]
   jobs     Job[]
+
+  notificationPref NotificationPref?
+  notifications    Notification[]
 
   @@map("app_user") // "user" is reserved in SQL
 }
@@ -349,9 +384,16 @@ model Finding {
   firstSeenAt     DateTime      @default(now()) @map("first_seen_at")
   lastSeenAt      DateTime      @default(now()) @map("last_seen_at")
 
+  // Mailed once, ever (N-D11). Set when a mail is queued, on ignore, and by the confirm baseline.
+  // Cleared again (with notificationId) when that mail fails for good (N-D12).
+  notifiedAt     DateTime?     @map("notified_at")
+  notificationId String?       @map("notification_id")
+  notification   Notification? @relation(fields: [notificationId], references: [id], onDelete: SetNull)
+
   @@unique([componentId, vulnerabilityId])
   @@index([deviceId, state])
   @@index([vulnerabilityId])
+  @@index([notificationId])
   @@map("finding")
 }
 
@@ -452,5 +494,44 @@ model WorkerStatus {
   nextRescanAt DateTime? @map("next_rescan_at")
   nvdApiKeySet Boolean   @map("nvd_api_key_set")
 
+  smtpConfigured Boolean @default(false) @map("smtp_configured") // SMTP_* settings valid at start
+  timeZone       String? @map("time_zone") // worker TZ; the daily summary goes out at 07:00 in it
+
   @@map("worker_status")
+}
+
+// One row per user, created on the first "turn on". No row = OFF.
+model NotificationPref {
+  userId            String          @id @map("user_id")
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailState        EmailAlertState @default(OFF) @map("email_state")
+  confirmNonce      String?         @map("confirm_nonce") // only the newest confirm link works; null after use
+  unsubscribeToken  String          @map("unsubscribe_token") // signed by web, copied into every mail by the worker
+  confirmedAt       DateTime?       @map("confirmed_at")
+  lastConfirmSentAt DateTime?       @map("last_confirm_sent_at") // web clock, 10-minute limit
+  lastTestAt        DateTime?       @map("last_test_at") // web clock, 5-minute limit
+  lastInstantAt     DateTime?       @map("last_instant_at") // worker clock, one INSTANT per hour
+  lastDigestAt      DateTime?       @map("last_digest_at") // worker clock, one DIGEST per local day
+  createdAt         DateTime        @default(now()) @map("created_at")
+
+  @@map("notification_pref")
+}
+
+// One row per mail. The worker builds the text from current rows when it sends.
+model Notification {
+  id        String             @id @default(dbgenerated("(gen_random_uuid())::text"))
+  userId    String             @map("user_id")
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      NotificationKind
+  status    NotificationStatus @default(QUEUED)
+  itemCount Int                @default(0) @map("item_count") // findings in an INSTANT or DIGEST
+  linkToken String?            @map("link_token") // CONFIRM only; cleared when the row is final
+  errorCode JobErrorCode?      @map("error_code")
+  createdAt DateTime           @default(now()) @map("created_at")
+  sentAt    DateTime?          @map("sent_at")
+
+  findings Finding[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("notification")
 }

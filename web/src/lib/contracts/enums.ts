@@ -50,6 +50,8 @@ export const JobTypeSchema = z.enum([
   "UPDATE_TRIVY_DB",
   "IMPORT_KEV",
   "DEV_NOOP",
+  "SEND_EMAIL",
+  "SEND_DIGEST",
 ]);
 export const JobStatusSchema = z.enum(["QUEUED", "RUNNING", "DONE", "FAILED"]);
 export const JobErrorCodeSchema = z.enum([
@@ -62,8 +64,13 @@ export const JobErrorCodeSchema = z.enum([
   "WORKER_LOST",
   "BAD_PAYLOAD",
   "INTERNAL",
+  "SMTP_FAILED",
+  "SMTP_NOT_CONFIGURED",
 ]);
 export const DataSourceIdSchema = z.enum(["NVD", "TRIVY_DB", "KEV"]);
+export const EmailAlertStateSchema = z.enum(["OFF", "PENDING_CONFIRM", "ON"]);
+export const NotificationKindSchema = z.enum(["CONFIRM", "TEST", "INSTANT", "DIGEST"]);
+export const NotificationStatusSchema = z.enum(["QUEUED", "SENT", "FAILED", "CANCELLED"]);
 // One TS type per schema: export type DeviceType = z.infer<typeof DeviceTypeSchema>; etc.
 
 export type DeviceType = z.infer<typeof DeviceTypeSchema>;
@@ -79,6 +86,9 @@ export type JobType = z.infer<typeof JobTypeSchema>;
 export type JobStatus = z.infer<typeof JobStatusSchema>;
 export type JobErrorCode = z.infer<typeof JobErrorCodeSchema>;
 export type DataSourceId = z.infer<typeof DataSourceIdSchema>;
+export type EmailAlertState = z.infer<typeof EmailAlertStateSchema>;
+export type NotificationKind = z.infer<typeof NotificationKindSchema>;
+export type NotificationStatus = z.infer<typeof NotificationStatusSchema>;
 
 export const ProductSearchStatusSchema = z.enum(["PENDING", "READY", "FAILED"]);
 export type ProductSearchStatus = z.infer<typeof ProductSearchStatusSchema>;

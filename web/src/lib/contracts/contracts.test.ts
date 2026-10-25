@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import * as enums from "./enums";
+import { DIGEST_HOUR } from "./api";
 import { JobPayloadSchemas } from "./jobs";
 import { riskLevel } from "./risk";
 import { JobTypeSchema } from "./enums";
@@ -50,6 +51,9 @@ describe("enums match prisma/schema.prisma", () => {
     JobErrorCode: enums.JobErrorCodeSchema.options,
     ProductSearchStatus: enums.ProductSearchStatusSchema.options,
     DataSourceId: enums.DataSourceIdSchema.options,
+    EmailAlertState: enums.EmailAlertStateSchema.options,
+    NotificationKind: enums.NotificationKindSchema.options,
+    NotificationStatus: enums.NotificationStatusSchema.options,
   };
   const fromSchema = prismaEnums();
 
@@ -90,5 +94,12 @@ describe("risk-levels.json", () => {
 
   it.each(fixture.levels)("score $cvssScore, $severity, exploited $exploited is $level", (c) => {
     expect(riskLevel(c)).toBe(c.level);
+  });
+});
+
+describe("notifications.json", () => {
+  it("has the same digest hour as the code", () => {
+    const fixture = readJson(path.join(contractsDir, "notifications.json")) as { digestHour: number };
+    expect(DIGEST_HOUR).toBe(fixture.digestHour);
   });
 });

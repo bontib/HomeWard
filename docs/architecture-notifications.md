@@ -436,6 +436,8 @@ export type NotificationSettings = {
   smtpConfigured: boolean;           // worker_status.smtp_configured; false when the worker never ran
   lastSentAt: IsoDate | null;        // newest SENT notification, any kind
   lastError: JobErrorCode | null;    // set when the newest finished (SENT or FAILED) notification is FAILED
+  digestHour: number;                // 7; local to timeZone
+  timeZone: string | null;           // worker TZ name; null when the worker never ran
   confirmResendAt: IsoDate | null;   // PENDING_CONFIRM: when "Send the link again" unlocks (countdown)
   testAvailableAt: IsoDate | null;   // when "Send a test email" unlocks; null = now
 };
@@ -600,6 +602,6 @@ Deviations (also to be noted in plan section 9 when this merges):
 7. Ignoring a finding marks it as notified. That is what makes "reopen does not mail again" hold.
 8. Two new `ApiErrorCode` values: `CONFLICT` (409) and `INVALID_LINK` (400).
 
-Open points for the product owner:
-- "7 am" is the server's `TZ`. Should Settings show the time zone name (a `worker_status.time_zone` column, one line of UI) or keep the fixed "7 am" text? This design works either way. If wanted, it goes into PR-N1.
-- The confirm baseline marks every existing finding, including Low ones. A Low finding from before confirmation that KEV later makes Critical is not mailed. To change that, the baseline would mark only Critical and Vulnerable findings, using `risk.ts` on the web side.
+Open points, decided in PR-N1:
+- The time zone is shown. The worker writes `worker_status.time_zone` (its `TZ`) with the heartbeat (PR-N2). `NotificationSettings` has `digestHour` (7, from `DIGEST_HOUR`; `contracts/notifications.json` keeps web and worker equal) and `timeZone` (null until the worker has run). Settings reads "7 am (server time, Europe/Amsterdam)".
+- The confirm baseline marks every existing finding of every level (section 6.4), as written. A Low finding that KEV later makes Critical is not mailed.

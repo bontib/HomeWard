@@ -84,6 +84,9 @@ fn rust_enums_have_the_same_variants_as_the_prisma_schema() {
         ("JobErrorCode", names(JobErrorCode::ALL)),
         ("ProductSearchStatus", names(ProductSearchStatus::ALL)),
         ("DataSourceId", names(DataSourceId::ALL)),
+        ("EmailAlertState", names(EmailAlertState::ALL)),
+        ("NotificationKind", names(NotificationKind::ALL)),
+        ("NotificationStatus", names(NotificationStatus::ALL)),
     ]);
     let prisma = prisma_enums();
 
@@ -118,6 +121,9 @@ fn postgres_type_names_match_the_prisma_map_names() {
         "job_error_code",
         "product_search_status",
         "data_source_id",
+        "email_alert_state",
+        "notification_kind",
+        "notification_status",
     ] {
         assert!(
             schema.contains(&format!("@@map(\"{type_name}\")")),
@@ -229,4 +235,15 @@ fn device_status_matches_the_shared_fixture() {
         let actual = derive_status(&open_levels, &case.component_checks);
         assert_eq!(actual, case.expected, "case: {}", case.name);
     }
+}
+
+#[test]
+fn digest_hour_matches_the_shared_fixture() {
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct Notifications {
+        digest_hour: u32,
+    }
+    let fixture: Notifications = read_json(&repo_root().join("contracts/notifications.json"));
+    assert_eq!(DIGEST_HOUR, fixture.digest_hour);
 }

@@ -59,6 +59,14 @@ services:
       NVD_API_KEY: ${NVD_API_KEY:-}
       RESCAN_CRON: ${RESCAN_CRON:-0 3 * * *}
       TZ: ${TZ:-UTC}
+      # Email alerts. Only the worker sends mail, so only the worker gets the SMTP settings.
+      APP_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_TLS: ${SMTP_TLS:-}
     security_opt:
       - no-new-privileges:true
     cap_drop:

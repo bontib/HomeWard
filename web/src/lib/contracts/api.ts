@@ -8,6 +8,7 @@ import type {
   DataSourceId,
   DeviceStatus,
   DeviceType,
+  EmailAlertState,
   FindingSource,
   FindingState,
   JobErrorCode,
@@ -27,6 +28,8 @@ export type ApiErrorCode =
   | "PAYLOAD_TOO_LARGE" // 413
   | "UNSUPPORTED_FILE" // 415
   | "RATE_LIMITED" // 429
+  | "CONFLICT" // 409, e.g. email alerts asked for while SMTP is not set up
+  | "INVALID_LINK" // 400, confirm and unsubscribe token routes only
   | "INTERNAL"; // 500, message is always "Something went wrong. Try again."
 
 export type ApiError = {
@@ -202,6 +205,36 @@ export type ChecksStatus = {
   recent: RecentCheck[]; // last 10
 };
 
+// ---------- E-mail notifications (docs/architecture-notifications.md section 7) ----------
+
+/** The daily summary goes out at this hour, in the worker's time zone (N-D8). */
+export const DIGEST_HOUR = 7;
+
+export type NotificationSettings = {
+  state: EmailAlertState; // OFF | PENDING_CONFIRM | ON
+  email: string; // the signed-in person's own address, nobody else's
+  smtpConfigured: boolean; // worker_status.smtp_configured; false when the worker never ran
+  digestHour: number; // 0 to 23, local to timeZone; "7 am (server time, Europe/Amsterdam)"
+  timeZone: string | null; // worker TZ name; null when the worker never ran
+  lastSentAt: IsoDate | null; // newest SENT notification, any kind
+  lastError: JobErrorCode | null; // set when the newest finished (SENT or FAILED) notification is FAILED
+  confirmResendAt: IsoDate | null; // PENDING_CONFIRM: when "Send the link again" unlocks
+  testAvailableAt: IsoDate | null; // when "Send a test email" unlocks; null = now
+};
+
+export type NotificationLinkView = {
+  purpose: "confirm" | "unsubscribe";
+  maskedEmail: string; // "y***@example.com"
+  alreadyDone: boolean; // confirm: already ON; unsubscribe: already OFF
+};
+
+export type NotificationSettingsResponse = { settings: NotificationSettings };
+/** PUT /api/notifications/email and POST /api/notifications/test. jobId watches the SEND_EMAIL job. */
+export type NotificationActionResponse = { settings: NotificationSettings; jobId: string | null };
+export type NotificationLinkResponse = { link: NotificationLinkView };
+export type ConfirmEmailAlertsResponse = { state: "ON" };
+export type UnsubscribeEmailAlertsResponse = { state: "OFF" };
+
 // ---------- Request schemas ----------
 
 const deviceName = z
@@ -275,3 +308,16 @@ export const UpdateFindingSchema = z.discriminatedUnion("state", [
   }),
   z.object({ state: z.literal("OPEN") }),
 ]);
+
+// ---------- Notification request schemas ----------
+
+export const SetEmailAlertsSchema = z.object({ enabled: z.boolean() }).strict();
+export const SendTestEmailSchema = z.object({}).strict();
+
+// Tokens are opaque here: "v1.<payload>.<signature>", all base64url.
+export const NotificationTokenSchema = z
+  .object({ token: z.string().min(20).max(512).regex(/^[A-Za-z0-9_.-]+$/) })
+  .strict();
+export const NotificationLinkQuerySchema = NotificationTokenSchema.extend({
+  purpose: z.enum(["confirm", "unsubscribe"]),
+});

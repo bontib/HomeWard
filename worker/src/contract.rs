@@ -71,7 +71,9 @@ db_enum!(
         RescanAll,
         UpdateTrivyDb,
         ImportKev,
-        DevNoop
+        DevNoop,
+        SendEmail,
+        SendDigest
     ]
 );
 db_enum!(JobStatus, "job_status", [Queued, Running, Done, Failed]);
@@ -87,7 +89,9 @@ db_enum!(
         Timeout,
         WorkerLost,
         BadPayload,
-        Internal
+        Internal,
+        SmtpFailed,
+        SmtpNotConfigured
     ]
 );
 db_enum!(
@@ -96,6 +100,25 @@ db_enum!(
     [Pending, Ready, Failed]
 );
 db_enum!(DataSourceId, "data_source_id", [Nvd, TrivyDb, Kev]);
+db_enum!(
+    EmailAlertState,
+    "email_alert_state",
+    [Off, PendingConfirm, On]
+);
+db_enum!(
+    NotificationKind,
+    "notification_kind",
+    [Confirm, Test, Instant, Digest]
+);
+db_enum!(
+    NotificationStatus,
+    "notification_status",
+    [Queued, Sent, Failed, Cancelled]
+);
+
+/// The daily summary goes out at this local hour. Same value as `DIGEST_HOUR` in the web
+/// contracts; `contracts/notifications.json` keeps them equal.
+pub const DIGEST_HOUR: u32 = 7;
 
 impl JobErrorCode {
     /// The name stored in Postgres and sent to the browser.
@@ -110,12 +133,17 @@ impl JobErrorCode {
             Self::WorkerLost => "WORKER_LOST",
             Self::BadPayload => "BAD_PAYLOAD",
             Self::Internal => "INTERNAL",
+            Self::SmtpFailed => "SMTP_FAILED",
+            Self::SmtpNotConfigured => "SMTP_NOT_CONFIGURED",
         }
     }
 
     /// Retrying will not help for these (architecture section 4.3).
     pub fn is_retryable(self) -> bool {
-        !matches!(self, Self::SbomInvalid | Self::BadPayload)
+        !matches!(
+            self,
+            Self::SbomInvalid | Self::BadPayload | Self::SmtpNotConfigured
+        )
     }
 }
 
@@ -145,6 +173,12 @@ pub struct RescanAllPayload {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct SendEmailPayload {
+    pub notification_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DevNoopPayload {
     pub sleep_ms: Option<u64>,
 }
@@ -159,6 +193,8 @@ pub enum JobPayload {
     UpdateTrivyDb,
     ImportKev,
     DevNoop(DevNoopPayload),
+    SendEmail(SendEmailPayload),
+    SendDigest,
 }
 
 const MAX_NOOP_SLEEP_MS: u64 = 5000;
@@ -206,6 +242,14 @@ impl JobPayload {
                 }
                 Ok(Self::DevNoop(payload))
             }
+            JobType::SendEmail => {
+                let payload = SendEmailPayload::deserialize(value).map_err(decode_error)?;
+                if payload.notification_id.is_empty() {
+                    return Err(fail("notificationId is empty".into()));
+                }
+                Ok(Self::SendEmail(payload))
+            }
+            JobType::SendDigest => Ok(Self::SendDigest),
         }
     }
 }
@@ -232,6 +276,25 @@ mod tests {
     fn bad_payload_and_invalid_sbom_are_not_retryable() {
         assert!(!JobErrorCode::BadPayload.is_retryable());
         assert!(!JobErrorCode::SbomInvalid.is_retryable());
+    }
+
+    #[test]
+    fn missing_smtp_settings_are_not_retryable() {
+        assert!(!JobErrorCode::SmtpNotConfigured.is_retryable());
+        assert!(JobErrorCode::SmtpFailed.is_retryable());
+    }
+
+    #[test]
+    fn send_email_needs_a_notification_id() {
+        let empty = JobPayload::parse(JobType::SendEmail, &json!({ "notificationId": "" }));
+        let missing = JobPayload::parse(JobType::SendEmail, &json!({}));
+        assert!(empty.is_err() && missing.is_err());
+    }
+
+    #[test]
+    fn send_digest_takes_an_empty_payload() {
+        let result = JobPayload::parse(JobType::SendDigest, &json!({}));
+        assert!(matches!(result, Ok(JobPayload::SendDigest)));
     }
 
     #[test]
