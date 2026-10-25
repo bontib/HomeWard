@@ -5,6 +5,7 @@ node_modules
 .env.*
 coverage
 e2e
+playwright.config.ts
 test-results
 playwright-report
 src/generated

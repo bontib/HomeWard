@@ -10,9 +10,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-# The build needs no database. This secret only satisfies the env check and is not kept.
+# The build needs no database. These values only satisfy env checks and are not kept.
 RUN mkdir -p public \
- && npx prisma generate \
+ && DATABASE_URL=postgresql://build:build@localhost:5432/build npx prisma generate \
  && BETTER_AUTH_SECRET=build-only-secret-build-only-secret-0000 npm run build
 
 FROM node:22-alpine AS tools
