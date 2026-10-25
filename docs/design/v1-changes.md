@@ -38,6 +38,20 @@ Reference: `docs/design/homeguard/`. Visual language (tokens, type, icons, compo
 | 25 (Q7) | SBOM help: one line per system | Adds: scanning the whole disk can take a long time and may need an administrator or sudo. | `syft dir:/` scans everything. |
 | 26 (Q10) | Product CVE cache 7 days (P8-2) | 24 hours. Recorded in `docs/architecture-v1.md` section 10. Revisit if NVD limits are hit. | Nightly rescan sees new CVEs. |
 
+## Email alerts (branch feature/email-notifications)
+
+Full spec: `docs/design/notifications.md`. These supersede rows 13 and 16 for e-mail only (push, per-device alerts and the Notifications nav item stay out).
+
+| # | Design | V1 | Why |
+|---|--------|----|-----|
+| 27 | Settings > Notifications: push, email, weekly report switches | One card "Email alerts" with one switch "Email me about new problems", a state Pill and states: Not set up, Off, Waiting for you, On, Can't send | E-mail only (N-D1). States say what is really happening, never "working". |
+| 28 | "When should we tell you?" with a frequency select per level | Read-only card "What we email you": right away for Critical, daily summary at 7 am for Critical and Vulnerable, and a "Not emailed" row | No choices in V1 (N-D1, N-D9). Says what is not mailed so silence is not read as safe. |
+| 29 | Quiet hours, "Who gets alerts", "Save changes" | Removed. The switch applies at once. | Non-goals (N-D1, N-D13). |
+| 30 | "Send a test alert" | "Send a test email", only when On, with reasons shown as text when disabled | N-D15. |
+| 31 | Phone push as the alert sample | Plain-text mail sample marked "Example" | Mail is the only channel. |
+| 32 | Footer on notices: none | Every mail and the Notifications card carry: "We only email about new problems. No email does not mean a device is safe." | Honesty rule (N-D16). |
+| 33 | n/a | New pages `/notifications/confirm` and `/notifications/unsubscribe` (no sign-in, button-only, address masked as `y***@example.com`), and plain-text mail wording for confirm, right away, daily summary and test | NF-5. Masking differs from the backlog text because the link can be forwarded. |
+
 ## Open design issue (needs frontend)
 
 - **The "No known vulnerabilities" badge still uses a green shield with a check mark** (`RiskBadge` `safe`, also the score tint). A check mark reads as "all good". Change the icon for this level to a shield with a dash or a ring (no check), keep the label. Keep the color pair for now; revisit if testing shows it still reads as "safe".
