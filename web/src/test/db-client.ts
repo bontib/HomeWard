@@ -5,6 +5,8 @@ import type { TestDb } from "./test-db";
 
 const TABLES = [
   "job",
+  "notification",
+  "notification_pref",
   "finding",
   "version_change",
   "sbom",

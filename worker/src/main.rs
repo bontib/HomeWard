@@ -11,6 +11,7 @@ use tracing_subscriber::EnvFilter;
 use worker::config::{check_cron, Config};
 use worker::context::Context;
 use worker::db::{self, ConnectPolicy};
+use worker::mailer::{Mailer, TlsMode};
 use worker::nvd::{NvdClient, NvdSettings};
 use worker::runner::{self, Lane, Wakeups};
 use worker::trivy::Trivy;
@@ -84,14 +85,44 @@ async fn build_context(config: Config, pool: PgPool) -> anyhow::Result<Context> 
         .redirect(worker::http_limits::same_host_redirects())
         .build()
         .context("could not build the HTTP client")?;
+    let mailer = build_mailer(&config);
     Ok(Context {
         pool,
         config,
         nvd,
         trivy,
         http,
+        mailer,
         instance_id: instance_id(),
     })
+}
+
+/// A bad mail setting turns e-mail off with one plain line; it never stops the worker.
+fn build_mailer(config: &Config) -> Option<Mailer> {
+    let settings = match &config.smtp {
+        Ok(settings) => settings,
+        Err(off) => {
+            if off.is_unset() {
+                info!("{off}");
+            } else {
+                warn!("{off}");
+            }
+            return None;
+        }
+    };
+    match Mailer::smtp(settings) {
+        Ok(mailer) => {
+            info!("{}", settings.start_line());
+            if settings.tls == TlsMode::Off {
+                warn!("SMTP_TLS is off: email and the SMTP password are sent unencrypted.");
+            }
+            Some(mailer)
+        }
+        Err(err) => {
+            warn!("Email alerts are off: the SMTP settings could not be used ({err}).");
+            None
+        }
+    }
 }
 
 async fn serve() -> anyhow::Result<()> {
@@ -105,7 +136,8 @@ async fn serve() -> anyhow::Result<()> {
     info!(instance = %ctx.instance_id, api_key = ctx.config.nvd_api_key.is_some(), "worker starting");
 
     // Jobs left RUNNING by an earlier process go back in the queue before we claim anything.
-    heartbeat::beat(&pool, &ctx.config, started_at).await?;
+    let smtp_on = ctx.mailer.is_some();
+    heartbeat::beat(&pool, &ctx.config, started_at, smtp_on).await?;
     heartbeat::reap(&pool, &ctx.instance_id, true).await?;
     scheduler::bootstrap(&pool, ctx.trivy.has_db()).await?;
 
@@ -117,7 +149,7 @@ async fn serve() -> anyhow::Result<()> {
         wakeups.clone(),
         shutdown.clone(),
     ));
-    for lane in [Lane::Fast, Lane::Slow] {
+    for lane in [Lane::Fast, Lane::Slow, Lane::Mail] {
         tasks.spawn(runner::run_lane(
             ctx.clone(),
             lane,
@@ -126,9 +158,13 @@ async fn serve() -> anyhow::Result<()> {
         ));
     }
     tasks.spawn(scheduler::run(pool.clone(), cron, shutdown.clone()));
+    if smtp_on {
+        tasks.spawn(scheduler::run_digest(pool.clone(), shutdown.clone()));
+    }
     tasks.spawn(heartbeat::run(
         pool.clone(),
         ctx.config.clone(),
+        smtp_on,
         ctx.instance_id.clone(),
         started_at,
         shutdown.clone(),

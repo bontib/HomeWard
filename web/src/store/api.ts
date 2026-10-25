@@ -5,7 +5,15 @@ import type { ApiError } from "@/lib/contracts";
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
-  tagTypes: ["Device", "DeviceList", "Components", "Findings", "Vulnerability", "Checks"],
+  tagTypes: [
+    "Device",
+    "DeviceList",
+    "Components",
+    "Findings",
+    "Vulnerability",
+    "Checks",
+    "Notifications",
+  ],
   endpoints: () => ({}),
 });
 

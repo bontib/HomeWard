@@ -13,5 +13,5 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // API routes answer 401 themselves; auth pages and static files are public.
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|login|signup|ui).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|login|signup|ui|notifications).*)"],
 };

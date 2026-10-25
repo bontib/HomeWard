@@ -38,11 +38,32 @@ pub async fn on_failed(
         JobType::UpdateTrivyDb => {
             data_source::record_failure(pool, DataSourceId::TrivyDb, code).await?;
         }
-        JobType::RecomputeStatus
-        | JobType::RescanAll
-        | JobType::DevNoop
-        | JobType::SendEmail
-        | JobType::SendDigest => {}
+        JobType::SendEmail => release_findings_of_failed_mail(pool, job_id, code).await?,
+        // Rerunning a failed digest is safe, so it needs no cleanup.
+        JobType::RecomputeStatus | JobType::RescanAll | JobType::DevNoop | JobType::SendDigest => {}
     }
+    Ok(())
+}
+
+/// A mail that failed for good no longer counts as "told": its findings become new again,
+/// so the next daily summary picks them up (N-D12). Running it twice changes nothing.
+async fn release_findings_of_failed_mail(
+    pool: &PgPool,
+    job_id: &str,
+    code: JobErrorCode,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        "WITH n AS (
+           UPDATE notification SET status = 'FAILED', error_code = $2, link_token = NULL
+           WHERE id = (SELECT payload->>'notificationId' FROM job WHERE id = $1)
+             AND status = 'QUEUED'
+           RETURNING id)
+         UPDATE finding SET notified_at = NULL, notification_id = NULL
+         WHERE notification_id IN (SELECT id FROM n)",
+    )
+    .bind(job_id)
+    .bind(code)
+    .execute(pool)
+    .await?;
     Ok(())
 }

@@ -62,6 +62,11 @@ const ICONS = {
   refresh: ["M20 11a8 8 0 0 0-14-4L4 9", "M4 4v5h5", "M4 13a8 8 0 0 0 14 4l2-2", "M20 20v-5h-5"],
   file: ["M6 3h8l4 4v14H6z", "M14 3v4h4"],
   trash: ["M4 7h16", "M9 7V4h6v3", "M6 7l1 13h10l1-13"],
+  bell: ["M6 16V11a6 6 0 0 1 12 0v5l2 2H4z", "M10 21h4"],
+  clock: ["M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0", "M12 7v5l3 2"],
+  dashCircle: ["M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0", "M8 12h8"],
+  // Same shape as the Critical badge, so "critical" looks the same everywhere.
+  critical: ["M8 2h8l6 6v8l-6 6H8l-6-6V8z", "M12 7v6", "M12 16.5h.01"],
 } as const;
 
 export type IconName = keyof typeof ICONS;

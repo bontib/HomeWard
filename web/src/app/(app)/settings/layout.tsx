@@ -3,6 +3,7 @@ import { SubNav } from "@/components/ui/SubNav";
 const ITEMS = [
   { href: "/settings/account", label: "Account" },
   { href: "/settings/checks", label: "Checks" },
+  { href: "/settings/notifications", label: "Notifications" },
 ];
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {

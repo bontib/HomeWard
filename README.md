@@ -79,6 +79,35 @@ The worker re-checks all devices every night (`RESCAN_CRON`, default `0 3 * * *`
 time zone `TZ`). If the machine was off at that time, it catches up at the next start.
 Run exactly one worker.
 
+## Email alerts (optional)
+
+HomeGuard can email each person about new problems: a mail right away for a new Critical
+problem (at most one per hour), and a daily summary at 7 am of new Critical and Vulnerable
+problems (only on days when there is something new). Nothing is mailed about problems a person
+already had when they turned alerts on. No email does not mean a device is safe.
+
+1. In `.env`, set `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM` and, if your mail server needs a login,
+   both `SMTP_USER` and `SMTP_PASSWORD`. Only the worker reads these; the web container never
+   sees them. Set `TZ` to your own time zone: the daily summary goes out at 7 am in `TZ`
+   (the default is UTC).
+2. `docker compose up -d` again. `docker compose logs worker` shows one line, either
+   "Email alerts are on: sending through ..." or "Email alerts are off: ..." with the name of
+   the setting to fix. A wrong mail setting never stops the worker.
+3. Each person opens Settings > Notifications, turns on "Email me about new problems",
+   opens the link in the mail that arrives and presses the button. "Send a test email" proves
+   that mail gets through. Mail goes to the address on the account.
+4. Every mail has an unsubscribe link, and mail programs show their own unsubscribe button.
+
+Port 465 uses TLS from the first byte, any other port needs STARTTLS. `SMTP_TLS=off` sends mail
+and the password unencrypted; use it only for a relay on your own network with no valid
+certificate. The links in mails use `BETTER_AUTH_URL`, so it must be an address your phone can
+open. Without `SMTP_HOST` the app works as before and the switch in Settings is disabled.
+
+Changing `BETTER_AUTH_SECRET` signs everyone out and also stops the links in mails that were
+already sent. Settings > Notifications still works. If the worker is restarted after 7 am it may
+send that day's summary at start, once. Sending is "at least once": in the rare case that the
+worker stops right after the mail server accepted a mail, that mail can arrive twice.
+
 ## What HomeGuard can and cannot tell you
 
 Please read this. "No known vulnerabilities" is not "safe".

@@ -7,8 +7,11 @@ use std::str::FromStr;
 use croner::Cron;
 use thiserror::Error;
 
-/// Listener, two lanes, scheduler and one spare (architecture section 7.2).
-const DB_POOL_SIZE: u32 = 5;
+use crate::mailer::{SmtpOff, SmtpSettings};
+
+/// Listener, three lanes (fast, slow, mail), scheduler and one spare (architecture section 7.2,
+/// ADR 0007).
+const DB_POOL_SIZE: u32 = 6;
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum ConfigError {
@@ -35,6 +38,10 @@ pub struct Config {
     pub trivy_cache_dir: PathBuf,
     /// Five fields, checked at start so a typo stops the worker at once.
     pub rescan_cron: String,
+    /// The container's `TZ` name; the daily summary goes out at 07:00 in it.
+    pub time_zone: String,
+    /// `Err` means e-mail is off. A bad mail setting never stops the worker.
+    pub smtp: Result<SmtpSettings, SmtpOff>,
 }
 
 impl Config {
@@ -71,6 +78,8 @@ impl Config {
             trivy_path: value("TRIVY_PATH", "trivy").into(),
             trivy_cache_dir: value("TRIVY_CACHE_DIR", DEFAULT_TRIVY_CACHE).into(),
             rescan_cron,
+            time_zone: value("TZ", "UTC"),
+            smtp: SmtpSettings::from_lookup(&get),
         })
     }
 }
@@ -102,6 +111,8 @@ impl fmt::Debug for Config {
             .field("trivy_path", &self.trivy_path)
             .field("trivy_cache_dir", &self.trivy_cache_dir)
             .field("rescan_cron", &self.rescan_cron)
+            .field("time_zone", &self.time_zone)
+            .field("smtp", &self.smtp)
             .finish()
     }
 }
@@ -133,9 +144,9 @@ mod tests {
     }
 
     #[test]
-    fn pool_size_defaults_to_five() {
+    fn pool_size_defaults_to_six() {
         let config = Config::from_lookup(lookup(&[("DATABASE_URL", "postgres://x")])).unwrap();
-        assert_eq!(config.db_pool_size, 5);
+        assert_eq!(config.db_pool_size, 6);
     }
 
     #[test]
@@ -181,6 +192,29 @@ mod tests {
         ]))
         .unwrap();
         assert!(!format!("{config:?}").contains("abc-key-123"));
+    }
+
+    #[test]
+    fn without_smtp_host_email_is_off_and_the_config_still_loads() {
+        let config = Config::from_lookup(lookup(&[("DATABASE_URL", "x")])).unwrap();
+        assert!(config.smtp.is_err());
+        assert_eq!(config.time_zone, "UTC");
+    }
+
+    #[test]
+    fn the_smtp_password_never_shows_in_the_config_debug_output() {
+        let config = Config::from_lookup(lookup(&[
+            ("DATABASE_URL", "x"),
+            ("SMTP_HOST", "mail.example.com"),
+            ("SMTP_PORT", "587"),
+            ("SMTP_USER", "me"),
+            ("SMTP_PASSWORD", "mail-secret-pw"),
+            ("SMTP_FROM", "a@example.com"),
+            ("APP_URL", "http://localhost:3000"),
+        ]))
+        .unwrap();
+        assert!(config.smtp.is_ok());
+        assert!(!format!("{config:?}").contains("mail-secret-pw"));
     }
 
     #[test]

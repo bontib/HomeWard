@@ -41,6 +41,13 @@ beforeAll(async () => {
   await load("run", import("./checks/run/route"));
   await load("devjobs", import("./dev/jobs/route"));
   await load("health", import("./health/route"));
+  await load("notifications", import("./notifications/route"));
+  await load("nemail", import("./notifications/email/route"));
+  await load("ntest", import("./notifications/test/route"));
+  await load("nlink", import("./notifications/link/route"));
+  await load("nconfirm", import("./notifications/confirm/route"));
+  await load("nunsub", import("./notifications/unsubscribe/route"));
+  await load("noneclick", import("./notifications/unsubscribe/one-click/route"));
 }, 120_000);
 
 afterAll(async () => {
@@ -75,6 +82,9 @@ type Call = {
   form?: FormData;
   query?: string;
   id?: string;
+  headers?: Record<string, string>;
+  /** A body that is not JSON, with its own content type. */
+  raw?: { body: string; type: string };
 };
 
 async function call(handler: string, method: string, opts: Call = {}) {
@@ -82,7 +92,11 @@ async function call(handler: string, method: string, opts: Call = {}) {
   const headers = new Headers();
   if (user) headers.set("cookie", cookies[user] ?? "");
   let body: BodyInit | undefined;
-  if (opts.form) body = opts.form;
+  for (const [name, value] of Object.entries(opts.headers ?? {})) headers.set(name, value);
+  if (opts.raw) {
+    body = opts.raw.body;
+    headers.set("content-type", opts.raw.type);
+  } else if (opts.form) body = opts.form;
   else if (opts.body !== undefined) {
     body = JSON.stringify(opts.body);
     headers.set("content-type", "application/json");
@@ -126,6 +140,9 @@ describe("the session gate", () => {
     ["checks", "GET"],
     ["run", "POST"],
     ["devjobs", "POST"],
+    ["notifications", "GET"],
+    ["nemail", "PUT", { body: { enabled: true } }],
+    ["ntest", "POST", { body: {} }],
   ];
 
   it.each(routes)("%s %s answers 401 without a session", async (name, method, opts) => {
@@ -351,5 +368,240 @@ describe("checks", () => {
     expect(run.status).toBe(202);
     const status = await call("checks", "GET");
     expect(status.body.activeRescanJobId).toBe(run.body.jobId);
+  });
+});
+
+describe("notification routes", () => {
+  const origin = { origin: "http://localhost:3000" };
+
+  async function turnOnFor(name: "alice" | "bob") {
+    await prisma.workerStatus.upsert({
+      where: { id: 1 },
+      create: {
+        startedAt: new Date(),
+        heartbeatAt: new Date(),
+        version: "test",
+        rescanCron: "0 3 * * *",
+        nvdApiKeySet: false,
+        smtpConfigured: true,
+      },
+      update: { smtpConfigured: true },
+    });
+    const put = await call("nemail", "PUT", { as: name, body: { enabled: true } });
+    expect(put.status).toBe(200);
+    const user = await prisma.user.findUniqueOrThrow({ where: { email: `${name}@example.com` } });
+    const row = await prisma.notification.findFirstOrThrow({
+      where: { userId: user.id, kind: "CONFIRM" },
+    });
+    return { token: row.linkToken as string, userId: user.id, put };
+  }
+
+  it("GET /api/notifications returns only the signed-in person's settings", async () => {
+    const res = await call("notifications", "GET", { as: "bob" });
+    expect(res.status).toBe(200);
+    expect(res.body.settings).toMatchObject({
+      state: "OFF",
+      email: "bob@example.com",
+      smtpConfigured: false,
+    });
+  });
+
+  it("PUT answers 409 with the not-set-up text when the worker has no smtp", async () => {
+    const res = await call("nemail", "PUT", { body: { enabled: true } });
+    expect(res.status).toBe(409);
+    expect(res.body.error).toEqual({
+      code: "CONFLICT",
+      message: "Email alerts aren't set up on this HomeGuard yet.",
+    });
+  });
+
+  it("PUT checks the body, the content type and the Origin", async () => {
+    expect((await call("nemail", "PUT", { body: { enabled: "yes" } })).status).toBe(400);
+    expect((await call("nemail", "PUT", { body: { enabled: true, extra: 1 } })).status).toBe(400);
+    const notJson = await call("nemail", "PUT", {
+      raw: { body: "enabled=true", type: "text/plain" },
+    });
+    expect(notJson.status).toBe(400);
+    const crossSite = await call("nemail", "PUT", {
+      body: { enabled: true },
+      headers: { origin: "https://evil.example" },
+    });
+    expect(crossSite.status).toBe(403);
+    expect(crossSite.body.error.code).toBe("FORBIDDEN");
+  });
+
+  it("PUT turns alerts on for the caller only, and the test route answers 409 until they are on", async () => {
+    const { put } = await turnOnFor("alice");
+    expect(put.body.settings.state).toBe("PENDING_CONFIRM");
+    expect(typeof put.body.jobId).toBe("string");
+    expect((await call("notifications", "GET", { as: "bob" })).body.settings.state).toBe("OFF");
+
+    const early = await call("ntest", "POST", { body: {} });
+    expect(early.status).toBe(409);
+    expect(early.body.error.message).toBe("Turn on email alerts first.");
+  });
+
+  it("the confirm link works end to end and a second use is harmless", async () => {
+    const { token } = await turnOnFor("alice");
+    const view = await call("nlink", "GET", {
+      as: null,
+      query: `?purpose=confirm&token=${token}`,
+    });
+    expect(view.status).toBe(200);
+    expect(view.body.link).toEqual({
+      purpose: "confirm",
+      maskedEmail: "a***@example.com",
+      alreadyDone: false,
+    });
+    expect((await call("notifications", "GET")).body.settings.state).toBe("PENDING_CONFIRM");
+
+    const first = await call("nconfirm", "POST", { as: null, body: { token }, headers: origin });
+    expect(first).toMatchObject({ status: 200, body: { state: "ON" } });
+    const second = await call("nconfirm", "POST", { as: null, body: { token }, headers: origin });
+    expect(second).toMatchObject({ status: 200, body: { state: "ON" } });
+
+    const test = await call("ntest", "POST", { body: {} });
+    expect(test.status).toBe(202);
+    const again = await call("ntest", "POST", { body: {} });
+    expect(again.status).toBe(429);
+  });
+
+  it("the confirm and unsubscribe routes only change state on POST", async () => {
+    const { token } = await turnOnFor("alice");
+    expect(handlers.nconfirm?.GET).toBeUndefined();
+    expect(handlers.nunsub?.GET).toBeUndefined();
+    expect(handlers.noneclick?.GET).toBeUndefined();
+    await call("nlink", "GET", { as: null, query: `?purpose=confirm&token=${token}` });
+    expect((await call("notifications", "GET")).body.settings.state).toBe("PENDING_CONFIRM");
+  });
+
+  it("a confirm token for alice cannot be used to turn on bob, even with bob's cookie", async () => {
+    const alice = await turnOnFor("alice");
+    await turnOnFor("bob");
+    const res = await call("nconfirm", "POST", {
+      as: "bob",
+      body: { token: alice.token },
+      headers: origin,
+    });
+    expect(res.status).toBe(200);
+    expect((await call("notifications", "GET", { as: "alice" })).body.settings.state).toBe("ON");
+    expect((await call("notifications", "GET", { as: "bob" })).body.settings.state).toBe(
+      "PENDING_CONFIRM",
+    );
+  });
+
+  it("bad tokens all get the same 400 INVALID_LINK answer", async () => {
+    const { token } = await turnOnFor("alice");
+    const flipped = token.slice(0, -2) + (token.endsWith("AA") ? "BB" : "AA");
+    for (const bad of [flipped, "short", "has spaces in it and is long enough", 5]) {
+      const res = await call("nconfirm", "POST", {
+        as: null,
+        body: { token: bad },
+        headers: origin,
+      });
+      expect(res.status).toBe(400);
+      expect(res.body.error).toEqual({
+        code: "INVALID_LINK",
+        message: "This link has expired. Turn on alerts again in Settings > Notifications.",
+      });
+    }
+    const unsub = await call("nunsub", "POST", {
+      as: null,
+      body: { token: flipped },
+      headers: origin,
+    });
+    expect(unsub.status).toBe(400);
+    expect(unsub.body.error.code).toBe("INVALID_LINK");
+    const link = await call("nlink", "GET", {
+      as: null,
+      query: `?purpose=unsubscribe&token=${flipped}`,
+    });
+    expect(link.status).toBe(400);
+    expect(link.body.error.code).toBe("INVALID_LINK");
+  });
+
+  it("the token routes refuse a cross-site browser request", async () => {
+    const { token } = await turnOnFor("alice");
+    const res = await call("nconfirm", "POST", {
+      as: null,
+      body: { token },
+      headers: { origin: "https://evil.example" },
+    });
+    expect(res.status).toBe(403);
+    expect((await call("notifications", "GET")).body.settings.state).toBe("PENDING_CONFIRM");
+  });
+
+  describe("one-click unsubscribe (RFC 8058)", () => {
+    const form = "application/x-www-form-urlencoded";
+
+    async function alertsOnWithUnsubscribeToken() {
+      const { token, userId } = await turnOnFor("alice");
+      await call("nconfirm", "POST", { as: null, body: { token }, headers: origin });
+      const pref = await prisma.notificationPref.findUniqueOrThrow({ where: { userId } });
+      return pref.unsubscribeToken;
+    }
+
+    it("turns alerts off from a form post with no cookie and no Origin check", async () => {
+      const token = await alertsOnWithUnsubscribeToken();
+      const res = await call("noneclick", "POST", {
+        as: null,
+        query: `?token=${token}`,
+        raw: { body: "List-Unsubscribe=One-Click", type: form },
+        headers: { origin: "https://mail-provider.example" },
+      });
+      expect(res.status).toBe(200);
+      expect(res.body).toBeNull();
+      expect((await call("notifications", "GET")).body.settings.state).toBe("OFF");
+    });
+
+    it("accepts only the form body and nothing else", async () => {
+      const token = await alertsOnWithUnsubscribeToken();
+      const query = `?token=${token}`;
+      const json = await call("noneclick", "POST", { as: null, query, body: { token } });
+      expect(json.status).toBe(415);
+      const wrong = await call("noneclick", "POST", {
+        as: null,
+        query,
+        raw: { body: "List-Unsubscribe=Nope", type: form },
+      });
+      expect(wrong.status).toBe(400);
+      const big = await call("noneclick", "POST", {
+        as: null,
+        query,
+        raw: { body: "List-Unsubscribe=One-Click&" + "a=b&".repeat(400), type: form },
+      });
+      expect(big.status).toBe(413);
+      expect((await call("notifications", "GET")).body.settings.state).toBe("ON");
+    });
+
+    it("refuses a bad token, and a confirm token, with INVALID_LINK", async () => {
+      const { token: confirm } = await turnOnFor("bob");
+      for (const token of ["short", confirm]) {
+        const res = await call("noneclick", "POST", {
+          as: null,
+          query: `?token=${token}`,
+          raw: { body: "List-Unsubscribe=One-Click", type: form },
+        });
+        expect(res.status).toBe(400);
+        expect(res.body.error.code).toBe("INVALID_LINK");
+      }
+      const missing = await call("noneclick", "POST", {
+        as: null,
+        raw: { body: "List-Unsubscribe=One-Click", type: form },
+      });
+      expect(missing.status).toBe(400);
+    });
+
+    it("only changes the person the token belongs to", async () => {
+      const token = await alertsOnWithUnsubscribeToken();
+      const { token: bobToken } = await turnOnFor("bob");
+      await call("nconfirm", "POST", { as: null, body: { token: bobToken }, headers: origin });
+      await call("noneclick", "POST", {
+        as: null,
+        query: `?token=${token}`,
+        raw: { body: "List-Unsubscribe=One-Click", type: form },
+      });
+      expect((await call("notifications", "GET", { as: "bob" })).body.settings.state).toBe("ON");
+    });
   });
 });

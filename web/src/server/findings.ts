@@ -20,6 +20,13 @@ export async function updateFinding(
     });
     if (!owned) throw notFound("That finding");
 
+    // A finding the person has seen and ignored is never mailed, not even after a reopen (N-D11).
+    if (input.state === "IGNORED") {
+      await tx.finding.updateMany({
+        where: { id: owned.id, notifiedAt: null },
+        data: { notifiedAt: new Date() },
+      });
+    }
     const data =
       input.state === "IGNORED"
         ? { state: "IGNORED" as const, ignoredReason: input.reason, ignoredAt: new Date() }

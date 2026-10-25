@@ -3,14 +3,16 @@
 
 use std::time::Duration;
 
-use chrono::{DateTime, Local, Utc};
+use std::str::FromStr;
+
+use chrono::{DateTime, Local, Timelike, Utc};
 use croner::Cron;
 use serde_json::json;
 use sqlx::PgPool;
 use tokio::sync::watch;
 use tracing::{error, info};
 
-use crate::contract::JobType;
+use crate::contract::{JobType, DIGEST_HOUR};
 use crate::queue;
 
 /// The longest single sleep, so a clock change or suspend is noticed within a minute.
@@ -91,6 +93,20 @@ pub async fn bootstrap(pool: &PgPool, trivy_db_present: bool) -> Result<(), sqlx
     Ok(())
 }
 
+/// Sleeps in steps of at most a minute until `next`. Returns false when shutdown came first.
+async fn wait_until(next: DateTime<Local>, shutdown: &mut watch::Receiver<bool>) -> bool {
+    loop {
+        let remaining = (next - Local::now()).to_std().unwrap_or(Duration::ZERO);
+        if remaining.is_zero() {
+            return true;
+        }
+        tokio::select! {
+            _ = shutdown.changed() => return false,
+            () = tokio::time::sleep(remaining.min(MAX_SLEEP)) => {}
+        }
+    }
+}
+
 pub async fn run(pool: PgPool, cron: Cron, mut shutdown: watch::Receiver<bool>) {
     loop {
         let Some(next) = next_run(&cron, Local::now()) else {
@@ -101,20 +117,57 @@ pub async fn run(pool: PgPool, cron: Cron, mut shutdown: watch::Receiver<bool>) 
             error!(error = %err, "could not save the next rescan time");
         }
         info!(next = %next, "next rescan");
-        loop {
-            let remaining = (next - Local::now()).to_std().unwrap_or(Duration::ZERO);
-            if remaining.is_zero() {
-                break;
-            }
-            tokio::select! {
-                _ = shutdown.changed() => return,
-                () = tokio::time::sleep(remaining.min(MAX_SLEEP)) => {}
-            }
+        if !wait_until(next, &mut shutdown).await {
+            return;
         }
         match queue_rescan(&pool).await {
             Ok(Some(id)) => info!(job_id = %id, "nightly rescan queued"),
             Ok(None) => info!("a rescan is already waiting or running"),
             Err(err) => error!(error = %err, "could not queue the nightly rescan"),
+        }
+    }
+}
+
+/// Every day at `DIGEST_HOUR` in the container's time zone.
+pub fn digest_cron() -> Option<Cron> {
+    Cron::from_str(&format!("0 {DIGEST_HOUR} * * *")).ok()
+}
+
+/// True when the worker starts after the summary hour. The per-person `last_digest_at` check
+/// makes a second summary the same day impossible, so no "last run" is stored.
+pub fn digest_catch_up_due(now: DateTime<Local>) -> bool {
+    now.hour() >= DIGEST_HOUR
+}
+
+async fn queue_digest(pool: &PgPool) -> Result<Option<String>, sqlx::Error> {
+    queue::enqueue_unless_active(pool, JobType::SendDigest, json!({}), 0, None).await
+}
+
+/// Only started while e-mail is on.
+pub async fn run_digest(pool: PgPool, mut shutdown: watch::Receiver<bool>) {
+    let Some(cron) = digest_cron() else {
+        error!("the daily summary schedule is invalid, it will not run");
+        return;
+    };
+    if digest_catch_up_due(Local::now()) {
+        match queue_digest(&pool).await {
+            Ok(_) => info!("daily summary checked at start"),
+            Err(err) => error!(error = %err, "could not queue the daily summary"),
+        }
+    }
+    loop {
+        let Some(next) = next_run(&cron, Local::now()) else {
+            error!("the daily summary has no next time, it stopped");
+            return;
+        };
+        info!(next = %next, "next daily summary");
+        if !wait_until(next, &mut shutdown).await {
+            return;
+        }
+        match queue_digest(&pool).await {
+            Ok(Some(id)) => info!(job_id = %id, "daily summary queued"),
+            Ok(None) => info!("a daily summary is already waiting or running"),
+            Err(err) => error!(error = %err, "could not queue the daily summary"),
         }
     }
 }
@@ -188,6 +241,21 @@ mod tests {
     #[test]
     fn catch_up_runs_when_a_rescan_never_happened() {
         assert!(catch_up_due(None, true, utc(12, 0)));
+    }
+
+    #[test]
+    fn the_digest_schedule_is_seven_every_day() {
+        let cron = digest_cron().unwrap();
+        let next = cron.find_next_occurrence(&utc(8, 0), false).unwrap();
+        assert_eq!(next, Utc.with_ymd_and_hms(2026, 10, 25, 7, 0, 0).unwrap());
+    }
+
+    #[test]
+    fn the_digest_catches_up_only_after_the_summary_hour() {
+        let early = Local.with_ymd_and_hms(2026, 10, 25, 6, 59, 0).unwrap();
+        let late = Local.with_ymd_and_hms(2026, 10, 25, 7, 0, 0).unwrap();
+        assert!(!digest_catch_up_due(early));
+        assert!(digest_catch_up_due(late));
     }
 
     #[test]

@@ -2,6 +2,8 @@
 //! server that plays NVD / CISA, and a ready-made worker `Context`.
 #![allow(dead_code, clippy::unwrap_used, clippy::expect_used)]
 
+pub mod smtp_sink;
+
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
@@ -334,6 +336,7 @@ pub fn context(db: &TestDb, setup: &Setup) -> Context {
         config,
         nvd,
         http: reqwest::Client::new(),
+        mailer: None,
         instance_id: "test-instance".to_string(),
     }
 }

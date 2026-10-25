@@ -52,6 +52,20 @@ async fn housekeeping(pool: &PgPool) -> Result<(), sqlx::Error> {
     .bind(KEEP_DAYS)
     .execute(pool)
     .await?;
+    delete_old_notifications(pool).await?;
+    Ok(())
+}
+
+/// Deleted by id; findings that pointed at a deleted row keep `notified_at` (the FK clears the link).
+async fn delete_old_notifications(pool: &PgPool) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        "DELETE FROM notification WHERE id IN (
+           SELECT id FROM notification
+           WHERE status <> 'QUEUED' AND created_at < now() - make_interval(days => $1))",
+    )
+    .bind(KEEP_DAYS)
+    .execute(pool)
+    .await?;
     Ok(())
 }
 

@@ -19,19 +19,24 @@ pub async fn beat(
     pool: &PgPool,
     config: &Config,
     started_at: DateTime<Utc>,
+    smtp_on: bool,
 ) -> Result<(), sqlx::Error> {
     // next_rescan_at belongs to the scheduler; this upsert leaves it alone.
     sqlx::query(
-        "INSERT INTO worker_status (id, started_at, heartbeat_at, version, rescan_cron, nvd_api_key_set)
-         VALUES (1, $1, now(), $2, $3, $4)
+        "INSERT INTO worker_status
+           (id, started_at, heartbeat_at, version, rescan_cron, nvd_api_key_set, smtp_configured, time_zone)
+         VALUES (1, $1, now(), $2, $3, $4, $5, $6)
          ON CONFLICT (id) DO UPDATE SET
            started_at = EXCLUDED.started_at, heartbeat_at = now(), version = EXCLUDED.version,
-           rescan_cron = EXCLUDED.rescan_cron, nvd_api_key_set = EXCLUDED.nvd_api_key_set",
+           rescan_cron = EXCLUDED.rescan_cron, nvd_api_key_set = EXCLUDED.nvd_api_key_set,
+           smtp_configured = EXCLUDED.smtp_configured, time_zone = EXCLUDED.time_zone",
     )
     .bind(started_at)
     .bind(env!("CARGO_PKG_VERSION"))
     .bind(&config.rescan_cron)
     .bind(config.nvd_api_key.is_some())
+    .bind(smtp_on)
+    .bind(&config.time_zone)
     .execute(pool)
     .await?;
     Ok(())
@@ -62,12 +67,13 @@ pub async fn reap(pool: &PgPool, instance_id: &str, startup: bool) -> Result<usi
 pub async fn run(
     pool: PgPool,
     config: Config,
+    smtp_on: bool,
     instance_id: String,
     started_at: DateTime<Utc>,
     mut shutdown: watch::Receiver<bool>,
 ) {
     loop {
-        if let Err(err) = beat(&pool, &config, started_at).await {
+        if let Err(err) = beat(&pool, &config, started_at, smtp_on).await {
             error!(error = %err, "heartbeat failed");
         }
         if let Err(err) = reap(&pool, &instance_id, false).await {

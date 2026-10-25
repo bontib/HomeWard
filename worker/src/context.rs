@@ -1,10 +1,11 @@
-//! Everything a job needs, built once in `main` and shared by both lanes.
+//! Everything a job needs, built once in `main` and shared by all lanes.
 
 use std::time::Duration;
 
 use sqlx::PgPool;
 
 use crate::config::Config;
+use crate::mailer::Mailer;
 use crate::nvd::NvdClient;
 use crate::trivy::Trivy;
 
@@ -14,6 +15,8 @@ pub struct Context {
     pub nvd: NvdClient,
     pub trivy: Trivy,
     pub http: reqwest::Client,
+    /// `None` means e-mail is off (no valid SMTP settings).
+    pub mailer: Option<Mailer>,
     /// Marks the jobs this process runs (`job.locked_by`).
     pub instance_id: String,
 }

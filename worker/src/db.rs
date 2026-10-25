@@ -24,6 +24,8 @@ const REQUIRED_TABLES: &[&str] = &[
     "kev_entry",
     "data_source",
     "worker_status",
+    "notification",
+    "notification_pref",
 ];
 
 #[derive(Debug, Error)]

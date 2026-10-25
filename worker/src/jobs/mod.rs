@@ -6,4 +6,6 @@ pub mod import_kev;
 pub mod recompute_status;
 pub mod rescan_all;
 pub mod search_products;
+pub mod send_digest;
+pub mod send_email;
 pub mod update_trivy_db;

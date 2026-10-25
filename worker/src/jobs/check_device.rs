@@ -16,6 +16,7 @@ use crate::contract::{
 };
 use crate::cpe::Cpe;
 use crate::error::JobError;
+use crate::notify;
 use crate::products;
 use crate::queue::{self, ClaimedJob};
 use crate::sbom_import;
@@ -91,7 +92,7 @@ pub async fn run(ctx: &Context, job: &ClaimedJob, payload: &DevicePayload) -> Re
         .collect();
     outcomes.extend(check_sbom(ctx, device_id, &sbom_components).await?);
 
-    write_results(&ctx.pool, job, device_id, outcomes).await
+    write_results(&ctx.pool, job, device_id, outcomes, ctx.mailer.is_some()).await
 }
 
 async fn device_exists(pool: &PgPool, device_id: &str) -> Result<bool, sqlx::Error> {
@@ -272,6 +273,7 @@ async fn write_results(
     job: &ClaimedJob,
     device_id: &str,
     outcomes: Vec<Outcome>,
+    smtp_on: bool,
 ) -> Result<(), JobError> {
     let mut tx = pool.begin().await?;
     let locked: Option<String> =
@@ -309,6 +311,7 @@ async fn write_results(
     .await?;
 
     let summary = status::recompute_device(&mut tx, device_id).await?;
+    notify::queue_instant(&mut tx, device_id, smtp_on).await?;
     finish_device(&mut tx, device_id, &job.id).await?;
     tx.commit().await?;
     info!(status = ?summary.status, findings = summary.open_finding_count, "device checked");

@@ -42,6 +42,11 @@ export function assertSameSite(req: Request, allowed: string[]): void {
 const forbidden = () =>
   new AppError("FORBIDDEN", "This request came from another site. Open HomeGuard directly.");
 
+/** For the token routes that have no session but still change state: same Origin rule, no cookie. */
+export function withSameSite(req: Request): void {
+  assertSameSite(req, allowedOrigins(getEnv()));
+}
+
 export async function withSession(req: Request): Promise<SessionInfo> {
   assertSameSite(req, allowedOrigins(getEnv()));
   const session = await getSessionInfo(req.headers);

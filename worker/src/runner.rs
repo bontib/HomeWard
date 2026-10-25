@@ -1,6 +1,8 @@
-//! The job loop: two lanes, each running one job at a time (architecture section 4.3).
+//! The job loop: three lanes, each running one job at a time (architecture section 4.3).
 //! Fast lane: product search, status recompute. Slow lane: checks, rescans, data updates.
-//! A long check never blocks a product search, and only one Trivy runs at a time.
+//! Mail lane: SEND_EMAIL and SEND_DIGEST (ADR 0007).
+//! A long check never blocks a product search, a slow mail server blocks neither, and only
+//! one Trivy runs at a time.
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -221,17 +223,15 @@ async fn execute(ctx: &Context, job: &ClaimedJob) -> Result<(), JobError> {
             if !job_guard::check_device_job(&ctx.pool, job, &p.device_id).await? {
                 return Ok(());
             }
-            jobs::recompute_status::run(&ctx.pool, &p).await
+            jobs::recompute_status::run(&ctx.pool, &p, ctx.mailer.is_some()).await
         }
         JobPayload::SearchProducts(p) => jobs::search_products::run(ctx, &p).await,
         JobPayload::RescanAll(p) => jobs::rescan_all::run(ctx, &p).await,
         JobPayload::UpdateTrivyDb => jobs::update_trivy_db::run(ctx).await,
         JobPayload::ImportKev => jobs::import_kev::run(ctx).await,
         JobPayload::DevNoop(p) => jobs::dev_noop::run(&p).await,
-        // The mail lane is not started yet (PR-N4); these arms keep the match complete.
-        JobPayload::SendEmail(_) | JobPayload::SendDigest => Err(JobError::Internal(
-            "e-mail jobs are not implemented yet".into(),
-        )),
+        JobPayload::SendEmail(p) => jobs::send_email::run(ctx, job, &p).await,
+        JobPayload::SendDigest => jobs::send_digest::run(ctx).await,
     }
 }
 

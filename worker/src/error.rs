@@ -16,6 +16,10 @@ pub enum JobError {
     SbomInvalid(String),
     #[error("the KEV list is unavailable: {0}")]
     KevUnavailable(String),
+    #[error("the mail could not be sent: {0}")]
+    SmtpFailed(String),
+    #[error("e-mail is not set up on this worker")]
+    SmtpNotConfigured,
     #[error("the job took too long")]
     Timeout,
     #[error("{0}")]
@@ -34,6 +38,8 @@ impl JobError {
             Self::TrivyDbMissing => JobErrorCode::TrivyDbMissing,
             Self::SbomInvalid(_) => JobErrorCode::SbomInvalid,
             Self::KevUnavailable(_) => JobErrorCode::KevUnavailable,
+            Self::SmtpFailed(_) => JobErrorCode::SmtpFailed,
+            Self::SmtpNotConfigured => JobErrorCode::SmtpNotConfigured,
             Self::Timeout => JobErrorCode::Timeout,
             Self::BadPayload(_) => JobErrorCode::BadPayload,
             Self::Database(_) | Self::Internal(_) => JobErrorCode::Internal,
@@ -55,6 +61,18 @@ mod tests {
         assert_eq!(
             JobError::Internal("x".into()).code(),
             JobErrorCode::Internal
+        );
+    }
+
+    #[test]
+    fn mail_errors_map_to_their_codes() {
+        assert_eq!(
+            JobError::SmtpFailed("x".into()).code(),
+            JobErrorCode::SmtpFailed
+        );
+        assert_eq!(
+            JobError::SmtpNotConfigured.code(),
+            JobErrorCode::SmtpNotConfigured
         );
     }
 

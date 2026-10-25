@@ -605,3 +605,25 @@ Deviations (also to be noted in plan section 9 when this merges):
 Open points, decided in PR-N1:
 - The time zone is shown. The worker writes `worker_status.time_zone` (its `TZ`) with the heartbeat (PR-N2). `NotificationSettings` has `digestHour` (7, from `DIGEST_HOUR`; `contracts/notifications.json` keeps web and worker equal) and `timeZone` (null until the worker has run). Settings reads "7 am (server time, Europe/Amsterdam)".
 - The confirm baseline marks every existing finding of every level (section 6.4), as written. A Low finding that KEV later makes Critical is not mailed.
+
+## 15. Deviations made while building PR-N2 to PR-N8 (backend)
+
+Nothing here changes a contract in sections 3 and 7.
+
+Worker:
+1. `Mailer` is a small struct (private `Transport` enum `{ Smtp, Stub }`, the `From` mailbox and the send limit), not a bare enum. `Mailer::stub(from, transport)` is for tests and `Mailer::smtp_with_limit` lets a test prove the outer timeout in 400 ms instead of 20 s. The outer `tokio::time::timeout` wraps the whole send, as in 4.4.
+2. `SmtpSettings` (in `mailer.rs`) also holds the validated `app_url`; there is no separate `Config.app_url`. `Config` gets `smtp: Result<SmtpSettings, SmtpOff>` and `time_zone` (from `TZ`, default `UTC`). `SmtpOff` is a message newtype; "SMTP_HOST is not set" logs at info, every other reason at warn.
+3. `heartbeat::beat` and `heartbeat::run` take `smtp_on: bool` (true when a mailer was built) and write `smtp_configured` and `time_zone`.
+4. `notify.rs` also exports `user_candidates` (digest) and `DIGEST_PRIORITY`. `queue_instant` returns `Option<notification id>`.
+5. `SEND_EMAIL` checks that `job.user_id` equals the notification's user and fails with `BAD_PAYLOAD` otherwise (V1 lesson). The mail's unsubscribe token is read from the pref row in the same query as the address.
+6. The digest task (`scheduler::run_digest`) and its catch-up at start run only when a mailer exists at start. Turning SMTP on needs a worker restart, which compose does anyway when the environment changes.
+7. lettre sends a body as quoted-printable when a line is longer than 76 characters, which the long token links always are. Mail programs decode it; the tests decode it too. The mail text itself is unchanged.
+8. The loopback SMTP sink is `worker/tests/common/smtp_sink.rs` (next to the other test helpers); the mail tests are `worker/tests/mail.rs`. Unit tests for `mail_text`, `mailer` settings and the stub transport sit in their modules.
+9. `worker/src/db.rs` lists `notification` and `notification_pref` as required tables, so a worker that starts before the web migrations fails with the usual plain message.
+
+Web:
+10. The 10-minute (confirm) and 5-minute (test) limits take `SELECT … FOR UPDATE` on the pref row inside the transaction and then check the time, instead of a guarded `UPDATE … WHERE`. The effect is the same and two parallel calls give one success (tested). Because the confirm limit is on the pref row, switching OFF and ON again inside 10 minutes also answers 429.
+11. A genuine but expired confirm link is accepted as "already on" when the person is already ON (a late second click). Every other failure is `INVALID_LINK`.
+12. `GET /api/notifications/link`: an unknown `purpose` is `VALIDATION_FAILED`; a bad or missing token is `INVALID_LINK` with that purpose's text.
+13. Token route helpers are in `src/server/notification-http.ts` (`parseTokenBody`, `readOneClickRequest`); the one-click body is read with the existing `readBodyCapped` (1 KB). `http.ts` only gained `withSameSite` (the Origin rule for routes without a session).
+14. `src/test/db-client.ts` lists the two new tables in `resetTables`.

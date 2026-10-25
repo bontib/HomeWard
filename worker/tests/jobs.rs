@@ -811,16 +811,23 @@ async fn the_heartbeat_makes_the_worker_look_alive_and_keeps_the_next_rescan_tim
     let ctx = context(&db, &Setup::new(&nvd.url, cache.path()));
     assert!(!heartbeat::is_alive(&db.pool, 90).await.unwrap());
 
-    heartbeat::beat(&db.pool, &ctx.config, chrono::Utc::now())
+    heartbeat::beat(&db.pool, &ctx.config, chrono::Utc::now(), false)
         .await
         .unwrap();
     sqlx::query("UPDATE worker_status SET next_rescan_at = now() + interval '5 hours'")
         .execute(&db.pool)
         .await
         .unwrap();
-    heartbeat::beat(&db.pool, &ctx.config, chrono::Utc::now())
+    heartbeat::beat(&db.pool, &ctx.config, chrono::Utc::now(), true)
         .await
         .unwrap();
+    let (smtp, zone): (bool, Option<String>) =
+        sqlx::query_as("SELECT smtp_configured, time_zone FROM worker_status")
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
+    assert!(smtp);
+    assert_eq!(zone.as_deref(), Some("UTC"));
 
     assert!(heartbeat::is_alive(&db.pool, 90).await.unwrap());
     let kept: bool = db

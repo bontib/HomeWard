@@ -23,7 +23,10 @@ export function Banner({
         className,
       )}
     >
-      <Icon name="info" className={variant === "critical" ? "text-critical" : "text-brand"} />
+      <Icon
+        name={variant === "critical" ? "critical" : "info"}
+        className={variant === "critical" ? "text-critical" : "text-brand"}
+      />
       <div className="min-w-0 flex-1 basis-60">
         {title ? <p className="t-heading">{title}</p> : null}
         {children ? <div className="t-body">{children}</div> : null}

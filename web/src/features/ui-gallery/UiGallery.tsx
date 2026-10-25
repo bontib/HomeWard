@@ -161,7 +161,9 @@ export function UiGallery() {
         </Banner>
         <div className="flex gap-2">
           <Pill>Pill</Pill>
-          <Pill brand>Brand pill</Pill>
+          <Pill tone="brand" icon={<Icon name="bell" />}>
+            On
+          </Pill>
         </div>
         <Steps
           steps={[
