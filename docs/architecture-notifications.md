@@ -383,7 +383,7 @@ All inside `src/server/notifications.ts`. Prisma `updateMany` with the same `whe
 ### 6.1 Who signs
 
 The web app signs and checks every token. The worker never gets `BETTER_AUTH_SECRET` and gets no second shared secret either. It reads finished tokens from two columns:
-- `notification_pref.unsubscribe_token`: written by web when the pref row is created, and re-minted on every turn-on and confirm. Every mail kind uses it.
+- `notification_pref.unsubscribe_token`: written by web when the pref row is created, and re-minted on every turn-on and confirm. It carries a per-user nonce (`unsubscribe_nonce`), rotated at the same moments, so an older unsubscribe link stops working. Every mail kind uses it. The confirm mail's own unsubscribe link stops working once the person confirms (accepted: the person just turned alerts on, and every later mail carries the new link).
 - `notification.link_token`: the confirm token, written by web on the CONFIRM row. The worker clears it when the row becomes SENT, FAILED or CANCELLED, so it exists in the database only while the mail is on its way.
 
 Rejected options: (a) giving the worker `BETTER_AUTH_SECRET`, which would let a worker bug forge sessions; (b) a new `NOTIFY_TOKEN_SECRET` in both services, which is one more secret to set and to leak, for no gain. Storing a signed token does not make it weaker. Anyone who can read the database can already change the pref row directly.
@@ -459,6 +459,13 @@ export const NotificationLinkQuerySchema = NotificationTokenSchema.extend({
 
 UI states come from the data: "Can't send" = `state === "ON" && !smtpConfigured`; "Not set up" = `!smtpConfigured && state !== "ON"`. The UI owns the text for every `lastError` code; all codes show the same N-D17 sentence.
 
+### 7.1a Shipped hardening (migration `0003_notification_hardening`)
+
+- `notification_pref.confirm_send_count` counts confirm mails since alerts were last turned off and on; the cap is 3 per account, reset by turning alerts off. `notification_pref.unsubscribe_nonce` holds the nonce of the current unsubscribe token.
+- Table `confirm_send` (`email`, `created_at`) logs each confirm mail. Caps: 3 per address per 24 h and 20 per hour for the whole instance, counted under an advisory lock so parallel requests cannot slip past. Rows older than 2 days are deleted.
+- JSON bodies on these routes are capped at 8 KB (`readBodyCapped`, depth cap as before); the one-click route stays at 1 KB.
+- UI: in the "Waiting for you" state the card always shows "Turn off email alerts" (calls `PUT enabled:false`), so a person who hit the account cap can follow the advice in the error text. The error is shown with `ErrorText` (icon and words).
+
 ### 7.2 Routes
 
 Signed-in routes use the V1 handler shape (`withSession` → Zod → `src/server/notifications.ts` → JSON). Token routes do not use a session.
@@ -466,7 +473,7 @@ Signed-in routes use the V1 handler shape (`withSession` → Zod → `src/server
 | Method, path | Auth | Request | 2xx | Errors (code: message) |
 |---|---|---|---|---|
 | `GET /api/notifications` | session | none | `200 { settings: NotificationSettings }` | 401 |
-| `PUT /api/notifications/email` | session, JSON, Origin | `SetEmailAlertsSchema` | `200 { settings, jobId: string \| null }`. `true`: OFF or PENDING → PENDING_CONFIRM, a new nonce (older links die), the queued CONFIRM rows cancelled, a new CONFIRM row + SEND_EMAIL; `jobId` is that job. ON → no change, `jobId` null. `false`: OFF, nonce null, queued rows cancelled, `jobId` null. | 400 `VALIDATION_FAILED`; 401; 403 `FORBIDDEN`; 409 `CONFLICT`: "Email alerts aren't set up on this HomeGuard yet." (only for `true`; nothing changes); 429 `RATE_LIMITED`: "Wait a few minutes before asking for another link." |
+| `PUT /api/notifications/email` | session, JSON, Origin | `SetEmailAlertsSchema` | `200 { settings, jobId: string \| null }`. `true`: OFF or PENDING → PENDING_CONFIRM, a new nonce (older links die), the queued CONFIRM rows cancelled, a new CONFIRM row + SEND_EMAIL; `jobId` is that job. ON → no change, `jobId` null. `false`: OFF, nonce null, queued rows cancelled, `jobId` null. | 400 `VALIDATION_FAILED`; 401; 403 `FORBIDDEN`; 409 `CONFLICT`: "Email alerts aren't set up on this HomeGuard yet." (only for `true`; nothing changes); 429 `RATE_LIMITED`: "Wait a few minutes before asking for another link." (10 min between links), "We already sent several confirmation emails. Turn email alerts off and on again to start over." (3 per account, see 7.3), or "We can't send another confirmation email right now. Try again later." (address or instance cap) |
 | `POST /api/notifications/test` | session, JSON, Origin | `{}` | `202 { settings, jobId }` | 401; 403; 409 `CONFLICT`: "Email alerts aren't set up on this HomeGuard yet." or "Turn on email alerts first."; 429: "Wait a few minutes before sending another test email." |
 | `GET /api/notifications/link?purpose=&token=` | none | `NotificationLinkQuerySchema` | `200 { link: NotificationLinkView }`. Reads only. | 400 `INVALID_LINK` with the route's text |
 | `POST /api/notifications/confirm` | none; JSON, Origin | `NotificationTokenSchema` | `200 { state: "ON" }` | 400 `INVALID_LINK`: "This link has expired. Turn on alerts again in Settings > Notifications."; 403; 409 `CONFLICT`: "Email alerts aren't set up on this HomeGuard yet." |

@@ -70,7 +70,7 @@ describe("EmailAlertsCard", () => {
     expect(screen.getByText("Sending a link to you@example.com...")).toBeInTheDocument();
   });
 
-  it("waits for the person: resend counts down, cancel turns it off", async () => {
+  it("waits for the person: resend counts down, turn off is always there", async () => {
     const { onSetEnabled } = setup(waitingForYou);
     expect(screen.getByText("Waiting for you")).toBeInTheDocument();
     expect(screen.getByText(/We sent a link to you@example.com/)).toBeInTheDocument();
@@ -78,7 +78,19 @@ describe("EmailAlertsCard", () => {
     expect(screen.getByRole("button", { name: "Send the link again" })).toBeDisabled();
     expect(screen.getByText("You can ask again in 8 minutes.")).toBeInTheDocument();
     expect(screen.getByText(/spam folder/)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await userEvent.click(screen.getByRole("button", { name: "Turn off email alerts" }));
+    expect(onSetEnabled).toHaveBeenCalledWith(false);
+  });
+
+  it("shows the confirm-mail cap as error text and keeps a way to turn alerts off", async () => {
+    const text =
+      "We already sent several confirmation emails. Turn email alerts off and on again to start over.";
+    const { onSetEnabled } = setup(
+      { ...waitingForYou, confirmResendAt: "2026-10-25T11:50:00.000Z" },
+      { note: { kind: "error", text } },
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(text);
+    await userEvent.click(screen.getByRole("button", { name: "Turn off email alerts" }));
     expect(onSetEnabled).toHaveBeenCalledWith(false);
   });
 

@@ -174,7 +174,7 @@ export function EmailAlertsCard({
               Send the link again
             </Button>
             <Button variant="quiet" onClick={() => onSetEnabled(false)}>
-              Cancel
+              Turn off email alerts
             </Button>
           </div>
           {wait ? (
