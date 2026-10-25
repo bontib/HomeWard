@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { AppError, notFound } from "./errors";
-import { allowedOrigins, assertSameSite, parseJsonBody, parseQuery, route } from "./http";
+import {
+  allowedOrigins,
+  assertSameSite,
+  exceedsJsonDepth,
+  parseJsonBody,
+  parseQuery,
+  route,
+} from "./http";
 
 const jsonType = { "content-type": "application/json" };
 const ctx = { params: Promise.resolve({}) };
@@ -94,6 +101,54 @@ describe("JSON content type", () => {
       body: '{"name":"a"}',
     });
     await expect(parseJsonBody(req, schema)).resolves.toEqual({ name: "a" });
+  });
+});
+
+describe("JSON body limits", () => {
+  const schema = z.object({}).passthrough();
+  const post = (body: string, headers: Record<string, string> = jsonType) =>
+    new Request("http://x", { method: "POST", headers, body });
+
+  it("refuses an oversized body with 413, also when Content-Length is missing", async () => {
+    const big = JSON.stringify({ pad: "a".repeat(20_000) });
+    await expect(parseJsonBody(post(big), schema)).rejects.toMatchObject({
+      code: "PAYLOAD_TOO_LARGE",
+    });
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(big));
+        controller.close();
+      },
+    });
+    const noLength = new Request("http://x", {
+      method: "POST",
+      headers: jsonType,
+      body: stream,
+      duplex: "half",
+    } as RequestInit);
+    await expect(parseJsonBody(noLength, schema)).rejects.toMatchObject({
+      code: "PAYLOAD_TOO_LARGE",
+    });
+  });
+
+  it("uses the limit the caller passes", async () => {
+    const body = JSON.stringify({ pad: "a".repeat(2000) });
+    await expect(parseJsonBody(post(body), schema, { maxBytes: 1024 })).rejects.toMatchObject({
+      code: "PAYLOAD_TOO_LARGE",
+    });
+    await expect(parseJsonBody(post(body), schema)).resolves.toBeTruthy();
+  });
+
+  it("refuses deeply nested JSON", async () => {
+    const deep = "[".repeat(500) + "]".repeat(500);
+    await expect(parseJsonBody(post(deep), z.unknown())).rejects.toMatchObject({
+      code: "VALIDATION_FAILED",
+    });
+  });
+
+  it("counts depth without recursion", () => {
+    expect(exceedsJsonDepth({ a: { b: { c: 1 } } }, 3)).toBe(false);
+    expect(exceedsJsonDepth({ a: { b: { c: {} } } }, 3)).toBe(true);
   });
 });
 

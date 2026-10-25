@@ -12,6 +12,7 @@ import { signToken, verifyToken } from "./notification-tokens";
 import {
   confirmEmailAlerts,
   getLinkView,
+  CONFIRM_MAILS_PER_HOUR,
   getNotificationSettings,
   NOT_SET_UP,
   sendTestEmail,
@@ -81,7 +82,11 @@ async function confirmToken(userId: string): Promise<string> {
   return row.linkToken as string;
 }
 
-const unsubscribeToken = (userId: string) => signToken("unsubscribe", userId);
+/** The link in the person's newest mail: the token on the pref row, or a bare one before alerts were ever on. */
+async function unsubscribeToken(userId: string): Promise<string> {
+  const pref = await prisma.notificationPref.findUnique({ where: { userId } });
+  return pref?.unsubscribeToken ?? signToken("unsubscribe", userId);
+}
 
 describe("getNotificationSettings", () => {
   it("shows OFF with the person's own address when nothing was ever set", async () => {
@@ -347,7 +352,7 @@ describe("confirmEmailAlerts", () => {
 
   it("refuses an unsubscribe token used as a confirm token", async () => {
     await setEmailAlerts("alice", true, NOW);
-    await expect(confirmEmailAlerts(unsubscribeToken("alice"), NOW)).rejects.toMatchObject({
+    await expect(confirmEmailAlerts(await unsubscribeToken("alice"), NOW)).rejects.toMatchObject({
       code: "INVALID_LINK",
     });
   });
@@ -388,7 +393,7 @@ describe("unsubscribeEmailAlerts", () => {
     await turnOn("alice");
     await prisma.notification.create({ data: { userId: "alice", kind: "INSTANT" } });
 
-    expect(await unsubscribeEmailAlerts(unsubscribeToken("alice"), minutesLater(5))).toEqual({
+    expect(await unsubscribeEmailAlerts(await unsubscribeToken("alice"), minutesLater(5))).toEqual({
       state: "OFF",
     });
 
@@ -406,13 +411,15 @@ describe("unsubscribeEmailAlerts", () => {
   });
 
   it("is harmless when alerts were never on", async () => {
-    expect(await unsubscribeEmailAlerts(unsubscribeToken("alice"), NOW)).toEqual({ state: "OFF" });
+    expect(await unsubscribeEmailAlerts(await unsubscribeToken("alice"), NOW)).toEqual({
+      state: "OFF",
+    });
   });
 
   it("never touches another person", async () => {
     await turnOn("alice");
     await turnOn("bob");
-    await unsubscribeEmailAlerts(unsubscribeToken("alice"), NOW);
+    await unsubscribeEmailAlerts(await unsubscribeToken("alice"), NOW);
     expect((await getNotificationSettings("bob", NOW)).state).toBe("ON");
   });
 
@@ -421,7 +428,7 @@ describe("unsubscribeEmailAlerts", () => {
     await setEmailAlerts("alice", true, minutesLater(20));
     const confirm = await confirmToken("alice").catch(() => "");
     const forged = signToken("unsubscribe", "alice", { secret: "x".repeat(40) });
-    for (const token of [confirm || unsubscribeToken("alice").replace(/.$/, "A"), forged]) {
+    for (const token of [confirm || (await unsubscribeToken("alice")).replace(/.$/, "A"), forged]) {
       await expect(unsubscribeEmailAlerts(token, NOW)).rejects.toMatchObject({
         code: "INVALID_LINK",
         message: "This link doesn't work. You can turn alerts off in Settings > Notifications.",
@@ -454,13 +461,13 @@ describe("getLinkView", () => {
     const old = signToken("confirm", "alice", { nonce: "gone", expiresAt: minutesLater(60) });
     expect(confirm.kind).toBe("CONFIRM");
     expect((await getLinkView("confirm", old, NOW)).alreadyDone).toBe(true);
-    expect((await getLinkView("unsubscribe", unsubscribeToken("alice"), NOW)).alreadyDone).toBe(
-      false,
-    );
-    await unsubscribeEmailAlerts(unsubscribeToken("alice"), NOW);
-    expect((await getLinkView("unsubscribe", unsubscribeToken("alice"), NOW)).alreadyDone).toBe(
-      true,
-    );
+    expect(
+      (await getLinkView("unsubscribe", await unsubscribeToken("alice"), NOW)).alreadyDone,
+    ).toBe(false);
+    await unsubscribeEmailAlerts(await unsubscribeToken("alice"), NOW);
+    expect(
+      (await getLinkView("unsubscribe", await unsubscribeToken("alice"), NOW)).alreadyDone,
+    ).toBe(true);
   });
 
   it("refuses a confirm link that was replaced, expired or made for the wrong purpose", async () => {
@@ -479,7 +486,7 @@ describe("getLinkView", () => {
   });
 
   it("refuses a link for a deleted person", async () => {
-    const token = unsubscribeToken("alice");
+    const token = await unsubscribeToken("alice");
     await prisma.user.delete({ where: { id: "alice" } });
     await expect(getLinkView("unsubscribe", token, NOW)).rejects.toMatchObject({
       code: "INVALID_LINK",
@@ -609,5 +616,126 @@ describe("ignoring a finding", () => {
     expect(
       (await prisma.finding.findUniqueOrThrow({ where: { id: finding.id } })).notifiedAt,
     ).toBeNull();
+  });
+});
+
+describe("confirm mail limits", () => {
+  const hoursLater = (h: number) => minutesLater(h * 60);
+
+  /** Asks for a new link every 11 minutes, which is what a person clicking "send again" does. */
+  async function askAgain(userId: string, times: number, start = NOW) {
+    for (let i = 0; i < times; i++)
+      await setEmailAlerts(
+        userId,
+        true,
+        minutesLater(11 * i + (start.getTime() - NOW.getTime()) / 60_000),
+      );
+  }
+
+  it("stops after 3 confirm mails for one account, with a message about turning off and on", async () => {
+    await askAgain("alice", 3);
+    await expect(setEmailAlerts("alice", true, minutesLater(40))).rejects.toMatchObject({
+      code: "RATE_LIMITED",
+      status: 429,
+      message: expect.stringContaining("off and on again"),
+    });
+    expect(await prisma.notification.count({ where: { userId: "alice", kind: "CONFIRM" } })).toBe(
+      3,
+    );
+  });
+
+  it("starts counting again after alerts are turned off and on, until the address limit", async () => {
+    await askAgain("alice", 3);
+    await setEmailAlerts("alice", false, minutesLater(40));
+    await expect(setEmailAlerts("alice", true, minutesLater(41))).rejects.toMatchObject({
+      code: "RATE_LIMITED",
+      message: expect.stringContaining("Try again later"),
+    });
+    const next = await setEmailAlerts("alice", true, hoursLater(25));
+    expect(next.jobId).not.toBeNull();
+    expect(
+      (await prisma.notificationPref.findUniqueOrThrow({ where: { userId: "alice" } }))
+        .confirmSendCount,
+    ).toBe(1);
+  });
+
+  it("limits confirm mails for one address even when the account is deleted and made again", async () => {
+    await askAgain("alice", 3);
+    await prisma.user.delete({ where: { id: "alice" } });
+    await insertUser(db, "alice");
+    await expect(setEmailAlerts("alice", true, minutesLater(60))).rejects.toMatchObject({
+      code: "RATE_LIMITED",
+    });
+  });
+
+  it("limits confirm mails for the whole instance per hour", async () => {
+    await prisma.confirmSend.createMany({
+      data: Array.from({ length: CONFIRM_MAILS_PER_HOUR }, (_, i) => ({
+        email: `stranger${i}@example.com`,
+        createdAt: minutesLater(-5),
+      })),
+    });
+    await expect(setEmailAlerts("alice", true, NOW)).rejects.toMatchObject({
+      code: "RATE_LIMITED",
+    });
+    expect(await prisma.notification.count()).toBe(0);
+    const later = await setEmailAlerts("alice", true, minutesLater(60));
+    expect(later.jobId).not.toBeNull();
+  });
+
+  it("forgets log rows older than two days", async () => {
+    await prisma.confirmSend.create({
+      data: { email: "old@example.com", createdAt: hoursLater(-49) },
+    });
+    await setEmailAlerts("alice", true, NOW);
+    expect(await prisma.confirmSend.count({ where: { email: "old@example.com" } })).toBe(0);
+  });
+});
+
+describe("unsubscribe link rotation", () => {
+  it("stops an older unsubscribe link when alerts are turned on again", async () => {
+    await turnOn("alice");
+    const first = await unsubscribeToken("alice");
+    await setEmailAlerts("alice", false, minutesLater(1));
+    await turnOn("alice", minutesLater(20));
+    const second = await unsubscribeToken("alice");
+    expect(second).not.toBe(first);
+
+    await expect(unsubscribeEmailAlerts(first, minutesLater(30))).rejects.toMatchObject({
+      code: "INVALID_LINK",
+    });
+    await expect(getLinkView("unsubscribe", first, minutesLater(30))).rejects.toMatchObject({
+      code: "INVALID_LINK",
+    });
+    expect((await getNotificationSettings("alice", minutesLater(30))).state).toBe("ON");
+    expect(await unsubscribeEmailAlerts(second, minutesLater(30))).toEqual({ state: "OFF" });
+  });
+
+  it("keeps the newest link working through the whole on period, for the page and one-click", async () => {
+    await turnOn("alice");
+    const token = await unsubscribeToken("alice");
+    expect((await getLinkView("unsubscribe", token, minutesLater(60 * 24 * 30))).alreadyDone).toBe(
+      false,
+    );
+    expect(await unsubscribeEmailAlerts(token, minutesLater(60 * 24 * 30))).toEqual({
+      state: "OFF",
+    });
+  });
+
+  it("rotates the link when the confirm link is opened", async () => {
+    await setEmailAlerts("alice", true, NOW);
+    const pending = await unsubscribeToken("alice");
+    await confirmEmailAlerts(await confirmToken("alice"), NOW);
+    expect(await unsubscribeToken("alice")).not.toBe(pending);
+    await expect(unsubscribeEmailAlerts(pending, NOW)).rejects.toMatchObject({
+      code: "INVALID_LINK",
+    });
+  });
+
+  it("still answers OFF for an old link once alerts are off", async () => {
+    await turnOn("alice");
+    const old = await unsubscribeToken("alice");
+    await setEmailAlerts("alice", false, minutesLater(1));
+    expect(await unsubscribeEmailAlerts(old, minutesLater(2))).toEqual({ state: "OFF" });
   });
 });

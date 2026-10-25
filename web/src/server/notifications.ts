@@ -28,10 +28,23 @@ const CONFIRM_LINK_HOURS = 48;
 const CONFIRM_RESEND_MINUTES = 10;
 const TEST_MINUTES = 5;
 const MINUTE_MS = 60_000;
+const HOUR_MS = 60 * MINUTE_MS;
+const DAY_MS = 24 * HOUR_MS;
+
+// Limits on confirm mails. Sign-up can be open and a stranger can type any address, so these
+// keep HomeGuard from being used to mail someone (or to get the SMTP account blocked).
+export const CONFIRM_MAILS_PER_ACCOUNT = 3; // until alerts are turned off and on again
+export const CONFIRM_MAILS_PER_ADDRESS_PER_DAY = 3;
+export const CONFIRM_MAILS_PER_HOUR = 20; // the whole instance
+const CONFIRM_LOG_KEEP_MS = 2 * DAY_MS;
+const CONFIRM_LOCK_KEY = 727_001; // pg_advisory_xact_lock key: counts and inserts must not interleave
 
 export const NOT_SET_UP = "Email alerts aren't set up on this HomeGuard yet.";
 const TURN_ON_FIRST = "Turn on email alerts first.";
 const WAIT_FOR_LINK = "Wait a few minutes before asking for another link.";
+const CONFIRM_ACCOUNT_LIMIT =
+  "We already sent several confirmation emails. Turn email alerts off and on again to start over.";
+const CONFIRM_BUSY = "We can't send another confirmation email right now. Try again later.";
 const WAIT_FOR_TEST = "Wait a few minutes before sending another test email.";
 
 const INVALID_TEXT: Record<TokenPurpose, string> = {
@@ -105,12 +118,50 @@ export async function getNotificationSettings(
 
 // ---------- Turning alerts on and off ----------
 
-/** One row per person, created on the first "turn on". The unsubscribe token never changes. */
+/**
+ * A new unsubscribe link for this person. The nonce is stored next to the token, so a link
+ * from an earlier "on" period stops working when a new one starts.
+ */
+function freshUnsubscribe(userId: string): { unsubscribeNonce: string; unsubscribeToken: string } {
+  const unsubscribeNonce = newNonce();
+  return {
+    unsubscribeNonce,
+    unsubscribeToken: signToken("unsubscribe", userId, { nonce: unsubscribeNonce }),
+  };
+}
+
+/** One row per person, created on the first "turn on". */
 async function ensurePref(tx: Tx, userId: string): Promise<void> {
   await tx.notificationPref.createMany({
-    data: [{ userId, unsubscribeToken: signToken("unsubscribe", userId) }],
+    data: [{ userId, ...freshUnsubscribe(userId) }],
     skipDuplicates: true,
   });
+}
+
+/** Account, address and instance limits for one more confirm mail. Throws when one is used up. */
+async function reserveConfirmMail(tx: Tx, userId: string, countSoFar: number, now: Date) {
+  if (countSoFar >= CONFIRM_MAILS_PER_ACCOUNT) {
+    throw new AppError("RATE_LIMITED", CONFIRM_ACCOUNT_LIMIT);
+  }
+  await tx.$executeRaw`SELECT pg_advisory_xact_lock(${CONFIRM_LOCK_KEY})`;
+  const { email } = await tx.user.findUniqueOrThrow({
+    where: { id: userId },
+    select: { email: true },
+  });
+  const address = email.toLowerCase();
+  await tx.confirmSend.deleteMany({
+    where: { createdAt: { lt: new Date(now.getTime() - CONFIRM_LOG_KEEP_MS) } },
+  });
+  const [forAddress, forInstance] = await Promise.all([
+    tx.confirmSend.count({
+      where: { email: address, createdAt: { gt: new Date(now.getTime() - DAY_MS) } },
+    }),
+    tx.confirmSend.count({ where: { createdAt: { gt: new Date(now.getTime() - HOUR_MS) } } }),
+  ]);
+  if (forAddress >= CONFIRM_MAILS_PER_ADDRESS_PER_DAY || forInstance >= CONFIRM_MAILS_PER_HOUR) {
+    throw new AppError("RATE_LIMITED", CONFIRM_BUSY);
+  }
+  await tx.confirmSend.create({ data: { email: address, createdAt: now } });
 }
 
 /** Two requests of the same person wait for each other here, so a rate limit cannot be raced. */
@@ -138,6 +189,9 @@ async function turnOn(userId: string, now: Date): Promise<string | null> {
     if (unlocksAt(pref.lastConfirmSentAt, CONFIRM_RESEND_MINUTES, now)) {
       throw new AppError("RATE_LIMITED", WAIT_FOR_LINK);
     }
+    // Turning alerts off and on again is the way to start counting from zero.
+    const sentSoFar = pref.emailState === "OFF" ? 0 : pref.confirmSendCount;
+    await reserveConfirmMail(tx, userId, sentSoFar, now);
 
     const nonce = newNonce();
     await tx.notificationPref.update({
@@ -146,7 +200,8 @@ async function turnOn(userId: string, now: Date): Promise<string | null> {
         emailState: "PENDING_CONFIRM",
         confirmNonce: nonce,
         lastConfirmSentAt: now,
-        unsubscribeToken: signToken("unsubscribe", userId),
+        confirmSendCount: sentSoFar + 1,
+        ...freshUnsubscribe(userId),
       },
     });
     // Older confirm mails that are still waiting would carry a dead link.
@@ -167,13 +222,15 @@ async function turnOn(userId: string, now: Date): Promise<string | null> {
   });
 }
 
-async function turnOff(userId: string): Promise<void> {
-  await getDb().$transaction(async (tx) => {
-    await tx.notificationPref.updateMany({
-      where: { userId },
+async function turnOff(userId: string, unsubscribeNonce?: string | null): Promise<boolean> {
+  return getDb().$transaction(async (tx) => {
+    const changed = await tx.notificationPref.updateMany({
+      // With a nonce this is an unsubscribe link: only the link of the current period counts.
+      where: { userId, ...(unsubscribeNonce !== undefined && { unsubscribeNonce }) },
       data: { emailState: "OFF", confirmNonce: null },
     });
-    await cancelQueuedMail(tx, userId);
+    if (changed.count > 0) await cancelQueuedMail(tx, userId);
+    return changed.count > 0;
   });
 }
 
@@ -247,7 +304,11 @@ export async function getLinkView(
     alreadyDone,
   });
 
-  if (purpose === "unsubscribe") return view(!pref || pref.emailState === "OFF");
+  if (purpose === "unsubscribe") {
+    if (!pref || pref.emailState === "OFF") return view(true);
+    if (pref.unsubscribeNonce !== verified.nonce) throw invalidLink("unsubscribe");
+    return view(false);
+  }
   if (pref?.emailState === "ON") return view(true);
   const expired = verified.expiresAt !== null && verified.expiresAt <= now;
   const current =
@@ -275,7 +336,7 @@ async function confirmInTransaction(userId: string, nonce: string, now: Date): P
           emailState: "ON",
           confirmedAt: now,
           confirmNonce: null,
-          unsubscribeToken: signToken("unsubscribe", userId),
+          ...freshUnsubscribe(userId),
         },
       });
       if (changed.count !== 1) throw new NotConfirmed();
@@ -320,6 +381,12 @@ export async function unsubscribeEmailAlerts(
 ): Promise<UnsubscribeEmailAlertsResponse> {
   const verified = verifyToken(token, "unsubscribe", { now });
   if (!verified) throw invalidLink("unsubscribe");
-  await turnOff(verified.userId);
+  if (await turnOff(verified.userId, verified.nonce)) return { state: "OFF" };
+  // Nothing changed: either alerts are already off (fine) or this is a link from an earlier period.
+  const pref = await getDb().notificationPref.findUnique({
+    where: { userId: verified.userId },
+    select: { emailState: true },
+  });
+  if (pref && pref.emailState !== "OFF") throw invalidLink("unsubscribe");
   return { state: "OFF" };
 }

@@ -99,13 +99,24 @@ fn footer(unsubscribe_url: &str) -> String {
 
 // ---------- Small text helpers ----------
 
-/// One line of plain text: control characters and line breaks become spaces.
+/// One line of plain text: control characters and line breaks become spaces. Invisible format
+/// characters (zero-width, bidi overrides) are dropped, so they cannot reorder or hide text.
 pub fn plain(text: &str) -> String {
     let spaced: String = text
         .chars()
+        .filter(|c| !is_format_char(*c))
         .map(|c| if c.is_control() { ' ' } else { c })
         .collect();
     spaced.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// Unicode category Cf. Rust's std has no check for it, so the ranges are listed here.
+fn is_format_char(c: char) -> bool {
+    matches!(c,
+        '\u{00AD}' | '\u{0600}'..='\u{0605}' | '\u{061C}' | '\u{06DD}' | '\u{070F}'
+        | '\u{180E}' | '\u{200B}'..='\u{200F}' | '\u{202A}'..='\u{202E}'
+        | '\u{2060}'..='\u{2064}' | '\u{2066}'..='\u{206F}' | '\u{FEFF}'
+        | '\u{FFF9}'..='\u{FFFB}' | '\u{E0001}' | '\u{E0020}'..='\u{E007F}')
 }
 
 /// A subject has no line breaks and at most 120 characters.
@@ -689,5 +700,18 @@ mod tests {
     #[test]
     fn plain_removes_control_characters() {
         assert_eq!(plain("a\u{0}b\tc\nd"), "a b c d");
+    }
+
+    #[test]
+    fn plain_drops_bidi_overrides_and_zero_width_characters() {
+        assert_eq!(
+            plain("pay\u{202E}lap\u{200B}yal\u{2066}x\u{FEFF}"),
+            "paylapyalx"
+        );
+    }
+
+    #[test]
+    fn plain_keeps_ordinary_non_ascii_text() {
+        assert_eq!(plain("Café 電視"), "Café 電視");
     }
 }

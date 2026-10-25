@@ -682,6 +682,31 @@ async fn a_mail_that_fails_for_good_gives_its_findings_back_and_a_rerun_changes_
 }
 
 #[tokio::test]
+async fn the_failure_hook_ignores_a_notification_of_another_user() {
+    let Some(db) = TestDb::new().await else {
+        return;
+    };
+    mail_user(&db, "u1", "ON").await;
+    mail_user(&db, "u2", "ON").await;
+    let (other_mail, _) = queue_notification(&db, "u2", "TEST", None).await;
+    // A job of u1 whose payload points at u2's mail.
+    let job = insert_send_job(&db, "u1", &other_mail).await;
+
+    worker::hooks::on_failed(
+        &db.pool,
+        &job,
+        JobType::SendEmail,
+        None,
+        JobErrorCode::SmtpFailed,
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(status_of(&db, &other_mail).await, "QUEUED");
+    db.drop_database().await;
+}
+
+#[tokio::test]
 async fn a_failed_attempt_with_tries_left_keeps_the_mail_queued() {
     let Some(db) = TestDb::new().await else {
         return;

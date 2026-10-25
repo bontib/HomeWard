@@ -18,7 +18,7 @@
     "db:dev": "node scripts/dev-db.mjs",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
-    "e2e": "playwright test"
+    "e2e": "playwright test && E2E_SMTP=off E2E_SKIP_BUILD=1 playwright test"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

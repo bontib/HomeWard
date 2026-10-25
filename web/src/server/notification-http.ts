@@ -10,6 +10,7 @@ import type { TokenPurpose } from "./notification-tokens";
 import { readBodyCapped } from "./upload";
 
 const ONE_CLICK_BODY_LIMIT_BYTES = 1024;
+const TOKEN_BODY_LIMIT_BYTES = 1024;
 const ONE_CLICK_BODY = "List-Unsubscribe=One-Click";
 
 export function parseToken(value: unknown, purpose: TokenPurpose): string {
@@ -19,7 +20,9 @@ export function parseToken(value: unknown, purpose: TokenPurpose): string {
 }
 
 export async function parseTokenBody(req: Request, purpose: TokenPurpose): Promise<string> {
-  const body = await parseJsonBody(req, z.record(z.string(), z.unknown()));
+  const body = await parseJsonBody(req, z.record(z.string(), z.unknown()), {
+    maxBytes: TOKEN_BODY_LIMIT_BYTES,
+  });
   return parseToken(body, purpose);
 }
 

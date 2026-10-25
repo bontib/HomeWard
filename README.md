@@ -99,9 +99,20 @@ already had when they turned alerts on. No email does not mean a device is safe.
 4. Every mail has an unsubscribe link, and mail programs show their own unsubscribe button.
 
 Port 465 uses TLS from the first byte, any other port needs STARTTLS. `SMTP_TLS=off` sends mail
-and the password unencrypted; use it only for a relay on your own network with no valid
-certificate. The links in mails use `BETTER_AUTH_URL`, so it must be an address your phone can
+unencrypted; use it only for a relay on your own network with no valid certificate. With
+`SMTP_USER` and `SMTP_PASSWORD` it is accepted only when `SMTP_HOST` is a loopback or private
+IP address (for example `192.168.1.5`); otherwise email alerts stay off and the worker log says why. The links in mails use `BETTER_AUTH_URL`, so it must be an address your phone can
 open. Without `SMTP_HOST` the app works as before and the switch in Settings is disabled.
+
+**Set `ALLOW_SIGNUP=false` once everyone has an account.** While sign-up is open and SMTP is
+configured, a stranger who can reach the app can create an account with any address and make
+HomeGuard send a confirmation mail to it. HomeGuard limits this (3 confirmation mails per
+account until alerts are turned off and on again, 3 per address per day, 20 per hour for the whole
+app), but closing sign-up removes the risk.
+
+The links in mails carry a signed token in the URL (`/notifications/confirm?token=...`). If you put a
+reverse proxy in front, its access log will contain those tokens. Keep that log private. A confirm
+link works once and expires after 48 hours; an unsubscribe link only turns alerts off.
 
 Changing `BETTER_AUTH_SECRET` signs everyone out and also stops the links in mails that were
 already sent. Settings > Notifications still works. If the worker is restarted after 7 am it may

@@ -509,12 +509,26 @@ model NotificationPref {
   unsubscribeToken  String          @map("unsubscribe_token") // signed by web, copied into every mail by the worker
   confirmedAt       DateTime?       @map("confirmed_at")
   lastConfirmSentAt DateTime?       @map("last_confirm_sent_at") // web clock, 10-minute limit
+  confirmSendCount  Int             @default(0) @map("confirm_send_count") // confirm mails since alerts were last turned off; capped
+  unsubscribeNonce  String?         @map("unsubscribe_nonce") // inside the unsubscribe token; rotated on turn-on and confirm
   lastTestAt        DateTime?       @map("last_test_at") // web clock, 5-minute limit
   lastInstantAt     DateTime?       @map("last_instant_at") // worker clock, one INSTANT per hour
   lastDigestAt      DateTime?       @map("last_digest_at") // worker clock, one DIGEST per local day
   createdAt         DateTime        @default(now()) @map("created_at")
 
   @@map("notification_pref")
+}
+
+// One row per CONFIRM mail the web app queued, kept for two days. Counts are per instance and
+// per address, so they survive an account being deleted and created again.
+model ConfirmSend {
+  id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  email     String // lower case
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email, createdAt])
+  @@index([createdAt])
+  @@map("confirm_send")
 }
 
 // One row per mail. The worker builds the text from current rows when it sends.

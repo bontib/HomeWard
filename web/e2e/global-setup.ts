@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import EmbeddedPostgres from "embedded-postgres";
-import { BASE_URL, DATABASE_URL, PORTS } from "./support/stack";
+import { BASE_URL, DATABASE_URL, PORTS, SMTP_OFF } from "./support/stack";
 
 const webDir = path.resolve(__dirname, "..");
 const NEXT_BIN = path.join(webDir, "node_modules/next/dist/bin/next");
@@ -49,7 +49,20 @@ function start(
   return child;
 }
 
+// The suite must never reach a real mail server (NE-1). The worker gets SMTP settings only
+// from here, so anything set in the shell is dropped.
+function refuseRealSmtpHost() {
+  const host = process.env.SMTP_HOST;
+  if (host && host !== "127.0.0.1") {
+    throw new Error(`SMTP_HOST is set to ${host}. The e2e run only sends mail to 127.0.0.1.`);
+  }
+  for (const key of Object.keys(process.env)) {
+    if (key.startsWith("SMTP_")) delete process.env[key];
+  }
+}
+
 export default async function globalSetup() {
+  refuseRealSmtpHost();
   const tmp = mkdtempSync(path.join(os.tmpdir(), "homeguard-e2e-"));
   const logDir = path.join(webDir, "test-results", "stack-logs");
   mkdirSync(logDir, { recursive: true });
@@ -91,6 +104,22 @@ export default async function globalSetup() {
       logDir,
     );
     children.push(nvd);
+
+    if (!SMTP_OFF) {
+      children.push(
+        start(
+          "mail-sink",
+          "node",
+          [path.join(__dirname, "support/mail-sink.mjs")],
+          webDir,
+          {
+            MAIL_SINK_SMTP_PORT: String(PORTS.smtp),
+            MAIL_SINK_HTTP_PORT: String(PORTS.sinkHttp),
+          },
+          logDir,
+        ),
+      );
+    }
 
     const webEnv = {
       ...dbEnv,
@@ -134,12 +163,22 @@ export default async function globalSetup() {
           TRIVY_PATH: fakeTrivy,
           TRIVY_CACHE_DIR: path.join(tmp, "trivy-cache"),
           RUST_LOG: "info",
+          APP_URL: BASE_URL,
+          ...(SMTP_OFF
+            ? {}
+            : {
+                SMTP_HOST: "127.0.0.1",
+                SMTP_PORT: String(PORTS.smtp),
+                SMTP_FROM: "HomeGuard <homeguard@example.test>",
+                SMTP_TLS: "off",
+              }),
         },
         logDir,
       ),
     );
 
     await waitFor(`${BASE_URL}/api/health`, "web");
+    if (!SMTP_OFF) await waitFor(`http://127.0.0.1:${PORTS.sinkHttp}/messages`, "mail sink");
     return teardown;
   } catch (err) {
     await teardown();

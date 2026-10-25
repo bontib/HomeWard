@@ -6,6 +6,7 @@ import type { ApiError } from "@/lib/contracts";
 import { getSessionInfo, type SessionInfo } from "@/lib/auth";
 import { getEnv } from "@/lib/env";
 import { AppError } from "./errors";
+import { readBodyCapped } from "./upload";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 
@@ -75,17 +76,46 @@ export function parseWith<T>(schema: ZodType<T>, value: unknown): T {
   return result.data;
 }
 
-export async function parseJsonBody<T>(req: Request, schema: ZodType<T>): Promise<T> {
-  const type = req.headers.get("content-type") ?? "";
-  if (!type.toLowerCase().startsWith("application/json")) {
-    throw new AppError("VALIDATION_FAILED", "The request body must be JSON.");
+const DEFAULT_JSON_BODY_BYTES = 8 * 1024;
+const MAX_JSON_DEPTH = 8;
+
+const notJson = () => new AppError("VALIDATION_FAILED", "The request body must be JSON.");
+
+/** Nesting depth of a parsed JSON value, counted without recursion. Stops once past the limit. */
+export function exceedsJsonDepth(value: unknown, maxDepth: number): boolean {
+  const stack: Array<{ node: unknown; depth: number }> = [{ node: value, depth: 1 }];
+  while (stack.length > 0) {
+    const { node, depth } = stack.pop()!;
+    if (typeof node !== "object" || node === null) continue;
+    if (depth > maxDepth) return true;
+    for (const child of Object.values(node)) stack.push({ node: child, depth: depth + 1 });
   }
+  return false;
+}
+
+/**
+ * Reads at most `maxBytes` of a JSON body (a few KB by default) and refuses deep nesting.
+ * Token routes have no session, so they pass a smaller limit.
+ */
+export async function parseJsonBody<T>(
+  req: Request,
+  schema: ZodType<T>,
+  options: { maxBytes?: number } = {},
+): Promise<T> {
+  const type = req.headers.get("content-type") ?? "";
+  if (!type.toLowerCase().startsWith("application/json") || !req.body) throw notJson();
+  const bytes = await readBodyCapped(
+    req,
+    options.maxBytes ?? DEFAULT_JSON_BODY_BYTES,
+    () => new AppError("PAYLOAD_TOO_LARGE", "The request body is too large."),
+  );
   let body: unknown;
   try {
-    body = await req.json();
+    body = JSON.parse(new TextDecoder().decode(bytes));
   } catch {
-    throw new AppError("VALIDATION_FAILED", "The request body must be JSON.");
+    throw notJson();
   }
+  if (exceedsJsonDepth(body, MAX_JSON_DEPTH)) throw notJson();
   return parseWith(schema, body);
 }
 

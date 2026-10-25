@@ -7,6 +7,7 @@ const TABLES = [
   "job",
   "notification",
   "notification_pref",
+  "confirm_send",
   "finding",
   "version_change",
   "sbom",

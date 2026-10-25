@@ -2,6 +2,7 @@
 //! Nothing here logs an address, a subject, a body, a token or the password.
 
 use std::fmt;
+use std::net::IpAddr;
 use std::time::Duration;
 
 use lettre::message::header::{ContentType, Header, HeaderName, HeaderValue};
@@ -127,6 +128,12 @@ impl SmtpSettings {
             Some("off") => TlsMode::Off,
             Some(_) => return off("SMTP_TLS must be on or off."),
         };
+        if tls == TlsMode::Off && login.is_some() && !is_local_address(&host) {
+            return off(
+                "SMTP_USER and SMTP_PASSWORD need encryption. SMTP_TLS=off with a login is only \
+                 allowed when SMTP_HOST is a loopback or private IP address.",
+            );
+        }
         let Some(app_url) = value("APP_URL").and_then(|u| clean_app_url(&u)) else {
             return off("APP_URL must be an http or https address.");
         };
@@ -148,6 +155,18 @@ impl SmtpSettings {
             self.port,
             self.tls.describe()
         )
+    }
+}
+
+/// A password sent without TLS must at least stay on the home network. Only IP addresses
+/// count: a host name could point anywhere.
+fn is_local_address(host: &str) -> bool {
+    let Ok(ip) = host.trim_matches(['[', ']']).parse::<IpAddr>() else {
+        return false;
+    };
+    match ip {
+        IpAddr::V4(v4) => v4.is_loopback() || v4.is_private() || v4.is_link_local(),
+        IpAddr::V6(v6) => v6.is_loopback() || v6.is_unique_local() || v6.is_unicast_link_local(),
     }
 }
 
@@ -425,6 +444,48 @@ mod tests {
     fn smtp_tls_off_turns_encryption_off() {
         assert_eq!(with(&[("SMTP_TLS", "off")]).unwrap().tls, TlsMode::Off);
         assert_eq!(with(&[("SMTP_TLS", "ON")]).unwrap().tls, TlsMode::StartTls);
+    }
+
+    #[test]
+    fn a_login_without_encryption_is_refused_for_a_public_host() {
+        let login = [
+            ("SMTP_USER", "me"),
+            ("SMTP_PASSWORD", "pw"),
+            ("SMTP_TLS", "off"),
+        ];
+        for host in ["mail.example.com", "8.8.8.8", "localhost"] {
+            let mut pairs = login.to_vec();
+            pairs.push(("SMTP_HOST", host));
+            let text = off_text(with(Box::leak(pairs.into_boxed_slice())));
+            assert!(text.contains("SMTP_TLS=off"), "{host}: {text}");
+        }
+    }
+
+    #[test]
+    fn a_login_without_encryption_is_allowed_for_loopback_and_private_ips() {
+        let login = [
+            ("SMTP_USER", "me"),
+            ("SMTP_PASSWORD", "pw"),
+            ("SMTP_TLS", "off"),
+        ];
+        for host in [
+            "127.0.0.1",
+            "192.168.1.5",
+            "10.0.0.2",
+            "172.16.0.9",
+            "::1",
+            "fd00::5",
+        ] {
+            let mut pairs = login.to_vec();
+            pairs.push(("SMTP_HOST", host));
+            let settings = with(Box::leak(pairs.into_boxed_slice())).unwrap();
+            assert!(settings.login.is_some(), "{host}");
+        }
+    }
+
+    #[test]
+    fn no_login_without_encryption_is_allowed_for_any_host() {
+        assert_eq!(with(&[("SMTP_TLS", "off")]).unwrap().tls, TlsMode::Off);
     }
 
     #[test]

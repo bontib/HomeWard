@@ -47,6 +47,7 @@ pub async fn on_failed(
 
 /// A mail that failed for good no longer counts as "told": its findings become new again,
 /// so the next daily summary picks them up (N-D12). Running it twice changes nothing.
+/// The mail must belong to the user the job was made for; the payload alone is not trusted.
 async fn release_findings_of_failed_mail(
     pool: &PgPool,
     job_id: &str,
@@ -56,6 +57,7 @@ async fn release_findings_of_failed_mail(
         "WITH n AS (
            UPDATE notification SET status = 'FAILED', error_code = $2, link_token = NULL
            WHERE id = (SELECT payload->>'notificationId' FROM job WHERE id = $1)
+             AND user_id = (SELECT user_id FROM job WHERE id = $1)
              AND status = 'QUEUED'
            RETURNING id)
          UPDATE finding SET notified_at = NULL, notification_id = NULL
